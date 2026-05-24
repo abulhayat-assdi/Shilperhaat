@@ -1,0 +1,330 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Package, Check, ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
+import { useCart } from "@/lib/cart-context";
+import { useToast } from "@/lib/toast-context";
+import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
+import { formatPriceEn, generateOrderNumber, getImageUrl } from "@/lib/utils";
+
+export default function CheckoutPageClient() {
+  const { items, subtotal, deliveryCharge, total, clearCart } = useCart();
+  const { toast } = useToast();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CheckoutInput>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(checkoutSchema) as any,
+  });
+
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+        <div className="text-6xl mb-4">🛒</div>
+        <h2 className="text-xl font-bold text-[#1a1208] mb-2">কার্ট ফাঁকা</h2>
+        <p className="text-[#7a6045] text-sm mb-6">
+          চেকআউট করতে হলে আগে পণ্য কার্টে যোগ করুন।
+        </p>
+        <Link
+          href="/shop"
+          className="bg-[#c8860a] text-white px-6 py-3 rounded-full font-semibold"
+        >
+          পণ্য কিনুন
+        </Link>
+      </div>
+    );
+  }
+
+  const onSubmit = async (data: CheckoutInput) => {
+    setIsSubmitting(true);
+    try {
+      // Build order payload
+      const orderNumber = generateOrderNumber();
+      const orderItems = items.map((item) => ({
+        productId: item.productId,
+        productTitle: item.title,
+        productImage: item.image,
+        price: item.price,
+        quantity: item.quantity,
+        lineTotal: item.price * item.quantity,
+      }));
+
+      const payload = {
+        orderNumber,
+        customerName: data.customerName,
+        phone: data.phone,
+        address: data.address,
+        notes: data.notes,
+        subtotal,
+        deliveryCharge,
+        total,
+        paymentMethod: "COD",
+        items: orderItems,
+      };
+
+      // Submit to server action / API
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("অর্ডার সম্পন্ন হয়নি");
+      }
+
+      const result = await response.json();
+
+      // Save order to localStorage for thank you page
+      try {
+        localStorage.setItem("sh_last_order", JSON.stringify({
+          ...payload,
+          id: result.orderId || "temp-" + Date.now(),
+        }));
+      } catch {}
+
+      clearCart();
+      toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে! 🎉");
+      router.push(`/thank-you?order=${orderNumber}`);
+    } catch (error) {
+      console.error("Order error:", error);
+      toast.error("অর্ডার দেওয়ার সময় একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <Link href="/cart" className="text-[#7a6045] hover:text-[#c8860a]">
+          <ArrowLeft size={20} />
+        </Link>
+        <h1 className="text-2xl font-bold text-[#1a1208]">চেকআউট</h1>
+      </div>
+
+      {/* Progress */}
+      <div className="flex items-center gap-2 mb-8 text-sm">
+        <span className="flex items-center gap-1 text-[#c8860a] font-semibold">
+          <Check size={14} /> কার্ট
+        </span>
+        <div className="h-px flex-1 bg-[#c8860a]" />
+        <span className="flex items-center gap-1 text-[#c8860a] font-semibold">
+          ঠিকানা
+        </span>
+        <div className="h-px flex-1 bg-[#e0d0b0]" />
+        <span className="text-[#7a6045]">নিশ্চিতকরণ</span>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Delivery form */}
+          <div className="flex-1 space-y-5">
+            <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm">
+              <h2 className="font-bold text-[#1a1208] mb-4 flex items-center gap-2">
+                <Package size={18} className="text-[#c8860a]" />
+                ডেলিভারির তথ্য
+              </h2>
+
+              <div className="space-y-4">
+                {/* Name */}
+                <div>
+                  <label className="block text-sm font-medium text-[#4a2c0a] mb-1.5">
+                    নাম <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("customerName")}
+                    type="text"
+                    placeholder="আপনার নাম লিখুন"
+                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition-colors text-[#1a1208] placeholder:text-[#aaa] ${
+                      errors.customerName
+                        ? "border-red-400 focus:border-red-500"
+                        : "border-[#e0d0b0] focus:border-[#c8860a]"
+                    }`}
+                  />
+                  {errors.customerName && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.customerName.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className="block text-sm font-medium text-[#4a2c0a] mb-1.5">
+                    ফোন নম্বর <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("phone")}
+                    type="tel"
+                    placeholder="০১৭XXXXXXXX"
+                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition-colors text-[#1a1208] placeholder:text-[#aaa] ${
+                      errors.phone
+                        ? "border-red-400 focus:border-red-500"
+                        : "border-[#e0d0b0] focus:border-[#c8860a]"
+                    }`}
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.phone.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="block text-sm font-medium text-[#4a2c0a] mb-1.5">
+                    ঠিকানা <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    {...register("address")}
+                    rows={3}
+                    placeholder="বাড়ি নং, রাস্তা, এলাকা, জেলা"
+                    className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition-colors resize-none text-[#1a1208] placeholder:text-[#aaa] ${
+                      errors.address
+                        ? "border-red-400 focus:border-red-500"
+                        : "border-[#e0d0b0] focus:border-[#c8860a]"
+                    }`}
+                  />
+                  {errors.address && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.address.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-[#4a2c0a] mb-1.5">
+                    বিশেষ নির্দেশনা (ঐচ্ছিক)
+                  </label>
+                  <textarea
+                    {...register("notes")}
+                    rows={2}
+                    placeholder="কোনো বিশেষ নির্দেশনা থাকলে লিখুন..."
+                    className="w-full border border-[#e0d0b0] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#c8860a] resize-none text-[#1a1208] placeholder:text-[#aaa]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Payment method */}
+            <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm">
+              <h2 className="font-bold text-[#1a1208] mb-4">পেমেন্ট পদ্ধতি</h2>
+              <label className="flex items-center gap-3 p-3 rounded-xl border-2 border-[#c8860a] bg-[#fdf8f3] cursor-pointer">
+                <div className="w-5 h-5 rounded-full border-2 border-[#c8860a] flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#c8860a]" />
+                </div>
+                <div>
+                  <p className="font-semibold text-[#1a1208] text-sm">
+                    ক্যাশ অন ডেলিভারি
+                  </p>
+                  <p className="text-xs text-[#7a6045]">
+                    পণ্য হাতে পেলে পেমেন্ট করুন
+                  </p>
+                </div>
+                <span className="ml-auto text-2xl">💵</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Order summary */}
+          <div className="lg:w-80">
+            <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm sticky top-24">
+              <h2 className="font-bold text-[#1a1208] mb-4">অর্ডার বিবরণ</h2>
+
+              {/* Items */}
+              <div className="space-y-3 mb-4">
+                {items.map((item) => (
+                  <div key={item.productId} className="flex items-center gap-3">
+                    <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-[#f0e8d8] flex-shrink-0">
+                      <Image
+                        src={getImageUrl(item.image)}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                        }}
+                      />
+                      <span className="absolute -top-1 -right-1 bg-[#c8860a] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                        {item.quantity}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-[#1a1208] line-clamp-2">
+                        {item.title}
+                      </p>
+                      <p className="text-sm font-bold text-[#c8860a] mt-0.5">
+                        {formatPriceEn(item.price * item.quantity)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Totals */}
+              <div className="border-t border-[#f0e8d8] pt-3 space-y-2 text-sm">
+                <div className="flex justify-between text-[#4a2c0a]">
+                  <span>পণ্য মূল্য</span>
+                  <span>{formatPriceEn(subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-[#4a2c0a]">
+                  <span>ডেলিভারি</span>
+                  <span>
+                    {deliveryCharge === 0 ? (
+                      <span className="text-green-600 font-semibold">বিনামূল্যে</span>
+                    ) : (
+                      formatPriceEn(deliveryCharge)
+                    )}
+                  </span>
+                </div>
+                <div className="flex justify-between font-bold text-base text-[#1a1208] pt-2 border-t border-[#f0e8d8]">
+                  <span>মোট মূল্য</span>
+                  <span className="text-[#c8860a]">{formatPriceEn(total)}</span>
+                </div>
+              </div>
+
+              {/* Submit button */}
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isSubmitting}
+                className="mt-5 w-full flex items-center justify-center gap-2 bg-[#c8860a] hover:bg-[#a06c07] disabled:opacity-70 text-white font-bold py-4 rounded-xl transition-colors"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    অর্ডার হচ্ছে...
+                  </>
+                ) : (
+                  <>
+                    অর্ডার নিশ্চিত করুন
+                    <Check size={18} />
+                  </>
+                )}
+              </motion.button>
+
+              <p className="text-xs text-center text-[#7a6045] mt-3">
+                পণ্য পেলে পেমেন্ট করুন। আর কোনো চার্জ নেই।
+              </p>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
