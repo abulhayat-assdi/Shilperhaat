@@ -10,9 +10,12 @@ export default function PublicLayout({
 }) {
   return (
     <Providers>
-      <div className="flex flex-col min-h-screen bg-[#fdf8f3]">
+      <div className="flex flex-col min-h-screen" style={{ backgroundColor: "#FBF9F5" }}>
         <Header />
-        <main className="flex-1 pb-16 md:pb-0">{children}</main>
+        {/* pb-16 on mobile for bottom nav */}
+        <main className="flex-1 pb-16 md:pb-0" style={{ backgroundColor: "#FBF9F5" }}>
+          {children}
+        </main>
         <Footer />
         <BottomNav />
       </div>

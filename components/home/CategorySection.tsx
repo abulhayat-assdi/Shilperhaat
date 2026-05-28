@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import type { Category, Product } from "@/types";
 import ProductCard from "@/components/ui/ProductCard";
 
@@ -7,48 +8,83 @@ interface CategorySectionProps {
   products: Product[];
 }
 
-export default function CategorySection({
-  category,
-  products,
-}: CategorySectionProps) {
+export default function CategorySection({ category, products }: CategorySectionProps) {
   const display = products.slice(0, 4);
-
   if (display.length === 0) return null;
 
   return (
-    <section className="py-8 md:py-10 px-4 max-w-7xl mx-auto">
-      {/* Section heading */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold text-[#1a1208]">
-            {category.name}
-          </h2>
-          <div className="h-0.5 w-16 bg-[#c8860a] rounded mt-1.5" />
+    <section style={{ padding: "40px 0", backgroundColor: "#FBF9F5" }}>
+      <div className="max-w-7xl mx-auto px-4 md:px-5">
+
+        {/* Section header */}
+        <div className="flex items-end justify-between" style={{ marginBottom: "24px" }}>
+          <div className="relative" style={{ paddingBottom: "10px" }}>
+            <h2
+              style={{
+                fontSize: "22px",
+                fontWeight: 600,
+                color: "#222831",
+                fontFamily: "'Open Sans', sans-serif",
+              }}
+            >
+              {category.name}
+            </h2>
+            <span
+              className="absolute bottom-0 left-0"
+              style={{ width: "48px", height: "3px", backgroundColor: "#F48721", borderRadius: "2px" }}
+            />
+          </div>
+          <Link
+            href={`/shop?category=${category.slug}`}
+            className="flex items-center gap-1 transition-all duration-200 hover:gap-2"
+            style={{
+              color: "#F48721",
+              fontSize: "13px",
+              fontWeight: 600,
+              textDecoration: "none",
+              fontFamily: "'Open Sans', sans-serif",
+            }}
+          >
+            View All <ArrowRight size={14} />
+          </Link>
         </div>
-        <Link
-          href={`/shop?category=${category.slug}`}
-          className="flex items-center gap-1.5 text-[#c8860a] hover:text-[#a06c07] font-semibold text-sm transition-colors"
-        >
-          সব দেখুন
-          <span aria-hidden>→</span>
-        </Link>
-      </div>
 
-      {/* Products grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {display.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-
-      {/* See all button */}
-      <div className="mt-6">
-        <Link
-          href={`/shop?category=${category.slug}`}
-          className="block w-full text-center border border-[#e0d0b0] text-[#7a6045] hover:border-[#c8860a] hover:text-[#c8860a] py-3 rounded-xl font-medium text-sm transition-colors md:w-auto md:inline-block md:px-12"
+        {/* Mobile: 2-column grid — uses className for display so md:hidden can override */}
+        <div
+          className="grid md:hidden"
+          style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px" }}
         >
-          {category.name}-এর সকল পণ্য দেখুন
-        </Link>
+          {display.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+
+        {/* Desktop: fixed 4-column grid */}
+        <div
+          className="hidden md:grid"
+          style={{ gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "16px" }}
+        >
+          {display.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+
+        {/* See all button — pill/rounded-full style */}
+        <div className="flex justify-center" style={{ marginTop: "28px" }}>
+          <Link
+            href={`/shop?category=${category.slug}`}
+            className="inline-block border-2 border-[#F48721] text-[#F48721] hover:bg-[#F48721] hover:text-white transition-colors rounded-full"
+            style={{
+              padding: "10px 36px",
+              fontSize: "13px",
+              fontWeight: 600,
+              textDecoration: "none",
+              fontFamily: "'Open Sans', sans-serif",
+            }}
+          >
+            View All {category.name} Products
+          </Link>
+        </div>
       </div>
     </section>
   );

@@ -194,7 +194,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                     <input
                       value={formData.role || ""}
                       onChange={(e) => setFormData((f) => ({ ...f, role: e.target.value }))}
-                      placeholder="ঢাকা, বাংলাদেশ"
+                      placeholder="Dhaka, Bangladesh"
                       className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
                     />
                   </div>

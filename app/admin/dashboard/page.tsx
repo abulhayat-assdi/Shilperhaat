@@ -161,7 +161,7 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4">
+    <div className="bg-white rounded-2xl border border-gray-200 p-4 flex flex-col items-center text-center">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${color}`}>
         <Icon size={20} />
       </div>

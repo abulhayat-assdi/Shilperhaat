@@ -79,7 +79,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
               {logoUrl ? (
                 <Image src={getImageUrl(logoUrl)} alt="Logo" width={96} height={96} className="object-contain" />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-lg">শি</div>
+                <div className="w-12 h-12 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-lg">S</div>
               )}
             </div>
             <div>
@@ -109,7 +109,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Footer Copyright Text</label>
             <input
               {...register("footerCopyright")}
-              placeholder="© 2024 শিল্পেরহাট। সর্বস্বত্ব সংরক্ষিত।"
+              placeholder="© 2024 Shilperhaat. All rights reserved."
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
             />
           </div>

@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
-import { motion, useMotionValue, useTransform, useAnimation } from "framer-motion";
+import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Review } from "@/types";
-import SectionHeader from "@/components/ui/SectionHeader";
 import { getImageUrl } from "@/lib/utils";
 
 interface ReviewCarouselProps {
@@ -14,203 +12,246 @@ interface ReviewCarouselProps {
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-0.5">
+    <div style={{ display: "flex", gap: 2 }}>
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
           size={14}
-          className={i < rating ? "text-[#c8860a] fill-[#c8860a]" : "text-gray-300"}
+          style={i < rating ? { color: "#F48721", fill: "#F48721" } : { color: "#D1D5DB" }}
         />
       ))}
     </div>
   );
 }
 
+function ReviewCard({ review }: { review: Review }) {
+  return (
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        borderRadius: 12,
+        padding: 20,
+        border: "1px solid #EEEEEE",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+      }}
+    >
+      <Quote size={26} style={{ color: "#F48721", opacity: 0.55, marginBottom: 12 }} />
+      <StarRating rating={review.rating} />
+      {review.title && (
+        <h4
+          style={{
+            fontSize: 14, fontWeight: 700, color: "#222831",
+            margin: "10px 0 6px",
+            fontFamily: "'Open Sans', sans-serif",
+          }}
+        >
+          {review.title}
+        </h4>
+      )}
+      <p
+        style={{
+          fontSize: 13, color: "#666666", lineHeight: 1.7,
+          flex: 1, marginBottom: 16,
+          fontFamily: "'Open Sans', sans-serif",
+          overflow: "hidden",
+          display: "-webkit-box",
+          WebkitBoxOrient: "vertical",
+          WebkitLineClamp: 4,
+        } as React.CSSProperties}
+      >
+        {review.content}
+      </p>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 14, borderTop: "1px solid #F5F5F5" }}>
+        {review.avatarUrl ? (
+          <Image
+            src={getImageUrl(review.avatarUrl)}
+            alt={review.name}
+            width={40} height={40}
+            style={{ borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+          />
+        ) : (
+          <div
+            style={{
+              width: 38, height: 38, borderRadius: "50%",
+              backgroundColor: "#F48721",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "white", fontWeight: 700, fontSize: 16,
+              flexShrink: 0,
+            }}
+          >
+            {review.name.charAt(0)}
+          </div>
+        )}
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 600, color: "#222831", fontFamily: "'Open Sans', sans-serif" }}>
+            {review.name}
+          </p>
+          {review.role && (
+            <p style={{ fontSize: 11, color: "#999", fontFamily: "'Open Sans', sans-serif" }}>
+              {review.role}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ReviewCarousel({ reviews }: ReviewCarouselProps) {
-  const visible = reviews.filter((r) => r.isVisible);
+  const visible = reviews.filter((r) => r.isVisible).slice(0, 6);
   const [current, setCurrent] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragStartX = useRef(0);
+  const [perView, setPerView] = useState(1);
 
-  // Items per view based on screen size
-  const getItemsPerView = () => {
-    if (typeof window === "undefined") return 1;
-    if (window.innerWidth >= 1024) return 3;
-    if (window.innerWidth >= 640) return 2;
-    return 1;
-  };
-
-  const [itemsPerView, setItemsPerView] = useState(1);
-
+  /* Responsive items-per-view */
   useEffect(() => {
-    const update = () => setItemsPerView(getItemsPerView());
+    const update = () => {
+      if (window.innerWidth >= 1024) setPerView(3);
+      else if (window.innerWidth >= 640)  setPerView(2);
+      else                                setPerView(1);
+    };
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const maxIndex = Math.max(0, visible.length - itemsPerView);
+  /* Number of slide groups */
+  const numGroups = Math.ceil(visible.length / perView);
 
-  const goNext = useCallback(() => {
-    setCurrent((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  }, [maxIndex]);
+  /* Reset position when layout changes */
+  useEffect(() => { setCurrent(0); }, [numGroups]);
 
-  const goPrev = useCallback(() => {
-    setCurrent((prev) => (prev <= 0 ? maxIndex : prev - 1));
-  }, [maxIndex]);
-
-  // Auto-scroll every 4 seconds
+  /* Auto-advance every 4 s */
   useEffect(() => {
-    if (isPaused || visible.length <= itemsPerView) return;
-    const interval = setInterval(goNext, 4000);
-    return () => clearInterval(interval);
-  }, [goNext, isPaused, visible.length, itemsPerView]);
+    if (visible.length === 0) return;
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % numGroups);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [visible.length, numGroups]);
 
   if (visible.length === 0) return null;
 
-  return (
-    <section className="py-8 md:py-12 bg-[#fdf8f3] overflow-hidden">
-      <div className="px-4 max-w-7xl mx-auto">
-        <SectionHeader
-          title="গ্রাহকদের মতামত"
-          subtitle="আমাদের সন্তুষ্ট গ্রাহকরা কী বলছেন"
-        />
+  /* Each card occupies (100/perView)% of the container.
+     One group of perView cards = 100% of container.
+     Advancing by 1 group → translateX by -100%. */
+  const cardWidthPct = 100 / perView;
+  const prev = () => setCurrent((c) => (c - 1 + numGroups) % numGroups);
+  const next = () => setCurrent((c) => (c + 1) % numGroups);
 
+  return (
+    <section style={{ padding: "40px 0", backgroundColor: "#FFFFFF", width: "100%" }}>
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-5">
+
+        {/* ── Section header ── */}
         <div
-          className="relative"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+          style={{
+            display: "flex", alignItems: "flex-end",
+            justifyContent: "space-between", marginBottom: 28,
+          }}
         >
-          {/* Carousel track */}
+          <div style={{ position: "relative", paddingBottom: 10 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 600, color: "#222831", fontFamily: "'Open Sans', sans-serif" }}>
+              Customer Reviews
+            </h2>
+            <p style={{ fontSize: 13, color: "#888", marginTop: 4, fontFamily: "'Open Sans', sans-serif" }}>
+              What our happy customers say
+            </p>
+            <span
+              style={{
+                position: "absolute", bottom: 0, left: 0,
+                width: 48, height: 3, backgroundColor: "#F48721", borderRadius: 2,
+              }}
+            />
+          </div>
+
+          {/* Prev / Next arrow buttons */}
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            <button
+              onClick={prev}
+              aria-label="Previous reviews"
+              style={{
+                width: 36, height: 36, borderRadius: "50%",
+                backgroundColor: "#F5F5F5",
+                border: "1px solid #E8E8E8",
+                cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "background-color 0.2s",
+                padding: 0,
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F48721"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F5F5F5"; }}
+            >
+              <ChevronLeft size={18} style={{ color: "#555" }} />
+            </button>
+            <button
+              onClick={next}
+              aria-label="Next reviews"
+              style={{
+                width: 36, height: 36, borderRadius: "50%",
+                backgroundColor: "#F48721",
+                border: "none",
+                cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "background-color 0.2s",
+                padding: 0,
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E07318"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F48721"; }}
+            >
+              <ChevronRight size={18} style={{ color: "#fff" }} />
+            </button>
+          </div>
+        </div>
+
+        {/* ── Slider track ── */}
+        <div style={{ overflow: "hidden" }}>
           <div
-            ref={containerRef}
-            className="overflow-hidden"
-            onTouchStart={(e) => {
-              dragStartX.current = e.touches[0].clientX;
-            }}
-            onTouchEnd={(e) => {
-              const diff = dragStartX.current - e.changedTouches[0].clientX;
-              if (Math.abs(diff) > 50) {
-                if (diff > 0) goNext();
-                else goPrev();
-              }
+            style={{
+              display: "flex",
+              transform: `translateX(-${current * 100}%)`,
+              transition: "transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
             }}
           >
-            <motion.div
-              className="flex gap-4"
-              animate={{ x: `-${current * (100 / itemsPerView)}%` }}
-              transition={{ type: "spring", damping: 30, stiffness: 250 }}
-              style={{
-                width: `${(visible.length / itemsPerView) * 100}%`,
-              }}
-            >
-              {visible.map((review) => (
-                <ReviewCard
-                  key={review.id}
-                  review={review}
-                  style={{ width: `${(itemsPerView / visible.length) * 100}%` }}
-                />
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Navigation arrows (desktop) */}
-          {visible.length > itemsPerView && (
-            <>
-              <button
-                onClick={goPrev}
-                className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-[#e0d0b0] rounded-full items-center justify-center shadow-md hover:border-[#c8860a] hover:text-[#c8860a] transition-colors z-10"
-                aria-label="আগের রিভিউ"
+            {visible.map((review) => (
+              <div
+                key={review.id}
+                style={{
+                  flexShrink: 0,
+                  width: `${cardWidthPct}%`,
+                  padding: "4px 8px",
+                }}
               >
-                <ChevronLeft size={20} />
-              </button>
-              <button
-                onClick={goNext}
-                className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-[#e0d0b0] rounded-full items-center justify-center shadow-md hover:border-[#c8860a] hover:text-[#c8860a] transition-colors z-10"
-                aria-label="পরের রিভিউ"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Dots */}
-        {visible.length > itemsPerView && (
-          <div className="flex justify-center gap-2 mt-6">
-            {Array.from({ length: maxIndex + 1 }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`transition-all rounded-full ${
-                  i === current
-                    ? "w-6 h-2 bg-[#c8860a]"
-                    : "w-2 h-2 bg-[#e0d0b0]"
-                }`}
-                aria-label={`রিভিউ গ্রুপ ${i + 1}`}
-              />
+                <ReviewCard review={review} />
+              </div>
             ))}
           </div>
-        )}
+        </div>
+
+        {/* ── Dot indicators ── */}
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24 }}>
+          {Array.from({ length: numGroups }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              style={{
+                width: i === current ? 24 : 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: i === current ? "#F48721" : "#ddd",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                transition: "all 0.3s ease",
+              }}
+            />
+          ))}
+        </div>
+
       </div>
     </section>
-  );
-}
-
-function ReviewCard({
-  review,
-  style,
-}: {
-  review: Review;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <div style={style} className="px-2">
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#f0e8d8] h-full flex flex-col">
-        {/* Quote icon */}
-        <div className="mb-3">
-          <Quote size={24} className="text-[#c8860a] opacity-60" />
-        </div>
-
-        {/* Rating */}
-        <StarRating rating={review.rating} />
-
-        {/* Title */}
-        {review.title && (
-          <h4 className="font-bold text-[#1a1208] mt-2 text-sm">
-            {review.title}
-          </h4>
-        )}
-
-        {/* Content */}
-        <p className="text-[#4a2c0a] text-sm mt-2 leading-relaxed flex-1 line-clamp-4">
-          {review.content}
-        </p>
-
-        {/* Reviewer */}
-        <div className="flex items-center gap-3 mt-4 pt-4 border-t border-[#f0e8d8]">
-          {review.avatarUrl ? (
-            <Image
-              src={getImageUrl(review.avatarUrl)}
-              alt={review.name}
-              width={40}
-              height={40}
-              className="rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-              {review.name.charAt(0)}
-            </div>
-          )}
-          <div>
-            <p className="font-semibold text-sm text-[#1a1208]">{review.name}</p>
-            {review.role && (
-              <p className="text-xs text-[#7a6045]">{review.role}</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

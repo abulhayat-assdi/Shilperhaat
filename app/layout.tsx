@@ -1,26 +1,36 @@
 import type { Metadata } from "next";
+import { Open_Sans } from "next/font/google";
 import "./globals.css";
+
+const openSans = Open_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-open-sans",
+  display: "swap",
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: {
-    default: "শিল্পেরহাট — বাংলার ঐতিহ্যবাহী হস্তশিল্প",
-    template: "%s | শিল্পেরহাট",
+    default: "Shilperhaat — Bangladesh's Finest Handcraft Textiles",
+    template: "%s | Shilperhaat",
   },
   description:
-    "শিল্পেরহাটে পাবেন বাংলাদেশের সেরা হস্তশিল্প পণ্য — কাঁথা, চাদর, কম্বল, নকশিকাঁথা এবং আরো অনেক কিছু।",
+    "Shop Bangladesh's best handcraft textiles — Katha, Chadar, Blankets, Nakshi Katha and much more at Shilperhaat.",
   keywords: [
-    "কাঁথা",
-    "নকশিকাঁথা",
-    "চাদর",
-    "কম্বল",
-    "হস্তশিল্প",
-    "বাংলাদেশ",
+    "katha",
+    "nakshi katha",
+    "chadar",
+    "blanket",
+    "handcraft",
+    "bangladesh",
     "shilperhaat",
+    "textile",
   ],
   openGraph: {
     type: "website",
-    locale: "bn_BD",
-    siteName: "শিল্পেরহাট",
+    locale: "en_US",
+    siteName: "Shilperhaat",
   },
   robots: { index: true, follow: true },
 };
@@ -31,8 +41,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="bn">
-      <body className="antialiased">{children}</body>
+    <html lang="en" className={openSans.variable}>
+      <head>
+        {/* Resource hints for external image CDN */}
+        <link rel="dns-prefetch" href="https://picsum.photos" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
+      <body className="antialiased overflow-x-hidden">{children}</body>
     </html>
   );
 }

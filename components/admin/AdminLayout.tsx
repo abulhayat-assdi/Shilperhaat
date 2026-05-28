@@ -7,17 +7,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Package, Grid3X3, ImageIcon,
-  Star, ShoppingBag, Settings, LogOut, ExternalLink, X, Menu,
+  Star, ShoppingBag, Settings, LogOut, ExternalLink, X, Menu, Layout, FileText,
 } from "lucide-react";
 
 const navItems = [
-  { href: "/admin/dashboard", icon: LayoutDashboard, label: "ড্যাশবোর্ড" },
-  { href: "/admin/products", icon: Package, label: "পণ্য" },
-  { href: "/admin/categories", icon: Grid3X3, label: "বিভাগ" },
-  { href: "/admin/banners", icon: ImageIcon, label: "ব্যানার" },
-  { href: "/admin/reviews", icon: Star, label: "রিভিউ" },
-  { href: "/admin/orders", icon: ShoppingBag, label: "অর্ডার" },
-  { href: "/admin/settings", icon: Settings, label: "সেটিংস" },
+  { href: "/admin/dashboard",    icon: LayoutDashboard, label: "Dashboard"   },
+  { href: "/admin/products",     icon: Package,         label: "Products"    },
+  { href: "/admin/categories",   icon: Grid3X3,         label: "Categories"  },
+  { href: "/admin/banners",      icon: ImageIcon,       label: "Banners"     },
+  { href: "/admin/reviews",      icon: Star,            label: "Reviews"     },
+  { href: "/admin/orders",       icon: ShoppingBag,     label: "Orders"      },
+  { href: "/admin/pages",        icon: FileText,        label: "Pages"       },
+  { href: "/admin/site-layout",  icon: Layout,          label: "Site Layout" },
+  { href: "/admin/settings",     icon: Settings,        label: "Settings"    },
 ];
 
 interface AdminLayoutProps {
@@ -37,10 +39,10 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
       <aside className="hidden md:flex flex-col bg-[#1a1208] text-white w-60 flex-shrink-0 min-h-screen">
         <div className="flex items-center gap-2 px-4 py-5 border-b border-white/10">
           <div className="w-8 h-8 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-sm">
-            শি
+            S
           </div>
           <div>
-            <div className="font-bold text-sm">শিল্পেরহাট</div>
+            <div className="font-bold text-sm">Shilperhaat</div>
             <div className="text-xs text-white/50">Admin Panel</div>
           </div>
         </div>
@@ -73,14 +75,14 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-colors text-sm"
           >
             <ExternalLink size={16} />
-            ওয়েবসাইট
+            Website
           </a>
           <a
             href="/api/admin/logout"
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/60 hover:bg-red-500/20 hover:text-red-300 transition-colors text-sm"
           >
             <LogOut size={16} />
-            লগআউট
+            Logout
           </a>
         </div>
       </aside>
@@ -95,7 +97,7 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
           <div className="fixed inset-y-0 left-0 z-50 w-60 bg-[#1a1208] text-white flex flex-col md:hidden">
             <div className="flex items-center justify-between px-4 py-5 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-sm">শি</div>
+                <div className="w-8 h-8 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-sm">S</div>
                 <div className="font-bold text-sm">Admin Panel</div>
               </div>
               <button onClick={() => setMobileSidebarOpen(false)} className="text-white/60">

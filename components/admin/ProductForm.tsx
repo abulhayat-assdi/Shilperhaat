@@ -198,7 +198,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                 </label>
                 <input
                   {...register("tags")}
-                  placeholder="কাঁথা, সিল্ক, রাজশাহী"
+                  placeholder="katha, silk, rajshahi"
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#c8860a]"
                 />
               </div>

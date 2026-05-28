@@ -1,91 +1,207 @@
+"use client";
+
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import type { Category } from "@/types";
 import { getImageUrl } from "@/lib/utils";
-import SectionHeader from "@/components/ui/SectionHeader";
 
 interface CategoryGridProps {
   categories: Category[];
 }
 
 export default function CategoryGrid({ categories }: CategoryGridProps) {
-  const featured = categories.filter((c) => c.isFeatured).slice(0, 4);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  if (featured.length === 0) return null;
+  const scroll = (dir: "left" | "right") => {
+    scrollRef.current?.scrollBy({ left: dir === "right" ? 320 : -320, behavior: "smooth" });
+  };
+
+  if (categories.length === 0) return null;
 
   return (
-    <section className="py-8 md:py-12 px-4 max-w-7xl mx-auto">
-      <SectionHeader
-        title="পণ্য বিভাগ"
-        subtitle="আমাদের ঐতিহ্যবাহী টেক্সটাইল সংগ্রহ থেকে বেছে নিন"
-      />
+    <section style={{ padding: "40px 0", backgroundColor: "#FBF9F5" }}>
+      <div className="max-w-7xl mx-auto px-4 md:px-5">
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {featured.map((category, index) => (
-          <CategoryCard key={category.id} category={category} index={index} />
-        ))}
+        {/* Section header */}
+        <div className="flex items-end justify-between" style={{ marginBottom: 24 }}>
+          <div className="relative" style={{ paddingBottom: 10 }}>
+            <h2
+              style={{
+                fontSize: 22, fontWeight: 600, color: "#222",
+                fontFamily: "'Open Sans', sans-serif",
+              }}
+            >
+              Featured Categories
+            </h2>
+            <span
+              className="absolute bottom-0 left-0"
+              style={{ width: 48, height: 3, backgroundColor: "#F48721", borderRadius: 2 }}
+            />
+          </div>
+          <Link
+            href="/shop"
+            className="flex items-center gap-1 transition-all duration-200 hover:gap-2"
+            style={{
+              color: "#F48721", fontSize: 13, fontWeight: 600,
+              textDecoration: "none", fontFamily: "'Open Sans', sans-serif",
+            }}
+          >
+            View All <ArrowRight size={14} />
+          </Link>
+        </div>
+
+        {/* Carousel */}
+        <div className="relative">
+          {/* Left arrow — only shown on mobile */}
+          <button
+            onClick={() => scroll("left")}
+            aria-label="Scroll categories left"
+            className="md:hidden flex absolute -left-1 z-10 items-center justify-center transition-colors"
+            style={{
+              top: "38%", transform: "translateY(-50%)",
+              backgroundColor: "#F48721", color: "#fff",
+              border: "none", width: 28, height: 28,
+              borderRadius: "50%", cursor: "pointer",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+            }}
+          >
+            <ChevronLeft size={14} />
+          </button>
+
+          {/* Mobile: horizontal scroll track */}
+          <div
+            ref={scrollRef}
+            className="md:hidden flex py-3 px-1"
+            style={{
+              gap: 16,
+              overflowX: "auto",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            } as React.CSSProperties}
+          >
+            {categories.map((cat) => (
+              <CategoryCard key={cat.id} category={cat} />
+            ))}
+          </div>
+
+          {/* Desktop: centered wrap — no scroll needed */}
+          <div
+            className="hidden md:flex flex-wrap justify-center py-3 px-1"
+            style={{ gap: 24 }}
+          >
+            {categories.map((cat) => (
+              <CategoryCard key={cat.id} category={cat} />
+            ))}
+          </div>
+
+          {/* Right arrow — only shown on mobile */}
+          <button
+            onClick={() => scroll("right")}
+            aria-label="Scroll categories right"
+            className="md:hidden flex absolute -right-1 z-10 items-center justify-center transition-colors"
+            style={{
+              top: "38%", transform: "translateY(-50%)",
+              backgroundColor: "#F48721", color: "#fff",
+              border: "none", width: 28, height: 28,
+              borderRadius: "50%", cursor: "pointer",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+            }}
+          >
+            <ChevronRight size={14} />
+          </button>
+        </div>
       </div>
     </section>
   );
 }
 
-const categoryColors = [
-  "from-[#c8860a]/80 to-[#7a4a1a]/80",
-  "from-[#4a2c0a]/80 to-[#8b5e3c]/80",
-  "from-[#7a6045]/80 to-[#4a2c0a]/80",
-  "from-[#a06c07]/80 to-[#c8860a]/80",
-];
-
-function CategoryCard({
-  category,
-  index,
-}: {
-  category: Category;
-  index: number;
-}) {
+/* ─── Category Card — circle icon style ─────────────────────── */
+function CategoryCard({ category }: { category: Category }) {
   const imageUrl = getImageUrl(category.imageUrl);
-  const gradientClass = categoryColors[index % categoryColors.length];
+
+  const emojiMap: Record<string, string> = {
+    katha: "🧣",
+    chador: "🧤",
+    kambal: "🛌",
+    "nakshi-katha": "🪡",
+    muslin: "🧵",
+    jamdani: "✨",
+    gamcha: "🏮",
+    "new-arrivals": "🆕",
+  };
+  const emoji = emojiMap[category.slug] ?? "🛍️";
 
   return (
     <Link
       href={`/shop?category=${category.slug}`}
-      className="group relative overflow-hidden rounded-xl aspect-square shadow-sm hover:shadow-md transition-shadow"
-      aria-label={`${category.name} বিভাগ দেখুন`}
+      aria-label={`Browse ${category.name}`}
+      style={{
+        flexShrink: 0,
+        width: 100,
+        minWidth: 100,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 10,
+        textDecoration: "none",
+        color: "inherit",
+      }}
     >
-      {/* Image */}
-      <div className="absolute inset-0">
+      {/* Circular image container */}
+      <div
+        style={{
+          width: 80, height: 80,
+          borderRadius: "50%",
+          backgroundColor: "#fff8f0",
+          border: "2px solid #fde8cc",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          overflow: "hidden",
+          position: "relative",
+          flexShrink: 0,
+          transition: "box-shadow 0.2s, transform 0.2s",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 16px rgba(244,135,33,0.25)";
+          (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+          (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+        }}
+      >
+        {/* Emoji fallback (shown when image fails) */}
+        <span className="text-2xl select-none" aria-hidden style={{ position: "absolute" }}>
+          {emoji}
+        </span>
+        {/* Image on top */}
         <Image
           src={imageUrl}
           alt={category.name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-          sizes="(max-width: 640px) 50vw, 25vw"
+          className="object-contain"
+          style={{ padding: 10, transition: "transform 0.3s ease", zIndex: 1 }}
+          sizes="80px"
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = "none";
           }}
         />
       </div>
 
-      {/* Fallback gradient background */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-br ${gradientClass}`}
-      />
-
-      {/* Content overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-      {/* Label */}
-      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
-        <h3 className="text-white font-bold text-sm md:text-base leading-tight">
-          {category.name}
-        </h3>
-        <p className="text-white/70 text-xs mt-0.5 group-hover:text-[#f5d78e] transition-colors">
-          দেখুন →
-        </p>
-      </div>
-
-      {/* Hover ring */}
-      <div className="absolute inset-0 rounded-xl ring-2 ring-[#c8860a] opacity-0 group-hover:opacity-100 transition-opacity" />
+      {/* Category name */}
+      <span
+        style={{
+          fontSize: 13, fontWeight: 500, color: "#333",
+          textAlign: "center", lineHeight: 1.3,
+          fontFamily: "'Open Sans', sans-serif",
+          transition: "color 0.2s",
+        }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLSpanElement).style.color = "#F48721"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLSpanElement).style.color = "#333"; }}
+      >
+        {category.name}
+      </span>
     </Link>
   );
 }

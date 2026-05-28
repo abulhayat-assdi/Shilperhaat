@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     localPatterns: [
       {
         pathname: "/uploads/**",
@@ -20,7 +22,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "5mb",
     },
   },
-  // Enable Turbopack (default in Next.js 16)
   turbopack: {},
 };
 

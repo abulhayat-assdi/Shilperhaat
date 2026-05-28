@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle, Package, Phone, MapPin, ShoppingBag, Home } from "lucide-react";
-import { motion } from "framer-motion";
 import { formatPriceEn, getImageUrl } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 
@@ -43,44 +42,34 @@ export default function ThankYouClient() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       {/* Success header */}
-      <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", damping: 15, stiffness: 200 }}
-        className="flex flex-col items-center text-center mb-8"
-      >
+      <div className="flex flex-col items-center text-center mb-8 thankyou-pop">
         <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-4">
           <CheckCircle size={40} className="text-green-600" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-[#1a1208] mb-2">
-          অর্ডার সফল হয়েছে! 🎉
+          Order Placed Successfully! 🎉
         </h1>
         <p className="text-[#7a6045] text-sm">
-          আপনার অর্ডার গ্রহণ করা হয়েছে। শীঘ্রই আমরা আপনার সাথে যোগাযোগ করব।
+          Your order has been received. We will contact you shortly to confirm.
         </p>
         {(orderNumber || order?.orderNumber) && (
           <div className="mt-3 bg-[#fdf8f3] border border-[#e0d0b0] rounded-xl px-6 py-3">
-            <p className="text-xs text-[#7a6045]">অর্ডার নম্বর</p>
+            <p className="text-xs text-[#7a6045]">Order Number</p>
             <p className="font-bold text-[#c8860a] text-lg">
               {orderNumber || order?.orderNumber}
             </p>
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Order details */}
       {order && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="space-y-4"
-        >
+        <div className="space-y-4 thankyou-slide">
           {/* Items */}
           <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm">
             <h2 className="font-bold text-[#1a1208] mb-4 flex items-center gap-2">
               <Package size={18} className="text-[#c8860a]" />
-              অর্ডার করা পণ্য
+              Ordered Items
             </h2>
             <div className="space-y-3">
               {order.items.map((item, i) => (
@@ -101,7 +90,7 @@ export default function ThankYouClient() {
                       {item.productTitle}
                     </p>
                     <p className="text-xs text-[#7a6045]">
-                      {item.quantity}টি × {formatPriceEn(item.price)}
+                      {item.quantity}x × {formatPriceEn(item.price)}
                     </p>
                   </div>
                   <span className="font-bold text-[#1a1208] text-sm">
@@ -114,21 +103,21 @@ export default function ThankYouClient() {
             {/* Totals */}
             <div className="border-t border-[#f0e8d8] mt-4 pt-4 space-y-2 text-sm">
               <div className="flex justify-between text-[#4a2c0a]">
-                <span>পণ্য মূল্য</span>
+                <span>Subtotal</span>
                 <span>{formatPriceEn(order.subtotal)}</span>
               </div>
               <div className="flex justify-between text-[#4a2c0a]">
-                <span>ডেলিভারি</span>
+                <span>Delivery</span>
                 <span>
                   {order.deliveryCharge === 0 ? (
-                    <span className="text-green-600">বিনামূল্যে</span>
+                    <span className="text-green-600">Free</span>
                   ) : (
                     formatPriceEn(order.deliveryCharge)
                   )}
                 </span>
               </div>
               <div className="flex justify-between font-bold text-base text-[#1a1208]">
-                <span>মোট</span>
+                <span>Total</span>
                 <span className="text-[#c8860a]">{formatPriceEn(order.total)}</span>
               </div>
             </div>
@@ -136,7 +125,7 @@ export default function ThankYouClient() {
 
           {/* Customer details */}
           <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm">
-            <h2 className="font-bold text-[#1a1208] mb-4">ডেলিভারির তথ্য</h2>
+            <h2 className="font-bold text-[#1a1208] mb-4">Delivery Information</h2>
             <div className="space-y-2 text-sm">
               <div className="flex items-start gap-3">
                 <div className="w-5 h-5 rounded-full bg-[#f0e8d8] flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -155,9 +144,7 @@ export default function ThankYouClient() {
               <div className="flex items-start gap-3">
                 <span className="text-base">💵</span>
                 <span className="text-[#4a2c0a]">
-                  {order.paymentMethod === "COD"
-                    ? "ক্যাশ অন ডেলিভারি"
-                    : order.paymentMethod}
+                  {order.paymentMethod === "COD" ? "Cash on Delivery" : order.paymentMethod}
                 </span>
               </div>
             </div>
@@ -165,14 +152,14 @@ export default function ThankYouClient() {
 
           {/* Info box */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
-            <p className="font-semibold mb-1">পরবর্তী পদক্ষেপ:</p>
+            <p className="font-semibold mb-1">What happens next:</p>
             <ul className="space-y-1 text-xs list-disc list-inside">
-              <li>আমরা শীঘ্রই আপনার ফোনে কল করব অর্ডার নিশ্চিত করতে</li>
-              <li>পণ্য ৩-৫ কার্যদিবসের মধ্যে পৌঁছে যাবে</li>
-              <li>পণ্য পেলে ডেলিভারি বয়কে টাকা দিন</li>
+              <li>We will call you soon to confirm your order</li>
+              <li>Your order will arrive within 3–5 business days</li>
+              <li>Pay the delivery person when you receive your package</li>
             </ul>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Action buttons */}
@@ -182,14 +169,14 @@ export default function ThankYouClient() {
           className="flex items-center justify-center gap-2 flex-1 bg-[#c8860a] text-white font-bold py-3.5 rounded-xl hover:bg-[#a06c07] transition-colors"
         >
           <Home size={18} />
-          হোমে যান
+          Back to Home
         </Link>
         <Link
           href="/shop"
           className="flex items-center justify-center gap-2 flex-1 border-2 border-[#c8860a] text-[#c8860a] font-bold py-3.5 rounded-xl hover:bg-[#c8860a] hover:text-white transition-colors"
         >
           <ShoppingBag size={18} />
-          আরও কিনুন
+          Shop More
         </Link>
       </div>
     </div>

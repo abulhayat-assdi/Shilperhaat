@@ -2,8 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { X, ChevronRight, Phone, MessageCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { X, ChevronRight, MessageCircle, User } from "lucide-react";
 import { dummySiteSettings } from "@/lib/dummy-data";
 
 interface NavLink {
@@ -18,96 +17,160 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProps) {
-  // Lock body scroll when menu is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[60] bg-black/50"
+    <>
+      {/* Backdrop — always in DOM, fade via opacity transition */}
+      <div
+        className="fixed inset-0 z-[60]"
+        style={{
+          backgroundColor: "rgba(0,0,0,0.5)",
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? "auto" : "none",
+          transition: "opacity 0.2s ease",
+        }}
+        onClick={onClose}
+      />
+
+      {/* Drawer — always in DOM, slide via transform transition */}
+      <div
+        className="fixed inset-y-0 left-0 z-[70] flex flex-col bg-white"
+        style={{
+          width: "80%",
+          maxWidth: 300,
+          boxShadow: "4px 0 24px rgba(0,0,0,0.15)",
+          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.28s cubic-bezier(0.2, 0, 0, 1)",
+        }}
+      >
+        {/* ── Orange header ── */}
+        <div
+          style={{
+            backgroundColor: "#F48721",
+            padding: "16px 20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexShrink: 0,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 34, height: 34, borderRadius: "50%",
+                backgroundColor: "rgba(255,255,255,0.25)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: "white", fontWeight: 700, fontSize: 15,
+              }}
+            >
+              S
+            </div>
+            <span style={{ color: "white", fontWeight: 700, fontSize: 18 }}>
+              Shilperhaat
+            </span>
+          </div>
+          <button
             onClick={onClose}
-          />
-
-          {/* Drawer */}
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed inset-y-0 left-0 z-[70] w-72 bg-white shadow-2xl flex flex-col"
+            style={{ background: "none", border: "none", color: "white", cursor: "pointer", padding: 4 }}
+            aria-label="Close menu"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-[#e0d0b0] bg-[#c8860a]">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#c8860a] font-bold text-sm">
-                  শি
-                </div>
-                <span className="text-white font-bold text-lg">শিল্পেরহাট</span>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-white p-1"
-                aria-label="মেনু বন্ধ করুন"
-              >
-                <X size={22} />
-              </button>
-            </div>
+            <X size={22} />
+          </button>
+        </div>
 
-            {/* Nav Links */}
-            <nav className="flex-1 overflow-y-auto py-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={onClose}
-                  className="flex items-center justify-between px-5 py-4 text-[#1a1208] hover:bg-[#fdf8f3] hover:text-[#c8860a] transition-colors border-b border-[#f0e8d8]"
-                >
-                  <span className="font-medium">{link.label}</span>
-                  <ChevronRight size={16} className="text-[#7a6045]" />
-                </Link>
-              ))}
+        {/* ── Sign-in section ── */}
+        <Link
+          href="/account"
+          onClick={onClose}
+          style={{
+            display: "flex", alignItems: "center", gap: 14,
+            padding: "14px 20px",
+            backgroundColor: "#fff3e0",
+            textDecoration: "none",
+            borderBottom: "1px solid #eee",
+            flexShrink: 0,
+          }}
+        >
+          <div
+            style={{
+              width: 44, height: 44, borderRadius: "50%",
+              backgroundColor: "#F48721",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <User size={22} style={{ color: "white" }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#333" }}>Hello there!</div>
+            <div style={{ fontSize: 13, color: "#F48721", fontWeight: 500 }}>Sign in / Register →</div>
+          </div>
+        </Link>
 
-              <div className="pt-2">
-                <p className="px-5 py-2 text-xs text-[#7a6045] font-semibold uppercase tracking-wider">
-                  আমাদের সাথে যোগাযোগ করুন
-                </p>
-                <a
-                  href={`https://wa.me/${dummySiteSettings.whatsappNumber}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-5 py-4 text-[#16a34a] hover:bg-[#fdf8f3] transition-colors"
-                >
-                  <MessageCircle size={20} />
-                  <span className="font-medium">WhatsApp</span>
-                </a>
-              </div>
-            </nav>
+        {/* ── Nav Links ── */}
+        <nav style={{ flex: 1, overflowY: "auto" }}>
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={onClose}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "14px 20px",
+                color: "#333",
+                textDecoration: "none",
+                borderBottom: "1px solid #eee",
+                fontSize: 15, fontWeight: 500,
+                transition: "background-color 0.15s, color 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#fff8f0";
+                (e.currentTarget as HTMLAnchorElement).style.color = "#F48721";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "";
+                (e.currentTarget as HTMLAnchorElement).style.color = "#333";
+              }}
+            >
+              <span>{link.label}</span>
+              <ChevronRight size={16} style={{ color: "#bbb", flexShrink: 0 }} />
+            </Link>
+          ))}
 
-            {/* Footer */}
-            <div className="p-4 border-t border-[#e0d0b0] bg-[#fdf8f3]">
-              <p className="text-xs text-center text-[#7a6045]">
-                © ২০২৪ শিল্পেরহাট। হস্তশিল্পের আপন ঘর।
-              </p>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+          {/* ── Get in touch ── */}
+          <div style={{ padding: "20px 20px 8px" }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#aaa", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
+              GET IN TOUCH
+            </p>
+            <a
+              href={`https://wa.me/${dummySiteSettings.whatsappNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "10px 0",
+                color: "#25D366",
+                textDecoration: "none",
+                fontSize: 14, fontWeight: 500,
+              }}
+            >
+              <MessageCircle size={20} />
+              <span>Chat on WhatsApp</span>
+            </a>
+          </div>
+        </nav>
+
+        {/* ── Footer strip ── */}
+        <div style={{ padding: "12px 20px", borderTop: "1px solid #eee", backgroundColor: "#f9f9f9", flexShrink: 0 }}>
+          <p style={{ fontSize: 11, color: "#bbb", textAlign: "center" }}>
+            © 2025 Shilperhaat. Handcraft Marketplace.
+          </p>
+        </div>
+      </div>
+    </>
   );
 }

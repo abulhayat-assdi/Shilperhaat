@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Package, Check, ArrowLeft } from "lucide-react";
-import { motion } from "framer-motion";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
@@ -32,15 +31,15 @@ export default function CheckoutPageClient() {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-4">
         <div className="text-6xl mb-4">🛒</div>
-        <h2 className="text-xl font-bold text-[#1a1208] mb-2">কার্ট ফাঁকা</h2>
+        <h2 className="text-xl font-bold text-[#1a1208] mb-2">Cart is empty</h2>
         <p className="text-[#7a6045] text-sm mb-6">
-          চেকআউট করতে হলে আগে পণ্য কার্টে যোগ করুন।
+          Please add products to your cart before checking out.
         </p>
         <Link
           href="/shop"
           className="bg-[#c8860a] text-white px-6 py-3 rounded-full font-semibold"
         >
-          পণ্য কিনুন
+          Shop Now
         </Link>
       </div>
     );
@@ -49,7 +48,6 @@ export default function CheckoutPageClient() {
   const onSubmit = async (data: CheckoutInput) => {
     setIsSubmitting(true);
     try {
-      // Build order payload
       const orderNumber = generateOrderNumber();
       const orderItems = items.map((item) => ({
         productId: item.productId,
@@ -73,7 +71,6 @@ export default function CheckoutPageClient() {
         items: orderItems,
       };
 
-      // Submit to server action / API
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,12 +78,11 @@ export default function CheckoutPageClient() {
       });
 
       if (!response.ok) {
-        throw new Error("অর্ডার সম্পন্ন হয়নি");
+        throw new Error("Order could not be placed");
       }
 
       const result = await response.json();
 
-      // Save order to localStorage for thank you page
       try {
         localStorage.setItem("sh_last_order", JSON.stringify({
           ...payload,
@@ -95,11 +91,11 @@ export default function CheckoutPageClient() {
       } catch {}
 
       clearCart();
-      toast.success("অর্ডার সফলভাবে সম্পন্ন হয়েছে! 🎉");
+      toast.success("Order placed successfully! 🎉");
       router.push(`/thank-you?order=${orderNumber}`);
     } catch (error) {
       console.error("Order error:", error);
-      toast.error("অর্ডার দেওয়ার সময় একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      toast.error("Something went wrong while placing your order. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -112,20 +108,20 @@ export default function CheckoutPageClient() {
         <Link href="/cart" className="text-[#7a6045] hover:text-[#c8860a]">
           <ArrowLeft size={20} />
         </Link>
-        <h1 className="text-2xl font-bold text-[#1a1208]">চেকআউট</h1>
+        <h1 className="text-2xl font-bold text-[#1a1208]">Checkout</h1>
       </div>
 
       {/* Progress */}
       <div className="flex items-center gap-2 mb-8 text-sm">
         <span className="flex items-center gap-1 text-[#c8860a] font-semibold">
-          <Check size={14} /> কার্ট
+          <Check size={14} /> Cart
         </span>
         <div className="h-px flex-1 bg-[#c8860a]" />
         <span className="flex items-center gap-1 text-[#c8860a] font-semibold">
-          ঠিকানা
+          Delivery
         </span>
         <div className="h-px flex-1 bg-[#e0d0b0]" />
-        <span className="text-[#7a6045]">নিশ্চিতকরণ</span>
+        <span className="text-[#7a6045]">Confirmation</span>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -135,19 +131,19 @@ export default function CheckoutPageClient() {
             <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm">
               <h2 className="font-bold text-[#1a1208] mb-4 flex items-center gap-2">
                 <Package size={18} className="text-[#c8860a]" />
-                ডেলিভারির তথ্য
+                Delivery Information
               </h2>
 
               <div className="space-y-4">
                 {/* Name */}
                 <div>
                   <label className="block text-sm font-medium text-[#4a2c0a] mb-1.5">
-                    নাম <span className="text-red-500">*</span>
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     {...register("customerName")}
                     type="text"
-                    placeholder="আপনার নাম লিখুন"
+                    placeholder="Enter your full name"
                     className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition-colors text-[#1a1208] placeholder:text-[#aaa] ${
                       errors.customerName
                         ? "border-red-400 focus:border-red-500"
@@ -164,12 +160,12 @@ export default function CheckoutPageClient() {
                 {/* Phone */}
                 <div>
                   <label className="block text-sm font-medium text-[#4a2c0a] mb-1.5">
-                    ফোন নম্বর <span className="text-red-500">*</span>
+                    Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     {...register("phone")}
                     type="tel"
-                    placeholder="০১৭XXXXXXXX"
+                    placeholder="01XXXXXXXXX"
                     className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition-colors text-[#1a1208] placeholder:text-[#aaa] ${
                       errors.phone
                         ? "border-red-400 focus:border-red-500"
@@ -186,12 +182,12 @@ export default function CheckoutPageClient() {
                 {/* Address */}
                 <div>
                   <label className="block text-sm font-medium text-[#4a2c0a] mb-1.5">
-                    ঠিকানা <span className="text-red-500">*</span>
+                    Delivery Address <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     {...register("address")}
                     rows={3}
-                    placeholder="বাড়ি নং, রাস্তা, এলাকা, জেলা"
+                    placeholder="House no., Road, Area, District"
                     className={`w-full border rounded-xl px-4 py-3 text-sm outline-none transition-colors resize-none text-[#1a1208] placeholder:text-[#aaa] ${
                       errors.address
                         ? "border-red-400 focus:border-red-500"
@@ -208,12 +204,12 @@ export default function CheckoutPageClient() {
                 {/* Notes */}
                 <div>
                   <label className="block text-sm font-medium text-[#4a2c0a] mb-1.5">
-                    বিশেষ নির্দেশনা (ঐচ্ছিক)
+                    Special Instructions (Optional)
                   </label>
                   <textarea
                     {...register("notes")}
                     rows={2}
-                    placeholder="কোনো বিশেষ নির্দেশনা থাকলে লিখুন..."
+                    placeholder="Any special delivery instructions..."
                     className="w-full border border-[#e0d0b0] rounded-xl px-4 py-3 text-sm outline-none focus:border-[#c8860a] resize-none text-[#1a1208] placeholder:text-[#aaa]"
                   />
                 </div>
@@ -222,17 +218,17 @@ export default function CheckoutPageClient() {
 
             {/* Payment method */}
             <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm">
-              <h2 className="font-bold text-[#1a1208] mb-4">পেমেন্ট পদ্ধতি</h2>
+              <h2 className="font-bold text-[#1a1208] mb-4">Payment Method</h2>
               <label className="flex items-center gap-3 p-3 rounded-xl border-2 border-[#c8860a] bg-[#fdf8f3] cursor-pointer">
                 <div className="w-5 h-5 rounded-full border-2 border-[#c8860a] flex items-center justify-center">
                   <div className="w-2.5 h-2.5 rounded-full bg-[#c8860a]" />
                 </div>
                 <div>
                   <p className="font-semibold text-[#1a1208] text-sm">
-                    ক্যাশ অন ডেলিভারি
+                    Cash on Delivery
                   </p>
                   <p className="text-xs text-[#7a6045]">
-                    পণ্য হাতে পেলে পেমেন্ট করুন
+                    Pay when you receive your order
                   </p>
                 </div>
                 <span className="ml-auto text-2xl">💵</span>
@@ -243,7 +239,7 @@ export default function CheckoutPageClient() {
           {/* Order summary */}
           <div className="lg:w-80">
             <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm sticky top-24">
-              <h2 className="font-bold text-[#1a1208] mb-4">অর্ডার বিবরণ</h2>
+              <h2 className="font-bold text-[#1a1208] mb-4">Order Summary</h2>
 
               {/* Items */}
               <div className="space-y-3 mb-4">
@@ -279,47 +275,50 @@ export default function CheckoutPageClient() {
               {/* Totals */}
               <div className="border-t border-[#f0e8d8] pt-3 space-y-2 text-sm">
                 <div className="flex justify-between text-[#4a2c0a]">
-                  <span>পণ্য মূল্য</span>
+                  <span>Subtotal</span>
                   <span>{formatPriceEn(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-[#4a2c0a]">
-                  <span>ডেলিভারি</span>
+                  <span>Delivery</span>
                   <span>
                     {deliveryCharge === 0 ? (
-                      <span className="text-green-600 font-semibold">বিনামূল্যে</span>
+                      <span className="text-green-600 font-semibold">Free</span>
                     ) : (
                       formatPriceEn(deliveryCharge)
                     )}
                   </span>
                 </div>
                 <div className="flex justify-between font-bold text-base text-[#1a1208] pt-2 border-t border-[#f0e8d8]">
-                  <span>মোট মূল্য</span>
+                  <span>Total</span>
                   <span className="text-[#c8860a]">{formatPriceEn(total)}</span>
                 </div>
               </div>
 
               {/* Submit button */}
-              <motion.button
-                whileTap={{ scale: 0.98 }}
+              <button
                 type="submit"
                 disabled={isSubmitting}
                 className="mt-5 w-full flex items-center justify-center gap-2 bg-[#c8860a] hover:bg-[#a06c07] disabled:opacity-70 text-white font-bold py-4 rounded-xl transition-colors"
+                style={{ transition: "background-color 0.15s, transform 0.1s" }}
+                onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.98)"; }}
+                onMouseUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)"; }}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    অর্ডার হচ্ছে...
+                    Placing Order...
                   </>
                 ) : (
                   <>
-                    অর্ডার নিশ্চিত করুন
+                    Confirm Order
                     <Check size={18} />
                   </>
                 )}
-              </motion.button>
+              </button>
 
               <p className="text-xs text-center text-[#7a6045] mt-3">
-                পণ্য পেলে পেমেন্ট করুন। আর কোনো চার্জ নেই।
+                Pay on delivery. No extra charges.
               </p>
             </div>
           </div>

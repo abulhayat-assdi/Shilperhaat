@@ -18,7 +18,7 @@ export default async function AdminLoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#c8860a] mb-4">
-            <span className="text-white font-bold text-2xl">শি</span>
+            <span className="text-white font-bold text-2xl">S</span>
           </div>
           <h1 className="text-2xl font-bold text-white">Shilperhaat</h1>
           <p className="text-white/60 text-sm mt-1">Admin Panel</p>

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { formatPriceEn, getImageUrl } from "@/lib/utils";
@@ -15,7 +14,7 @@ export default function CartPageClient() {
 
   const handleRemove = (id: string, title: string) => {
     removeItem(id);
-    toast.info(`"${title}" কার্ট থেকে সরানো হয়েছে`);
+    toast.info(`"${title}" removed from cart`);
   };
 
   if (items.length === 0) {
@@ -25,21 +24,15 @@ export default function CartPageClient() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       <h1 className="text-2xl md:text-3xl font-bold text-[#1a1208] mb-6">
-        আমার কার্ট ({items.length} আইটেম)
+        My Cart ({items.length} {items.length === 1 ? "item" : "items"})
       </h1>
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Cart items */}
         <div className="flex-1 space-y-3">
-          <AnimatePresence>
             {items.map((item) => (
-              <motion.div
+              <div
                 key={item.productId}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -100, height: 0 }}
-                transition={{ duration: 0.2 }}
                 className="bg-white rounded-xl border border-[#f0e8d8] p-4 flex items-start gap-4 shadow-sm"
               >
                 {/* Image */}
@@ -83,7 +76,7 @@ export default function CartPageClient() {
                       <button
                         onClick={() => updateQuantity(item.productId, item.quantity - 1)}
                         className="w-8 h-8 flex items-center justify-center text-[#4a2c0a] hover:bg-[#f0e8d8] transition-colors"
-                        aria-label="পরিমাণ কমান"
+                        aria-label="Decrease quantity"
                       >
                         <Minus size={14} />
                       </button>
@@ -94,7 +87,7 @@ export default function CartPageClient() {
                         onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                         disabled={item.quantity >= item.stock}
                         className="w-8 h-8 flex items-center justify-center text-[#4a2c0a] hover:bg-[#f0e8d8] disabled:opacity-40 transition-colors"
-                        aria-label="পরিমাণ বাড়ান"
+                        aria-label="Increase quantity"
                       >
                         <Plus size={14} />
                       </button>
@@ -107,23 +100,22 @@ export default function CartPageClient() {
                       <button
                         onClick={() => handleRemove(item.productId, item.title)}
                         className="text-red-400 hover:text-red-600 transition-colors"
-                        aria-label={`${item.title} সরান`}
+                        aria-label={`Remove ${item.title}`}
                       >
                         <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </AnimatePresence>
 
           <div className="pt-2">
             <Link
               href="/shop"
               className="text-[#c8860a] text-sm font-medium hover:underline flex items-center gap-1"
             >
-              ← আরও কেনাকাটা করুন
+              ← Continue Shopping
             </Link>
           </div>
         </div>
@@ -131,19 +123,19 @@ export default function CartPageClient() {
         {/* Order summary */}
         <div className="lg:w-80">
           <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm sticky top-24">
-            <h2 className="font-bold text-[#1a1208] text-lg mb-4">অর্ডার সারসংক্ষেপ</h2>
+            <h2 className="font-bold text-[#1a1208] text-lg mb-4">Order Summary</h2>
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between text-[#4a2c0a]">
-                <span>মোট পণ্য মূল্য</span>
+                <span>Subtotal</span>
                 <span>{formatPriceEn(subtotal)}</span>
               </div>
 
               <div className="flex justify-between text-[#4a2c0a]">
-                <span>ডেলিভারি চার্জ</span>
+                <span>Delivery Charge</span>
                 <span>
                   {deliveryCharge === 0 ? (
-                    <span className="text-green-600 font-semibold">বিনামূল্যে</span>
+                    <span className="text-green-600 font-semibold">Free</span>
                   ) : (
                     formatPriceEn(deliveryCharge)
                   )}
@@ -152,13 +144,13 @@ export default function CartPageClient() {
 
               {deliveryCharge > 0 && dummySiteSettings.freeDeliveryMin && (
                 <p className="text-xs text-[#7a6045] bg-[#fdf8f3] p-2 rounded-lg">
-                  আর {formatPriceEn(dummySiteSettings.freeDeliveryMin - subtotal)} কেনাকাটা করলেই বিনামূল্যে ডেলিভারি পাবেন!
+                  Add {formatPriceEn(dummySiteSettings.freeDeliveryMin - subtotal)} more to get free delivery!
                 </p>
               )}
 
               <div className="border-t border-[#f0e8d8] pt-3">
                 <div className="flex justify-between font-bold text-[#1a1208] text-base">
-                  <span>মোট</span>
+                  <span>Total</span>
                   <span className="text-[#c8860a] text-lg">{formatPriceEn(total)}</span>
                 </div>
               </div>
@@ -168,13 +160,13 @@ export default function CartPageClient() {
               href="/checkout"
               className="mt-5 flex items-center justify-center gap-2 w-full bg-[#c8860a] hover:bg-[#a06c07] text-white font-bold py-4 rounded-xl transition-colors"
             >
-              অর্ডার করুন
+              Place Order
               <ArrowRight size={18} />
             </Link>
 
             <div className="mt-3 flex items-center justify-center gap-2 text-xs text-[#7a6045]">
               <span>🔒</span>
-              <span>নিরাপদ ক্যাশ অন ডেলিভারি</span>
+              <span>Secure Cash on Delivery</span>
             </div>
           </div>
         </div>
@@ -187,16 +179,16 @@ function EmptyCart() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center px-4">
       <div className="text-7xl mb-4">🛒</div>
-      <h2 className="text-2xl font-bold text-[#1a1208] mb-2">কার্ট ফাঁকা আছে</h2>
+      <h2 className="text-2xl font-bold text-[#1a1208] mb-2">Your cart is empty</h2>
       <p className="text-[#7a6045] text-sm max-w-xs mb-8">
-        আপনার কার্টে এখনো কোনো পণ্য যোগ করা হয়নি। আমাদের সংগ্রহ দেখুন এবং পছন্দের পণ্য বেছে নিন।
+        You haven&apos;t added any products yet. Browse our collection and pick your favourites.
       </p>
       <Link
         href="/shop"
         className="flex items-center gap-2 bg-[#c8860a] text-white font-bold px-8 py-3.5 rounded-full hover:bg-[#a06c07] transition-colors"
       >
         <ShoppingBag size={18} />
-        কেনাকাটা শুরু করুন
+        Start Shopping
       </Link>
     </div>
   );

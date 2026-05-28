@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import ProductGallery from "@/components/product/ProductGallery";
 import AddToCartSection, { StickyCartBar } from "@/components/product/AddToCartSection";
+import ProductTabs from "@/components/product/ProductTabs";
 import ProductCard from "@/components/ui/ProductCard";
 import { dummyProducts } from "@/lib/dummy-data";
 import { formatPriceEn, calculateDiscount } from "@/lib/utils";
@@ -13,15 +14,16 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: ProductPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const product = dummyProducts.find((p) => p.slug === slug);
-  if (!product) return { title: "পণ্য পাওয়া যায়নি" };
+export async function generateStaticParams() {
+  return dummyProducts.map((p) => ({ slug: p.slug }));
+}
 
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const product  = dummyProducts.find((p) => p.slug === slug);
+  if (!product) return { title: "Product not found" };
   return {
-    title: `${product.title} — শিল্পেরহাট`,
+    title: `${product.title} — Shilperhaat`,
     description: product.description?.slice(0, 160) || product.title,
     openGraph: {
       title: product.title,
@@ -33,161 +35,211 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = dummyProducts.find((p) => p.slug === slug) as any as Product | undefined;
-
+  const product  = dummyProducts.find((p) => p.slug === slug) as any as Product | undefined;
   if (!product) notFound();
 
-  const discount = product.compareAtPrice
+  const discount   = product.compareAtPrice
     ? calculateDiscount(Number(product.price), Number(product.compareAtPrice))
     : 0;
+  const saveAmount = product.compareAtPrice
+    ? Number(product.compareAtPrice) - Number(product.price)
+    : 0;
 
-  // Related products (same category, exclude current)
   const related = dummyProducts
     .filter((p) => p.categoryId === product.categoryId && p.id !== product.id)
     .slice(0, 4) as any as Product[];
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-sm text-[#7a6045] mb-6" aria-label="breadcrumb">
-          <Link href="/" className="hover:text-[#c8860a] transition-colors">হোম</Link>
-          <ChevronRight size={14} />
-          <Link href="/shop" className="hover:text-[#c8860a] transition-colors">পণ্য</Link>
-          {product.category && (
-            <>
-              <ChevronRight size={14} />
-              <Link
-                href={`/shop?category=${product.category.slug}`}
-                className="hover:text-[#c8860a] transition-colors"
-              >
-                {product.category.name}
-              </Link>
-            </>
-          )}
-          <ChevronRight size={14} />
-          <span className="text-[#1a1208] truncate max-w-[150px]">{product.title}</span>
-        </nav>
+      <div style={{ backgroundColor: "#f9f9f9", padding: "24px 0 60px" }}>
+        <div className="max-w-7xl mx-auto px-5">
 
-        {/* Main product section */}
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
-          {/* Gallery */}
-          <div>
-            <ProductGallery images={product.images} title={product.title} />
-          </div>
-
-          {/* Details */}
-          <div className="space-y-5">
-            {/* Category */}
-            {product.category && (
-              <Link
-                href={`/shop?category=${product.category.slug}`}
-                className="inline-block text-sm text-[#c8860a] font-medium hover:underline"
-              >
-                {product.category.name}
-              </Link>
-            )}
-
-            {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-bold text-[#1a1208] leading-snug">
-              {product.title}
-            </h1>
-
-            {/* Badges */}
-            <div className="flex flex-wrap gap-2">
-              {product.isBestSelling && (
-                <span className="bg-[#c8860a] text-white text-xs font-bold px-3 py-1 rounded-full">
-                  বেস্টসেলার 🏆
-                </span>
-              )}
-              {discount > 0 && (
-                <span className="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full">
-                  {discount}% ছাড়
-                </span>
-              )}
-            </div>
-
-            {/* Price */}
-            <div className="flex items-center gap-3">
-              <span className="text-3xl font-bold text-[#c8860a]">
-                {formatPriceEn(Number(product.price))}
-              </span>
-              {product.compareAtPrice && (
-                <span className="text-lg text-gray-400 line-through">
-                  {formatPriceEn(Number(product.compareAtPrice))}
-                </span>
-              )}
-              {discount > 0 && (
-                <span className="text-sm text-green-600 font-semibold">
-                  {formatPriceEn(Number(product.compareAtPrice!) - Number(product.price))} সাশ্রয়!
-                </span>
-              )}
-            </div>
-
-            {/* SKU */}
-            {product.sku && (
-              <p className="text-xs text-[#7a6045]">SKU: {product.sku}</p>
-            )}
-
-            {/* Add to Cart */}
-            <AddToCartSection product={product} />
-
-            {/* Description */}
-            {product.description && (
-              <div className="border-t border-[#f0e8d8] pt-5">
-                <h3 className="font-semibold text-[#1a1208] mb-3">পণ্যের বিবরণ</h3>
-                <div className="prose prose-sm max-w-none text-[#4a2c0a] leading-relaxed whitespace-pre-line">
-                  {product.description}
-                </div>
-              </div>
-            )}
-
-            {/* Tags */}
-            {product.tags && product.tags.length > 0 && (
-              <div className="border-t border-[#f0e8d8] pt-5">
-                <h3 className="font-semibold text-[#1a1208] mb-3 text-sm">ট্যাগ</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.tags.map((tag) => (
-                    <Link
-                      key={tag}
-                      href={`/shop?search=${encodeURIComponent(tag)}`}
-                      className="text-xs px-3 py-1 bg-[#f0e8d8] text-[#4a2c0a] rounded-full hover:bg-[#c8860a] hover:text-white transition-colors"
-                    >
-                      #{tag}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Related Products */}
-        {related.length > 0 && (
-          <div className="mt-16">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl md:text-2xl font-bold text-[#1a1208]">
-                সম্পর্কিত পণ্য
-              </h2>
-              {product.category && (
+          {/* Breadcrumb */}
+          <nav
+            className="flex items-center flex-wrap"
+            style={{ gap: 6, marginBottom: 20 }}
+            aria-label="breadcrumb"
+          >
+            {[
+              { href: "/",     label: "Home"     },
+              { href: "/shop", label: "Products" },
+              ...(product.category
+                ? [{ href: `/shop?category=${product.category.slug}`, label: product.category.name }]
+                : []),
+            ].map((crumb, i, arr) => (
+              <span key={crumb.href} className="flex items-center" style={{ gap: 6 }}>
                 <Link
-                  href={`/shop?category=${product.category.slug}`}
-                  className="text-[#c8860a] text-sm font-semibold hover:underline"
+                  href={crumb.href}
+                  style={{ fontSize: 13, color: "#888", textDecoration: "none" }}
+                  className="hover:text-[#F48721] transition-colors"
                 >
-                  সব দেখুন →
+                  {crumb.label}
                 </Link>
-              )}
+                {i < arr.length - 1 && <ChevronRight size={12} style={{ color: "#ccc" }} />}
+              </span>
+            ))}
+            <span className="flex items-center" style={{ gap: 6 }}>
+              <ChevronRight size={12} style={{ color: "#ccc" }} />
+              <span
+                className="line-clamp-1"
+                style={{ fontSize: 13, color: "#222", maxWidth: 180, fontFamily: "'Open Sans',sans-serif" }}
+              >
+                {product.title}
+              </span>
+            </span>
+          </nav>
+
+          {/* Main product grid */}
+          <div
+            className="grid md:grid-cols-2"
+            style={{ gap: 32, alignItems: "start" }}
+          >
+            {/* Left: gallery */}
+            <div>
+              <ProductGallery images={product.images} title={product.title} />
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {related.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
+
+            {/* Right: product info */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+              {/* Category / Brand tag */}
+              {product.category && (
+                <div>
+                  <Link
+                    href={`/shop?category=${product.category.slug}`}
+                    style={{
+                      display: "inline-block",
+                      fontSize: 13, color: "#555",
+                      textDecoration: "none",
+                      border: "1px solid #ddd",
+                      borderRadius: 20,
+                      padding: "5px 14px",
+                      fontFamily: "'Open Sans',sans-serif",
+                      transition: "border-color 0.2s, color 0.2s",
+                    }}
+                    className="hover:border-[#F48721] hover:text-[#F48721] transition-colors"
+                  >
+                    {product.category.name}
+                  </Link>
+                </div>
+              )}
+
+              {/* Product title */}
+              <h1
+                style={{
+                  fontSize: 28, fontWeight: 700, color: "#222",
+                  lineHeight: 1.3, fontFamily: "'Open Sans',sans-serif",
+                }}
+              >
+                {product.title}
+              </h1>
+
+              {/* Best seller badge */}
+              {product.isBestSelling && (
+                <div>
+                  <span
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: 4,
+                      backgroundColor: "#FF3F33", color: "#FFFFFF",
+                      fontSize: 12, fontWeight: 700,
+                      padding: "4px 10px", borderRadius: 4,
+                      fontFamily: "'Open Sans',sans-serif",
+                    }}
+                  >
+                    🏅 Best Selling
+                  </span>
+                </div>
+              )}
+
+              {/* Price block */}
+              <div className="flex flex-wrap items-center" style={{ gap: 12 }}>
+                <span
+                  style={{
+                    fontSize: 26, fontWeight: 700, color: "#F48721",
+                    fontFamily: "'Open Sans',sans-serif",
+                  }}
+                >
+                  {formatPriceEn(Number(product.price))}
+                </span>
+                {product.compareAtPrice && (
+                  <span style={{ fontSize: 16, color: "#aaa", textDecoration: "line-through" }}>
+                    {formatPriceEn(Number(product.compareAtPrice))}
+                  </span>
+                )}
+                {saveAmount > 0 && (
+                  <span
+                    style={{
+                      backgroundColor: "#e8f5e9", color: "#2e7d32",
+                      fontSize: 13, fontWeight: 600,
+                      padding: "4px 10px", borderRadius: 4,
+                      fontFamily: "'Open Sans',sans-serif",
+                      border: "1px solid #c8e6c9",
+                    }}
+                  >
+                    Save {discount}%
+                  </span>
+                )}
+              </div>
+
+              {/* SKU */}
+              {product.sku && (
+                <p style={{ fontSize: 12, color: "#888", fontFamily: "'Open Sans',sans-serif" }}>
+                  SKU: <span style={{ color: "#555" }}>{product.sku}</span>
+                </p>
+              )}
+
+              {/* Add to cart section */}
+              <AddToCartSection product={product} />
             </div>
           </div>
-        )}
+
+          {/* ── Description + Reviews tabs ── */}
+          <ProductTabs
+            description={product.description || undefined}
+            tags={product.tags}
+            reviewCount={0}
+          />
+
+          {/* Related products */}
+          {related.length > 0 && (
+            <div style={{ marginTop: 60 }}>
+              <div className="flex items-end justify-between" style={{ marginBottom: 24 }}>
+                <div className="relative" style={{ paddingBottom: 10 }}>
+                  <h2
+                    style={{
+                      fontSize: 22, fontWeight: 600, color: "#222",
+                      fontFamily: "'Open Sans',sans-serif",
+                    }}
+                  >
+                    Related Products
+                  </h2>
+                  <span
+                    className="absolute bottom-0 left-0"
+                    style={{ width: 48, height: 3, backgroundColor: "#F48721", borderRadius: 2 }}
+                  />
+                </div>
+                {product.category && (
+                  <Link
+                    href={`/shop?category=${product.category.slug}`}
+                    style={{ color: "#F48721", fontSize: 13, fontWeight: 600, textDecoration: "none" }}
+                    className="hover:underline"
+                  >
+                    View All →
+                  </Link>
+                )}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 16 }}>
+                {related.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
 
-      {/* Sticky add-to-cart for mobile */}
+      {/* Sticky cart bar (mobile) */}
       <StickyCartBar product={product} />
     </>
   );

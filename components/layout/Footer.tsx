@@ -1,224 +1,229 @@
-import Link from "next/link";
-import { Phone, Mail, MapPin, ExternalLink } from "lucide-react";
-import { dummySiteSettings } from "@/lib/dummy-data";
+"use client";
 
-// Inline SVG social icons (lucide-react doesn't include social brand icons)
-function FacebookIcon({ size = 14 }: { size?: number }) {
+import Link from "next/link";
+import { Phone, Mail, MapPin } from "lucide-react";
+import { useSiteLayout } from "@/lib/site-layout-context";
+
+function FacebookIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
     </svg>
   );
 }
-function InstagramIcon({ size = 14 }: { size?: number }) {
+function InstagramIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
     </svg>
   );
 }
-function YoutubeIcon({ size = 14 }: { size?: number }) {
+function TwitterIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
+  );
+}
+
+
+const linkStyle: React.CSSProperties = {
+  fontSize: 13,
+  color: "#666",
+  textDecoration: "none",
+  fontFamily: "'Open Sans', sans-serif",
+  display: "block",
+  padding: "4px 0",
+  lineHeight: 1.6,
+  transition: "color 0.2s",
+};
+
+const headingStyle: React.CSSProperties = {
+  fontSize: 15,
+  fontWeight: 700,
+  color: "#222",
+  marginBottom: 16,
+  fontFamily: "'Open Sans', sans-serif",
+};
+
+function FooterLink({ href, label }: { href: string; label: string }) {
+  return (
+    <li>
+      <Link
+        href={href}
+        style={linkStyle}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#666"; }}
+      >
+        {label}
+      </Link>
+    </li>
   );
 }
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    information: [
-      { href: "/about", label: "আমাদের সম্পর্কে" },
-      { href: "/blog", label: "ব্লগ" },
-      { href: "/careers", label: "ক্যারিয়ার" },
-      { href: "/press", label: "প্রেস" },
-    ],
-    shop: [
-      { href: "/shop?category=katha", label: "কাঁথা" },
-      { href: "/shop?category=chador", label: "চাদর" },
-      { href: "/shop?category=kambal", label: "কম্বল" },
-      { href: "/shop?category=nakshi-katha", label: "নকশিকাঁথা" },
-      { href: "/shop?category=muslin", label: "মসলিন" },
-    ],
-    support: [
-      { href: "/contact", label: "যোগাযোগ" },
-      { href: "/faq", label: "প্রশ্ন ও উত্তর" },
-      { href: "/track-order", label: "অর্ডার ট্র্যাক করুন" },
-      { href: "/shipping", label: "শিপিং তথ্য" },
-    ],
-    policy: [
-      { href: "/privacy", label: "গোপনীয়তা নীতি" },
-      { href: "/terms", label: "ব্যবহারের শর্তাবলি" },
-      { href: "/refund", label: "ফেরত নীতি" },
-      { href: "/delivery", label: "ডেলিভারি নীতি" },
-    ],
-  };
+  const { data: layout } = useSiteLayout();
+  const footerLinks = layout.footerLinks;
 
   return (
-    <footer className="bg-[#1a1208] text-white mt-12">
-      {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-          {/* Brand Column */}
-          <div className="col-span-2 md:col-span-4 lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold">
-                শি
+    <footer style={{ backgroundColor: "#f9f9f9", borderTop: "1px solid #eee" }}>
+
+      {/* Main footer body */}
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-5" style={{ paddingTop: 48, paddingBottom: 40 }}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5" style={{ gap: 32 }}>
+
+          {/* ── Brand column ── */}
+          <div className="col-span-2 md:col-span-3 lg:col-span-1">
+            {/* Logo */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <div
+                style={{
+                  width: 44, height: 44, borderRadius: "50%",
+                  backgroundColor: "#F48721",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "white", fontWeight: 700, fontSize: 20,
+                  flexShrink: 0,
+                }}
+              >
+                {layout.logoLetter}
               </div>
               <div>
-                <div className="text-lg font-bold">শিল্পেরহাট</div>
-                <div className="text-xs text-[#c8a060]">হস্তশিল্পের আপন ঘর</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#222", fontFamily: "'Open Sans',sans-serif", lineHeight: 1.2 }}>
+                  {layout.siteName}
+                </div>
+                <div style={{ fontSize: 11, color: "#999" }}>{layout.tagline}</div>
               </div>
             </div>
-            <p className="text-sm text-gray-400 mb-4 leading-relaxed">
-              বাংলার ঐতিহ্যবাহী হস্তশিল্পকে ঘরে পৌঁছে দেওয়াই আমাদের লক্ষ্য। সেরা মানের কাঁথা, চাদর ও কম্বল।
+
+            <p
+              style={{
+                fontSize: 13, color: "#666", lineHeight: 1.7,
+                marginBottom: 16, maxWidth: 240,
+                fontFamily: "'Open Sans',sans-serif",
+              }}
+            >
+              {layout.footerDescription}
             </p>
 
             {/* Contact */}
-            <div className="space-y-2 text-sm text-gray-400 mb-4">
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
               <a
-                href={`https://wa.me/${dummySiteSettings.whatsappNumber}`}
+                href={`https://wa.me/${layout.whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:text-[#c8860a] transition-colors"
+                style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#666", textDecoration: "none" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#666"; }}
               >
-                <Phone size={14} />
-                <span>{dummySiteSettings.whatsappNumber}</span>
+                <Phone size={13} style={{ flexShrink: 0 }} />
+                <span>{layout.phone}</span>
               </a>
+              {layout.email && (
               <a
-                href="mailto:info@shilperhaat.com"
-                className="flex items-center gap-2 hover:text-[#c8860a] transition-colors"
+                href={`mailto:${layout.email}`}
+                style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#666", textDecoration: "none" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#666"; }}
               >
-                <Mail size={14} />
-                <span>info@shilperhaat.com</span>
+                <Mail size={13} style={{ flexShrink: 0 }} />
+                <span>{layout.email}</span>
               </a>
-              <div className="flex items-center gap-2">
-                <MapPin size={14} />
-                <span>ঢাকা, বাংলাদেশ</span>
+              )}
+              {layout.address && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#666" }}>
+                <MapPin size={13} style={{ flexShrink: 0 }} />
+                <span>{layout.address}</span>
               </div>
+              )}
             </div>
 
-            {/* Social */}
-            <div className="flex gap-3">
-              <a
-                href="https://facebook.com/shilperhaat"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#c8860a] transition-colors"
-                aria-label="Facebook"
-              >
-                <FacebookIcon size={14} />
-              </a>
-              <a
-                href="https://instagram.com/shilperhaat"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#c8860a] transition-colors"
-                aria-label="Instagram"
-              >
-                <InstagramIcon size={14} />
-              </a>
-              <a
-                href="https://youtube.com/@shilperhaat"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#c8860a] transition-colors"
-                aria-label="YouTube"
-              >
-                <YoutubeIcon size={14} />
-              </a>
+            {/* Social icons */}
+            <div style={{ display: "flex", gap: 10 }}>
+              {[
+                { href: layout.facebookUrl,  icon: <FacebookIcon />,  label: "Facebook"  },
+                { href: layout.twitterUrl,   icon: <TwitterIcon />,   label: "Twitter"   },
+                { href: layout.instagramUrl, icon: <InstagramIcon />, label: "Instagram" },
+              ].filter((s) => s.href).map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  style={{
+                    width: 36, height: 36, borderRadius: "50%",
+                    border: "1px solid #ddd",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#666", textDecoration: "none",
+                    transition: "border-color 0.2s, color 0.2s, background-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "#F48721";
+                    (e.currentTarget as HTMLAnchorElement).style.color = "#F48721";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "#ddd";
+                    (e.currentTarget as HTMLAnchorElement).style.color = "#666";
+                  }}
+                >
+                  {social.icon}
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Information */}
+          {/* ── Information ── */}
           <div>
-            <h3 className="font-semibold text-[#f5d78e] mb-4 text-sm uppercase tracking-wider">
-              তথ্য
-            </h3>
-            <ul className="space-y-2">
+            <h3 style={headingStyle}>Information</h3>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {footerLinks.information.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-gray-400 hover:text-[#c8860a] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
+                <FooterLink key={link.href + link.label} href={link.href} label={link.label} />
               ))}
             </ul>
           </div>
 
-          {/* Shop By */}
+          {/* ── Shop By ── */}
           <div>
-            <h3 className="font-semibold text-[#f5d78e] mb-4 text-sm uppercase tracking-wider">
-              পণ্য বিভাগ
-            </h3>
-            <ul className="space-y-2">
+            <h3 style={headingStyle}>Shop By</h3>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {footerLinks.shop.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-gray-400 hover:text-[#c8860a] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
+                <FooterLink key={link.href} href={link.href} label={link.label} />
               ))}
             </ul>
           </div>
 
-          {/* Support */}
+          {/* ── Support ── */}
           <div>
-            <h3 className="font-semibold text-[#f5d78e] mb-4 text-sm uppercase tracking-wider">
-              সাহায্য
-            </h3>
-            <ul className="space-y-2">
+            <h3 style={headingStyle}>Support</h3>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {footerLinks.support.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-gray-400 hover:text-[#c8860a] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
+                <FooterLink key={link.href + link.label} href={link.href} label={link.label} />
               ))}
             </ul>
           </div>
 
-          {/* Policy */}
+          {/* ── Consumer Policy ── */}
           <div>
-            <h3 className="font-semibold text-[#f5d78e] mb-4 text-sm uppercase tracking-wider">
-              নীতিমালা
-            </h3>
-            <ul className="space-y-2">
+            <h3 style={headingStyle}>Consumer Policy</h3>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {footerLinks.policy.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-gray-400 hover:text-[#c8860a] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
+                <FooterLink key={link.href} href={link.href} label={link.label} />
               ))}
             </ul>
           </div>
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-sm text-gray-500">
-          <p>
-            {dummySiteSettings.footerCopyright ||
-              `© ${currentYear} শিল্পেরহাট। সর্বস্বত্ব সংরক্ষিত।`}
-          </p>
-          <p className="text-xs">
-            বাংলাদেশের হস্তশিল্পকারীদের সহায়তায় তৈরি ❤️
+      {/* Bottom bar */}
+      <div style={{ borderTop: "1px solid #eee" }}>
+        <div
+          className="w-full max-w-7xl mx-auto px-4 md:px-5"
+          style={{ padding: "16px 20px", textAlign: "center" }}
+        >
+          <p style={{ fontSize: 12, color: "#999", fontFamily: "'Open Sans',sans-serif" }}>
+            {layout.footerCopyright || `© ${currentYear} ${layout.siteName}. All rights reserved.`}
+            {" "}· Made with ❤️ to support Bangladesh's artisans
           </p>
         </div>
       </div>

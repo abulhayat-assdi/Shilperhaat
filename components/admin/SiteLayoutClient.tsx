@@ -1,0 +1,653 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Save,
+  RotateCcw,
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
+import {
+  useSiteLayout,
+  NavItem,
+  NavDropdownItem,
+  FooterLinkItem,
+} from "@/lib/site-layout-context";
+
+type Tab = "brand" | "navigation" | "contact" | "footer";
+
+/* ─── reusable field components ──────────────────────────────── */
+function Field({
+  label,
+  children,
+  hint,
+}: {
+  label: string;
+  children: React.ReactNode;
+  hint?: string;
+}) {
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+        {label}
+      </label>
+      {children}
+      {hint && <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 4 }}>{hint}</p>}
+    </div>
+  );
+}
+
+function Input({
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  type?: string;
+}) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      style={{
+        width: "100%",
+        padding: "8px 12px",
+        border: "1px solid #D1D5DB",
+        borderRadius: 6,
+        fontSize: 14,
+        color: "#111827",
+        outline: "none",
+        boxSizing: "border-box",
+        transition: "border-color 0.15s",
+        fontFamily: "inherit",
+      }}
+      onFocus={(e) => { e.currentTarget.style.borderColor = "#c8860a"; }}
+      onBlur={(e)  => { e.currentTarget.style.borderColor = "#D1D5DB"; }}
+    />
+  );
+}
+
+function Textarea({
+  value,
+  onChange,
+  rows = 3,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  rows?: number;
+  placeholder?: string;
+}) {
+  return (
+    <textarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      rows={rows}
+      placeholder={placeholder}
+      style={{
+        width: "100%",
+        padding: "8px 12px",
+        border: "1px solid #D1D5DB",
+        borderRadius: 6,
+        fontSize: 14,
+        color: "#111827",
+        outline: "none",
+        resize: "vertical",
+        boxSizing: "border-box",
+        fontFamily: "inherit",
+        transition: "border-color 0.15s",
+      }}
+      onFocus={(e) => { e.currentTarget.style.borderColor = "#c8860a"; }}
+      onBlur={(e)  => { e.currentTarget.style.borderColor = "#D1D5DB"; }}
+    />
+  );
+}
+
+
+function SectionCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        backgroundColor: "#fff",
+        border: "1px solid #E5E7EB",
+        borderRadius: 10,
+        padding: "24px",
+        marginBottom: 20,
+      }}
+    >
+      <h3 style={{ fontSize: 15, fontWeight: 700, color: "#111827", marginBottom: 20, paddingBottom: 12, borderBottom: "1px solid #F3F4F6" }}>
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+/* ─── Link list editor ────────────────────────────────────────── */
+function LinkListEditor({
+  items,
+  onChange,
+}: {
+  items: FooterLinkItem[];
+  onChange: (items: FooterLinkItem[]) => void;
+}) {
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+
+  const addItem = () => {
+    const next = [...items, { href: "", label: "" }];
+    onChange(next);
+    setExpandedIdx(next.length - 1);
+  };
+
+  const removeItem = (i: number) => {
+    const next = items.filter((_, idx) => idx !== i);
+    onChange(next);
+    if (expandedIdx === i) setExpandedIdx(null);
+  };
+
+  const updateItem = (i: number, patch: Partial<FooterLinkItem>) => {
+    onChange(items.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
+  };
+
+  return (
+    <div>
+      {items.map((item, i) => (
+        <div
+          key={i}
+          style={{
+            border: "1px solid #E5E7EB",
+            borderRadius: 6,
+            marginBottom: 6,
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "8px 12px", backgroundColor: "#F9FAFB",
+              cursor: "pointer",
+            }}
+            onClick={() => setExpandedIdx(expandedIdx === i ? null : i)}
+          >
+            <GripVertical size={14} style={{ color: "#9CA3AF", flexShrink: 0 }} />
+            <span style={{ flex: 1, fontSize: 13, color: "#374151", fontWeight: 500 }}>
+              {item.label || <em style={{ color: "#9CA3AF" }}>Untitled</em>}
+            </span>
+            <span style={{ fontSize: 11, color: "#9CA3AF", marginRight: 4 }}>{item.href}</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); removeItem(i); }}
+              style={{ color: "#EF4444", background: "none", border: "none", cursor: "pointer", padding: 2 }}
+            >
+              <Trash2 size={14} />
+            </button>
+            {expandedIdx === i ? <ChevronUp size={14} style={{ color: "#9CA3AF" }} /> : <ChevronDown size={14} style={{ color: "#9CA3AF" }} />}
+          </div>
+          {expandedIdx === i && (
+            <div style={{ padding: "12px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#6B7280", display: "block", marginBottom: 4 }}>Label</label>
+                <Input value={item.label} onChange={(v) => updateItem(i, { label: v })} placeholder="Label text" />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#6B7280", display: "block", marginBottom: 4 }}>URL / Path</label>
+                <Input value={item.href} onChange={(v) => updateItem(i, { href: v })} placeholder="/path-here" />
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+      <button
+        onClick={addItem}
+        style={{
+          display: "flex", alignItems: "center", gap: 6,
+          fontSize: 13, color: "#c8860a", background: "none", border: "1px dashed #c8860a",
+          borderRadius: 6, padding: "7px 14px", cursor: "pointer", width: "100%",
+          justifyContent: "center", marginTop: 4,
+        }}
+      >
+        <Plus size={14} /> Add Link
+      </button>
+    </div>
+  );
+}
+
+/* ─── Nav item editor ─────────────────────────────────────────── */
+function NavItemEditor({
+  items,
+  onChange,
+}: {
+  items: NavItem[];
+  onChange: (items: NavItem[]) => void;
+}) {
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [expandedDropdowns, setExpandedDropdowns] = useState<Record<number, boolean>>({});
+
+  const add = () => {
+    const next = [...items, { href: "", label: "" }];
+    onChange(next);
+    setExpandedIdx(next.length - 1);
+  };
+
+  const remove = (i: number) => {
+    onChange(items.filter((_, idx) => idx !== i));
+    if (expandedIdx === i) setExpandedIdx(null);
+  };
+
+  const update = (i: number, patch: Partial<NavItem>) => {
+    onChange(items.map((item, idx) => (idx === i ? { ...item, ...patch } : item)));
+  };
+
+  const addDropdown = (i: number) => {
+    const existing = items[i].dropdown || [];
+    update(i, { dropdown: [...existing, { href: "", label: "" }] });
+    setExpandedDropdowns((prev) => ({ ...prev, [i]: true }));
+  };
+
+  const removeDropdown = (i: number) => {
+    update(i, { dropdown: undefined });
+  };
+
+  const updateDropdownItem = (navIdx: number, dropIdx: number, patch: Partial<NavDropdownItem>) => {
+    const existing = items[navIdx].dropdown || [];
+    update(navIdx, {
+      dropdown: existing.map((d, di) => (di === dropIdx ? { ...d, ...patch } : d)),
+    });
+  };
+
+  const removeDropdownItem = (navIdx: number, dropIdx: number) => {
+    const existing = items[navIdx].dropdown || [];
+    const next = existing.filter((_, di) => di !== dropIdx);
+    update(navIdx, { dropdown: next.length ? next : undefined });
+  };
+
+  return (
+    <div>
+      {items.map((item, i) => (
+        <div
+          key={i}
+          style={{ border: "1px solid #E5E7EB", borderRadius: 8, marginBottom: 8, overflow: "hidden" }}
+        >
+          {/* Item header row */}
+          <div
+            style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", backgroundColor: "#F9FAFB", cursor: "pointer" }}
+            onClick={() => setExpandedIdx(expandedIdx === i ? null : i)}
+          >
+            <GripVertical size={14} style={{ color: "#9CA3AF", flexShrink: 0 }} />
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: "#374151" }}>
+              {item.label || <em style={{ color: "#9CA3AF" }}>Untitled</em>}
+            </span>
+            {item.dropdown && (
+              <span style={{ fontSize: 11, backgroundColor: "#FEF3C7", color: "#92400E", borderRadius: 4, padding: "2px 6px" }}>
+                {item.dropdown.length} sub-items
+              </span>
+            )}
+            <button
+              onClick={(e) => { e.stopPropagation(); remove(i); }}
+              style={{ color: "#EF4444", background: "none", border: "none", cursor: "pointer", padding: 2 }}
+            >
+              <Trash2 size={14} />
+            </button>
+            {expandedIdx === i ? <ChevronUp size={14} style={{ color: "#9CA3AF" }} /> : <ChevronDown size={14} style={{ color: "#9CA3AF" }} />}
+          </div>
+
+          {expandedIdx === i && (
+            <div style={{ padding: 14 }}>
+              {/* Label + URL */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#6B7280", display: "block", marginBottom: 4 }}>Label</label>
+                  <Input value={item.label} onChange={(v) => update(i, { label: v })} placeholder="Nav label" />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#6B7280", display: "block", marginBottom: 4 }}>URL / Path</label>
+                  <Input value={item.href} onChange={(v) => update(i, { href: v })} placeholder="/shop?category=katha" />
+                </div>
+              </div>
+
+              {/* Dropdown sub-items */}
+              <div style={{ borderTop: "1px solid #F3F4F6", paddingTop: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Dropdown Sub-items
+                  </span>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {!item.dropdown && (
+                      <button
+                        onClick={() => addDropdown(i)}
+                        style={{ fontSize: 12, color: "#c8860a", background: "none", border: "1px solid #c8860a", borderRadius: 4, padding: "3px 10px", cursor: "pointer" }}
+                      >
+                        + Add Dropdown
+                      </button>
+                    )}
+                    {item.dropdown && (
+                      <>
+                        <button
+                          onClick={() => addDropdown(i)}
+                          style={{ fontSize: 12, color: "#c8860a", background: "none", border: "1px solid #c8860a", borderRadius: 4, padding: "3px 10px", cursor: "pointer" }}
+                        >
+                          + Add
+                        </button>
+                        <button
+                          onClick={() => removeDropdown(i)}
+                          style={{ fontSize: 12, color: "#EF4444", background: "none", border: "1px solid #EF4444", borderRadius: 4, padding: "3px 10px", cursor: "pointer" }}
+                        >
+                          Remove All
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {item.dropdown?.map((sub, di) => (
+                  <div
+                    key={di}
+                    style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 8, marginBottom: 6, alignItems: "center" }}
+                  >
+                    <Input value={sub.label} onChange={(v) => updateDropdownItem(i, di, { label: v })} placeholder="Sub label" />
+                    <Input value={sub.href} onChange={(v) => updateDropdownItem(i, di, { href: v })} placeholder="/path" />
+                    <button
+                      onClick={() => removeDropdownItem(i, di)}
+                      style={{ color: "#EF4444", background: "none", border: "none", cursor: "pointer", padding: "4px" }}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+
+                {!item.dropdown && (
+                  <p style={{ fontSize: 12, color: "#9CA3AF", fontStyle: "italic" }}>No dropdown — click "Add Dropdown" to create one.</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
+      <button
+        onClick={add}
+        style={{
+          display: "flex", alignItems: "center", gap: 6,
+          fontSize: 13, color: "#c8860a", background: "none", border: "1px dashed #c8860a",
+          borderRadius: 6, padding: "8px 14px", cursor: "pointer", width: "100%",
+          justifyContent: "center", marginTop: 4,
+        }}
+      >
+        <Plus size={14} /> Add Nav Item
+      </button>
+    </div>
+  );
+}
+
+/* ─── Main component ──────────────────────────────────────────── */
+export default function SiteLayoutClient() {
+  const { data, update, save, reset, isDirty } = useSiteLayout();
+  const [activeTab, setActiveTab] = useState<Tab>("brand");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saved">("idle");
+
+  const handleSave = () => {
+    save();
+    setSaveStatus("saved");
+    setTimeout(() => setSaveStatus("idle"), 2500);
+  };
+
+  const tabs: { id: Tab; label: string }[] = [
+    { id: "brand",      label: "Brand & Logo"     },
+    { id: "navigation", label: "Navigation"       },
+    { id: "contact",    label: "Contact & Social" },
+    { id: "footer",     label: "Footer"           },
+  ];
+
+  return (
+    <div style={{ padding: "24px 28px", fontFamily: "'Inter', 'Open Sans', sans-serif" }}>
+      {/* Page title + Save bar */}
+      <div
+        style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          marginBottom: 24,
+        }}
+      >
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: "#111827", margin: 0 }}>Site Layout</h1>
+          <p style={{ fontSize: 13, color: "#6B7280", marginTop: 4 }}>
+            Manage everything that appears in the header and footer of your store.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {isDirty && (
+            <span style={{ fontSize: 12, color: "#D97706", display: "flex", alignItems: "center", gap: 4 }}>
+              <AlertCircle size={13} /> Unsaved changes
+            </span>
+          )}
+          {saveStatus === "saved" && (
+            <span style={{ fontSize: 12, color: "#16A34A", display: "flex", alignItems: "center", gap: 4 }}>
+              <CheckCircle2 size={13} /> Saved
+            </span>
+          )}
+          <button
+            onClick={() => { if (confirm("Reset all settings to default values?")) reset(); }}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "8px 14px", borderRadius: 6,
+              border: "1px solid #D1D5DB", backgroundColor: "#fff",
+              fontSize: 13, color: "#6B7280", cursor: "pointer",
+            }}
+          >
+            <RotateCcw size={14} /> Reset
+          </button>
+          <button
+            onClick={handleSave}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "8px 18px", borderRadius: 6,
+              border: "none", backgroundColor: "#c8860a",
+              fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer",
+            }}
+          >
+            <Save size={14} /> Save Changes
+          </button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div
+        style={{
+          display: "flex", gap: 2,
+          borderBottom: "1px solid #E5E7EB",
+          marginBottom: 24,
+          overflowX: "auto",
+        }}
+      >
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: "10px 18px",
+              border: "none", background: "none",
+              fontSize: 13, fontWeight: activeTab === tab.id ? 700 : 500,
+              color: activeTab === tab.id ? "#c8860a" : "#6B7280",
+              borderBottom: activeTab === tab.id ? "2px solid #c8860a" : "2px solid transparent",
+              marginBottom: -1, cursor: "pointer", whiteSpace: "nowrap",
+              transition: "color 0.15s",
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Brand & Logo ─────────────────────────────────────── */}
+      {activeTab === "brand" && (
+        <div>
+          <SectionCard title="Logo & Brand Identity">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+              <Field label="Site Name" hint="Shown in logo area and browser tab">
+                <Input value={data.siteName} onChange={(v) => update({ siteName: v })} placeholder="Shilperhaat" />
+              </Field>
+              <Field label="Tagline" hint="Small text below the site name">
+                <Input value={data.tagline} onChange={(v) => update({ tagline: v })} placeholder="Handcraft Marketplace" />
+              </Field>
+              <Field label="Logo Letter" hint="Letter shown inside the circle icon">
+                <Input
+                  value={data.logoLetter}
+                  onChange={(v) => update({ logoLetter: v.slice(0, 1).toUpperCase() || "S" })}
+                  placeholder="S"
+                />
+              </Field>
+            </div>
+
+            {/* Live preview */}
+            <div style={{ marginTop: 16, padding: 16, backgroundColor: "#FBF9F5", borderRadius: 8, border: "1px dashed #E5E7EB" }}>
+              <p style={{ fontSize: 11, fontWeight: 600, color: "#9CA3AF", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Preview</p>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div
+                  style={{
+                    width: 44, height: 44, borderRadius: "50%",
+                    backgroundColor: "#F48721",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "white", fontWeight: 700, fontSize: 20,
+                  }}
+                >
+                  {data.logoLetter}
+                </div>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: "#222" }}>{data.siteName}</div>
+                  <div style={{ fontSize: 11, color: "#999" }}>{data.tagline}</div>
+                </div>
+              </div>
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* ── Navigation ───────────────────────────────────────── */}
+      {activeTab === "navigation" && (
+        <div>
+          <SectionCard title="Navigation Items">
+            <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 16 }}>
+              These items appear in the dark navigation bar. Expand any item to edit its label, URL, and optional dropdown sub-items.
+            </p>
+            <NavItemEditor
+              items={data.navItems}
+              onChange={(navItems) => update({ navItems })}
+            />
+          </SectionCard>
+        </div>
+      )}
+
+      {/* ── Contact & Social ─────────────────────────────────── */}
+      {activeTab === "contact" && (
+        <div>
+          <SectionCard title="Contact Information">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <Field label="Phone Number" hint="Shown in footer and More menu">
+                <Input value={data.phone} onChange={(v) => update({ phone: v })} placeholder="01700000000" />
+              </Field>
+              <Field label="WhatsApp Number" hint="Used for WhatsApp links (digits only, with country code)">
+                <Input value={data.whatsappNumber} onChange={(v) => update({ whatsappNumber: v })} placeholder="8801700000000" />
+              </Field>
+              <Field label="Email Address">
+                <Input value={data.email} onChange={(v) => update({ email: v })} placeholder="info@shilperhaat.com" type="email" />
+              </Field>
+              <Field label="Address">
+                <Input value={data.address} onChange={(v) => update({ address: v })} placeholder="Dhaka, Bangladesh" />
+              </Field>
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Social Media Links">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+              <Field label="Facebook URL">
+                <Input value={data.facebookUrl} onChange={(v) => update({ facebookUrl: v })} placeholder="https://facebook.com/yourpage" />
+              </Field>
+              <Field label="Twitter / X URL">
+                <Input value={data.twitterUrl} onChange={(v) => update({ twitterUrl: v })} placeholder="https://twitter.com/yourhandle" />
+              </Field>
+              <Field label="Instagram URL">
+                <Input value={data.instagramUrl} onChange={(v) => update({ instagramUrl: v })} placeholder="https://instagram.com/yourpage" />
+              </Field>
+            </div>
+            <p style={{ fontSize: 12, color: "#9CA3AF", marginTop: 4 }}>
+              Leave a field empty to hide that social icon from the footer.
+            </p>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* ── Footer ───────────────────────────────────────────── */}
+      {activeTab === "footer" && (
+        <div>
+          <SectionCard title="Footer Brand Section">
+            <Field label="Footer Description" hint="Short paragraph shown below the logo in the footer">
+              <Textarea
+                value={data.footerDescription}
+                onChange={(v) => update({ footerDescription: v })}
+                rows={2}
+                placeholder="Bringing Bangladesh's traditional handcraft textiles to your doorstep..."
+              />
+            </Field>
+            <Field label="Copyright Text" hint="Shown in the bottom bar of the footer">
+              <Input
+                value={data.footerCopyright}
+                onChange={(v) => update({ footerCopyright: v })}
+                placeholder="© 2025 Shilperhaat. All rights reserved."
+              />
+            </Field>
+          </SectionCard>
+
+          <SectionCard title="Information Links">
+            <LinkListEditor
+              items={data.footerLinks.information}
+              onChange={(information) =>
+                update({ footerLinks: { ...data.footerLinks, information } })
+              }
+            />
+          </SectionCard>
+
+          <SectionCard title="Shop By Links">
+            <LinkListEditor
+              items={data.footerLinks.shop}
+              onChange={(shop) =>
+                update({ footerLinks: { ...data.footerLinks, shop } })
+              }
+            />
+          </SectionCard>
+
+          <SectionCard title="Support Links">
+            <LinkListEditor
+              items={data.footerLinks.support}
+              onChange={(support) =>
+                update({ footerLinks: { ...data.footerLinks, support } })
+              }
+            />
+          </SectionCard>
+
+          <SectionCard title="Consumer Policy Links">
+            <LinkListEditor
+              items={data.footerLinks.policy}
+              onChange={(policy) =>
+                update({ footerLinks: { ...data.footerLinks, policy } })
+              }
+            />
+          </SectionCard>
+        </div>
+      )}
+    </div>
+  );
+}

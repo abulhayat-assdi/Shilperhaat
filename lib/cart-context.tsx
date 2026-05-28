@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from "react";
 import type { CartItem, Cart } from "@/types";
 import { dummySiteSettings } from "./dummy-data";
 
@@ -10,6 +10,9 @@ interface CartContextType extends Cart {
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   itemCount: number;
+  cartDrawerOpen: boolean;
+  openCartDrawer: () => void;
+  closeCartDrawer: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -75,6 +78,10 @@ function computeCart(items: CartItem[]): Cart {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, dispatch] = useReducer(cartReducer, []);
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+
+  const openCartDrawer  = useCallback(() => setCartDrawerOpen(true), []);
+  const closeCartDrawer = useCallback(() => setCartDrawerOpen(false), []);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -118,7 +125,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ ...cart, addItem, removeItem, updateQuantity, clearCart, itemCount }}
+      value={{ ...cart, addItem, removeItem, updateQuantity, clearCart, itemCount, cartDrawerOpen, openCartDrawer, closeCartDrawer }}
     >
       {children}
     </CartContext.Provider>

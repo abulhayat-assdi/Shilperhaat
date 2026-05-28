@@ -241,7 +241,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                         slug: f.slug || autoSlug(e.target.value),
                       }));
                     }}
-                    placeholder="কাঁথা"
+                    placeholder="katha"
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
                   />
                 </div>
