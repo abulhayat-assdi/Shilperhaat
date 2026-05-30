@@ -5,5 +5,5 @@ export const metadata = { title: 'Terms of Use - Shilperhaat' }
 
 export default function TermsOfUsePage() {
   const page = getPage('terms-of-use')!
-  return <StaticPage title={page.title} subtitle={page.subtitle} section1={page.section1} section2={page.section2} />
+  return <StaticPage title={page.title} subtitle={page.subtitle} sections={page.sections} />
 }

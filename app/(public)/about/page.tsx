@@ -5,5 +5,5 @@ export const metadata = { title: 'About Us - Shilperhaat' }
 
 export default function AboutPage() {
   const page = getPage('about')!
-  return <StaticPage title={page.title} subtitle={page.subtitle} section1={page.section1} section2={page.section2} />
+  return <StaticPage title={page.title} subtitle={page.subtitle} sections={page.sections} />
 }

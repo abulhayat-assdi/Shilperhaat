@@ -2,36 +2,170 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, ZoomIn, Play } from "lucide-react";
 import type { ProductImage } from "@/types";
 import { getImageUrl } from "@/lib/utils";
 
 interface ProductGalleryProps {
   images: ProductImage[];
   title: string;
+  videoUrl?: string | null;
+  youtubeVideoId?: string | null;
 }
 
-export default function ProductGallery({ images, title }: ProductGalleryProps) {
-  const [activeIndex, setActiveIndex]   = useState(0);
+type MediaItem =
+  | { type: "image"; image: ProductImage }
+  | { type: "video"; videoUrl?: string | null; youtubeVideoId?: string | null };
+
+function YoutubeEmbed({ videoId }: { videoId: string }) {
+  return (
+    <iframe
+      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+      title="Product video"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+      className="w-full h-full rounded"
+      style={{ border: "none", minHeight: 340 }}
+    />
+  );
+}
+
+function ThumbnailButton({
+  item,
+  index,
+  size,
+  activeIndex,
+  onSelect,
+}: {
+  item: MediaItem;
+  index: number;
+  size: number;
+  activeIndex: number;
+  onSelect: (i: number) => void;
+}) {
+  const isActive = index === activeIndex;
+  return (
+    <button
+      onClick={() => onSelect(index)}
+      aria-label={`View ${item.type} ${index + 1}`}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: 6,
+        overflow: "hidden",
+        border: isActive ? "2px solid #F48721" : "2px solid #eee",
+        cursor: "pointer",
+        transition: "border-color 0.2s ease",
+        backgroundColor: "#fff",
+        padding: 0,
+        flexShrink: 0,
+        position: "relative",
+      }}
+    >
+      {item.type === "image" ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={getImageUrl(item.image.imageUrl)}
+          alt={item.image.altText || `Image ${index + 1}`}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+          }}
+        />
+      ) : (
+        <div
+          className="w-full h-full flex items-center justify-center relative"
+          style={{ background: "#1a1a1a" }}
+        >
+          {item.youtubeVideoId ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`https://img.youtube.com/vi/${item.youtubeVideoId}/mqdefault.jpg`}
+              alt="Video thumbnail"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{ background: "#1a1a1a" }}
+            />
+          )}
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: "rgba(0,0,0,0.35)" }}
+          >
+            <div
+              className="flex items-center justify-center rounded-full"
+              style={{
+                width: size < 70 ? 20 : 28,
+                height: size < 70 ? 20 : 28,
+                background: "rgba(255,255,255,0.9)",
+              }}
+            >
+              <Play
+                size={size < 70 ? 9 : 13}
+                fill="#F48721"
+                style={{ color: "#F48721", marginLeft: 2 }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </button>
+  );
+}
+
+function VideoPlayer({ src }: { src: string }) {
+  return (
+    <video
+      src={src}
+      controls
+      autoPlay
+      className="w-full rounded object-contain"
+      style={{ maxHeight: 380, background: "#000" }}
+    />
+  );
+}
+
+export default function ProductGallery({
+  images,
+  title,
+  videoUrl,
+  youtubeVideoId,
+}: ProductGalleryProps) {
+  const hasVideo = !!(videoUrl || youtubeVideoId);
+
+  const mediaItems: MediaItem[] = [
+    ...images.map((img) => ({ type: "image" as const, image: img })),
+    ...(hasVideo ? [{ type: "video" as const, videoUrl, youtubeVideoId }] : []),
+  ];
+
+  const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  if (images.length === 0) {
+  if (mediaItems.length === 0) {
     return (
       <div
         className="relative flex items-center justify-center"
         style={{
           aspectRatio: "1",
           backgroundColor: "#F5F5F5",
-          borderRadius: "8px",
+          borderRadius: 8,
           border: "1px solid #F0F0F0",
         }}
       >
-        <span style={{ color: "#888888", fontSize: "14px" }}>No image available</span>
+        <span style={{ color: "#888888", fontSize: 14 }}>No image available</span>
       </div>
     );
   }
 
-  const active = images[activeIndex];
+  const activeItem = mediaItems[activeIndex];
+  const isVideoActive = activeItem.type === "video";
+
+  const prev = () =>
+    setActiveIndex((i) => (i === 0 ? mediaItems.length - 1 : i - 1));
+  const next = () =>
+    setActiveIndex((i) => (i + 1) % mediaItems.length);
 
   return (
     <>
@@ -40,105 +174,103 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
         className="flex"
         style={{
           backgroundColor: "#FFFFFF",
-          borderRadius: "8px",
+          borderRadius: 8,
           border: "1px solid #F0F0F0",
-          padding: "16px",
-          gap: "12px",
+          padding: 16,
+          gap: 12,
           position: "sticky",
-          top: "68px",
+          top: 68,
         }}
       >
-        {/* Thumbnails strip (left) */}
-        {images.length > 1 && (
+        {/* Thumbnails strip (left) — desktop */}
+        {mediaItems.length > 1 && (
           <div
             className="hidden md:flex flex-col"
-            style={{ gap: "8px", width: "76px", flexShrink: 0 }}
+            style={{
+              gap: 8,
+              width: 80,
+              flexShrink: 0,
+              maxHeight: 440,
+              overflowY: "auto",
+              scrollbarWidth: "none",
+            } as React.CSSProperties}
           >
-            {images.map((img, i) => (
-              <button
-                key={img.id}
-                onClick={() => setActiveIndex(i)}
-                aria-label={`View image ${i + 1}`}
-                style={{
-                  width: "76px",
-                  height: "76px",
-                  borderRadius: "4px",
-                  overflow: "hidden",
-                  border: i === activeIndex ? "2px solid #F48721" : "2px solid transparent",
-                  cursor: "pointer",
-                  transition: "border-color 0.2s ease",
-                  backgroundColor: "#F5F5F5",
-                  padding: 0,
-                }}
-              >
-                <Image
-                  src={getImageUrl(img.imageUrl)}
-                  alt={img.altText || `Image ${i + 1}`}
-                  width={76}
-                  height={76}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
-                  }}
-                />
-              </button>
+            {mediaItems.map((item, i) => (
+              <ThumbnailButton key={i} item={item} index={i} size={76} activeIndex={activeIndex} onSelect={setActiveIndex} />
             ))}
           </div>
         )}
 
-        {/* Main image area */}
+        {/* Main area */}
         <div
-          className="flex-1 relative flex items-center justify-center cursor-zoom-in overflow-hidden"
-          style={{ minHeight: "380px" }}
-          onClick={() => setLightboxOpen(true)}
+          className="flex-1 relative flex items-center justify-center overflow-hidden"
+          style={{ minHeight: 380, maxHeight: 500 }}
+          onClick={() => {
+            if (!isVideoActive) setLightboxOpen(true);
+          }}
         >
-          {/* CSS fade-in on key change replaces AnimatePresence */}
-          <div
-            key={activeIndex}
-            className="gallery-fade absolute inset-0 flex items-center justify-center"
-          >
-            <Image
-              src={getImageUrl(active?.imageUrl)}
-              alt={active?.altText || `${title} — image ${activeIndex + 1}`}
-              fill
-              className="object-contain transition-transform duration-300 hover:scale-[1.03]"
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority={activeIndex === 0}
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
-              }}
-            />
-          </div>
+          {isVideoActive ? (
+            // Video player — fill the area
+            <div className="w-full" style={{ cursor: "default" }}>
+              {activeItem.youtubeVideoId ? (
+                <YoutubeEmbed videoId={activeItem.youtubeVideoId} />
+              ) : activeItem.videoUrl ? (
+                <VideoPlayer src={activeItem.videoUrl} />
+              ) : null}
+            </div>
+          ) : (
+            // Image
+            <>
+              <div
+                key={activeIndex}
+                className="gallery-fade absolute inset-0 flex items-center justify-center cursor-zoom-in"
+              >
+                <Image
+                  src={getImageUrl(
+                    (activeItem as Extract<MediaItem, { type: "image" }>).image.imageUrl
+                  )}
+                  alt={
+                    (activeItem as Extract<MediaItem, { type: "image" }>).image.altText ||
+                    `${title} — image ${activeIndex + 1}`
+                  }
+                  fill
+                  className="object-contain transition-transform duration-300 hover:scale-[1.03]"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority={activeIndex === 0}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                  }}
+                />
+              </div>
 
-          {/* Zoom hint */}
-          <div
-            className="absolute bottom-3 right-3 flex items-center justify-center"
-            style={{
-              backgroundColor: "rgba(255,255,255,0.85)",
-              borderRadius: "50%",
-              width: "30px",
-              height: "30px",
-              zIndex: 10,
-            }}
-          >
-            <ZoomIn size={14} style={{ color: "#666666" }} />
-          </div>
+              {/* Zoom hint */}
+              <div
+                className="absolute bottom-3 right-3 flex items-center justify-center pointer-events-none"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.85)",
+                  borderRadius: "50%",
+                  width: 30,
+                  height: 30,
+                  zIndex: 10,
+                }}
+              >
+                <ZoomIn size={14} style={{ color: "#666" }} />
+              </div>
+            </>
+          )}
 
-          {/* Gallery arrows (mobile) */}
-          {images.length > 1 && (
+          {/* Arrows — mobile (left + right) */}
+          {mediaItems.length > 1 && (
             <>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveIndex((i) => (i === 0 ? images.length - 1 : i - 1));
-                }}
+                onClick={(e) => { e.stopPropagation(); prev(); }}
                 className="absolute left-2 top-1/2 -translate-y-1/2 md:hidden flex items-center justify-center"
-                aria-label="Previous image"
+                aria-label="Previous"
                 style={{
                   backgroundColor: "rgba(0,0,0,0.12)",
                   border: "none",
-                  width: "32px",
-                  height: "32px",
+                  width: 32,
+                  height: 32,
                   borderRadius: "50%",
                   cursor: "pointer",
                   color: "#FFFFFF",
@@ -148,17 +280,14 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
                 <ChevronLeft size={16} />
               </button>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveIndex((i) => (i + 1) % images.length);
-                }}
+                onClick={(e) => { e.stopPropagation(); next(); }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 md:hidden flex items-center justify-center"
-                aria-label="Next image"
+                aria-label="Next"
                 style={{
                   backgroundColor: "rgba(0,0,0,0.12)",
                   border: "none",
-                  width: "32px",
-                  height: "32px",
+                  width: 32,
+                  height: 32,
                   borderRadius: "50%",
                   cursor: "pointer",
                   color: "#FFFFFF",
@@ -169,50 +298,45 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
               </button>
             </>
           )}
+
+          {/* Arrow — desktop (right side only) */}
+          {mediaItems.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); next(); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center"
+              aria-label="Next image"
+              style={{
+                backgroundColor: "rgba(255,255,255,0.92)",
+                border: "1px solid #eee",
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                cursor: "pointer",
+                color: "#666",
+                zIndex: 10,
+                boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+              }}
+            >
+              <ChevronRight size={14} />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Mobile thumbnails */}
-      {images.length > 1 && (
+      {mediaItems.length > 1 && (
         <div
           className="flex md:hidden overflow-x-auto mt-3"
-          style={{ gap: "8px", paddingBottom: "4px" }}
+          style={{ gap: 8, paddingBottom: 4 }}
         >
-          {images.map((img, i) => (
-            <button
-              key={img.id}
-              onClick={() => setActiveIndex(i)}
-              aria-label={`View image ${i + 1}`}
-              style={{
-                flexShrink: 0,
-                width: "64px",
-                height: "64px",
-                borderRadius: "4px",
-                overflow: "hidden",
-                border: i === activeIndex ? "2px solid #F48721" : "2px solid transparent",
-                cursor: "pointer",
-                transition: "border-color 0.2s ease",
-                backgroundColor: "#F5F5F5",
-                padding: 0,
-              }}
-            >
-              <Image
-                src={getImageUrl(img.imageUrl)}
-                alt={img.altText || `Image ${i + 1}`}
-                width={64}
-                height={64}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
-                }}
-              />
-            </button>
+          {mediaItems.map((item, i) => (
+            <ThumbnailButton key={i} item={item} index={i} size={64} activeIndex={activeIndex} onSelect={setActiveIndex} />
           ))}
         </div>
       )}
 
-      {/* Lightbox */}
-      {lightboxOpen && (
+      {/* Lightbox (images only) */}
+      {lightboxOpen && !isVideoActive && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           style={{ backgroundColor: "rgba(0,0,0,0.9)" }}
@@ -222,44 +346,46 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
             className="relative max-w-3xl w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <Image
-              src={getImageUrl(active?.imageUrl)}
-              alt={active?.altText || title}
-              width={800}
-              height={800}
-              className="object-contain w-full rounded-lg"
-              style={{ maxHeight: "80vh" }}
-            />
+            {activeItem.type === "image" && (
+              <Image
+                src={getImageUrl(activeItem.image.imageUrl)}
+                alt={activeItem.image.altText || title}
+                width={800}
+                height={800}
+                className="object-contain w-full rounded-lg"
+                style={{ maxHeight: "80vh" }}
+              />
+            )}
             <button
               onClick={() => setLightboxOpen(false)}
               className="absolute flex items-center justify-center"
               style={{
-                top: "-12px",
-                right: "-12px",
+                top: -12,
+                right: -12,
                 backgroundColor: "#FFFFFF",
                 color: "#222831",
                 borderRadius: "50%",
-                width: "32px",
-                height: "32px",
+                width: 32,
+                height: 32,
                 border: "none",
                 cursor: "pointer",
-                fontSize: "14px",
+                fontSize: 14,
                 fontWeight: 700,
               }}
             >
               ✕
             </button>
-            {images.length > 1 && (
+            {mediaItems.length > 1 && (
               <>
                 <button
-                  onClick={() => setActiveIndex((i) => (i === 0 ? images.length - 1 : i - 1))}
+                  onClick={() => prev()}
                   className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center"
                   style={{
-                    left: "8px",
+                    left: 8,
                     backgroundColor: "rgba(255,255,255,0.8)",
                     border: "none",
-                    width: "36px",
-                    height: "36px",
+                    width: 36,
+                    height: 36,
                     borderRadius: "50%",
                     cursor: "pointer",
                   }}
@@ -267,14 +393,14 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
                   <ChevronLeft size={20} />
                 </button>
                 <button
-                  onClick={() => setActiveIndex((i) => (i + 1) % images.length)}
+                  onClick={() => next()}
                   className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center"
                   style={{
-                    right: "8px",
+                    right: 8,
                     backgroundColor: "rgba(255,255,255,0.8)",
                     border: "none",
-                    width: "36px",
-                    height: "36px",
+                    width: 36,
+                    height: 36,
                     borderRadius: "50%",
                     cursor: "pointer",
                   }}

@@ -97,6 +97,7 @@ export default async function DashboardPage() {
               { href: "/admin/categories", label: "Manage Categories", icon: "📂" },
               { href: "/admin/banners", label: "Update Banner", icon: "🖼️" },
               { href: "/admin/orders", label: "View Orders", icon: "📦" },
+              { href: "/admin/contact-widget", label: "Contact Widget", icon: "💬" },
             ].map((action) => (
               <a
                 key={action.href}

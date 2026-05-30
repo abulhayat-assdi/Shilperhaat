@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   Search,
@@ -17,8 +18,9 @@ import {
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useSiteLayout } from "@/lib/site-layout-context";
-import CartDrawer from "@/components/cart/CartDrawer";
-import MobileMenu from "./MobileMenu";
+
+const CartDrawer = dynamic(() => import("@/components/cart/CartDrawer"), { ssr: false });
+const MobileMenu = dynamic(() => import("./MobileMenu"), { ssr: false });
 
 /* ─── nav data ─────────────────────────────────────────────── */
 type NavItem = {
@@ -74,7 +76,7 @@ export default function Header() {
   const [moreOpen, setMoreOpen]             = useState(false);
   const headerMiddleRef                     = useRef<HTMLDivElement>(null);
   const moreRef                             = useRef<HTMLDivElement>(null);
-  const { itemCount, openCartDrawer } = useCart();
+  const { itemCount, isHydrated, openCartDrawer } = useCart();
   const { data: layout } = useSiteLayout();
 
   const navItems: NavItem[]  = layout.navItems;
@@ -131,31 +133,26 @@ export default function Header() {
               href="/"
               style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}
             >
-              <div
-                style={{
-                  width: 44, height: 44, borderRadius: "50%",
-                  backgroundColor: "#F48721",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "white", fontWeight: 700, fontSize: 20,
-                  flexShrink: 0,
-                }}
-              >
-                {layout.logoLetter}
-              </div>
-              <div className="hidden lg:block">
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#222", fontFamily: "'Open Sans',sans-serif", lineHeight: 1.2 }}>
-                  {layout.siteName}
+              {layout.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={layout.logoUrl}
+                  alt={layout.siteName}
+                  style={{ maxHeight: 48, maxWidth: 160, width: "auto", height: "auto", objectFit: "contain", display: "block" }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 44, height: 44, borderRadius: "50%",
+                    backgroundColor: "#F48721",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "white", fontWeight: 700, fontSize: 20,
+                    flexShrink: 0,
+                  }}
+                >
+                  {layout.logoLetter}
                 </div>
-                <div style={{ fontSize: 10, color: "#999", fontFamily: "'Open Sans',sans-serif" }}>
-                  {layout.tagline}
-                </div>
-              </div>
-              <span
-                className="block lg:hidden"
-                style={{ fontSize: 16, fontWeight: 700, color: "#222", fontFamily: "'Open Sans',sans-serif" }}
-              >
-                {layout.siteName}
-              </span>
+              )}
             </Link>
 
             {/* ── Search bar ── */}
@@ -219,8 +216,9 @@ export default function Header() {
               >
                 <div style={{ position: "relative" }}>
                   <ShoppingCart size={22} />
-                  {itemCount > 0 && (
+                  {isHydrated && itemCount > 0 && (
                     <span
+                      suppressHydrationWarning
                       style={{
                         position: "absolute", top: -6, right: -8,
                         backgroundColor: "#F48721", color: "#fff",
@@ -336,19 +334,25 @@ export default function Header() {
             href="/"
             style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, textDecoration: "none" }}
           >
-            <div
-              style={{
-                width: 28, height: 28, borderRadius: "50%",
-                backgroundColor: "#F48721",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "white", fontWeight: 700, fontSize: 13,
-              }}
-            >
-              {layout.logoLetter}
-            </div>
-            <span style={{ fontSize: 15, fontWeight: 700, color: "#222", whiteSpace: "nowrap", fontFamily: "'Open Sans',sans-serif" }}>
-              {layout.siteName}
-            </span>
+            {layout.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={layout.logoUrl}
+                alt={layout.siteName}
+                style={{ maxHeight: 40, maxWidth: 130, width: "auto", height: "auto", objectFit: "contain", display: "block" }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 28, height: 28, borderRadius: "50%",
+                  backgroundColor: "#F48721",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "white", fontWeight: 700, fontSize: 13,
+                }}
+              >
+                {layout.logoLetter}
+              </div>
+            )}
           </Link>
 
           {/* Search */}
@@ -391,8 +395,9 @@ export default function Header() {
             style={{ flexShrink: 0, position: "relative", padding: 6, color: "#333", background: "none", border: "none", cursor: "pointer" }}
           >
             <ShoppingCart size={22} />
-            {itemCount > 0 && (
+            {isHydrated && itemCount > 0 && (
               <span
+                suppressHydrationWarning
                 style={{
                   position: "absolute", top: 0, right: 0,
                   backgroundColor: "#F48721", color: "#fff",

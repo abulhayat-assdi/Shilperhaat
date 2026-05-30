@@ -18,8 +18,10 @@ export const productSchema = z.object({
   isFeatured: z.boolean().default(false),
   isBestSelling: z.boolean().default(false),
   status: z.enum(["ACTIVE", "INACTIVE", "OUT_OF_STOCK"]).default("ACTIVE"),
-  sku: z.string().optional().nullable(),
   tags: z.string().optional(), // comma-separated
+  videoUrl: z.string().optional().nullable(),
+  youtubeUrl: z.string().optional().nullable(),
+  youtubeVideoId: z.string().optional().nullable(),
 });
 
 // Category form
@@ -53,14 +55,14 @@ export const reviewSchema = z.object({
 
 // Checkout form
 export const checkoutSchema = z.object({
-  customerName: z.string().min(2, "নাম দিন").max(100),
+  customerName: z.string().min(2, "Full name is required"),
   phone: z
     .string()
-    .min(11, "সঠিক ফোন নম্বর দিন")
-    .max(15)
-    .regex(/^[0-9+\-\s]+$/, "সঠিক ফোন নম্বর দিন"),
-  address: z.string().min(10, "সম্পূর্ণ ঠিকানা দিন").max(500),
-  notes: z.string().max(500).optional(),
+    .regex(/^01\d{9}$/, "Enter a valid Bangladesh number (01XXXXXXXXX)"),
+  houseAddress: z.string().min(5, "House/street address is required").max(300),
+  district: z.string().min(1, "Select a district"),
+  thana: z.string().optional(),
+  notes: z.string().max(90).optional(),
 });
 
 // Site settings form

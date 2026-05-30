@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
     //     isFeatured: body.isFeatured,
     //     isBestSelling: body.isBestSelling,
     //     status: body.status,
-    //     sku: body.sku || null,
     //     tags: body.tags || [],
     //     images: {
     //       create: (body.images || []).map((url: string, i: number) => ({

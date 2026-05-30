@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ShoppingCart, Menu, MessageCircle, User } from "lucide-react";
+import { Home, ShoppingCart, Menu, MessageCircle, MessageSquare } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { useContactPopup } from "@/lib/contact-popup-context";
 import { dummySiteSettings } from "@/lib/dummy-data";
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const { itemCount, openCartDrawer } = useCart();
+  const { itemCount, isHydrated, openCartDrawer } = useCart();
+  const { setOpen: openContactPopup } = useContactPopup();
   const whatsappUrl = `https://wa.me/${dummySiteSettings.whatsappNumber}`;
 
   const isActive = (href: string) => {
@@ -33,9 +35,10 @@ export default function BottomNav() {
           style={{ background: "none", border: "none", cursor: "pointer", padding: "0 8px" }}
         >
           <div className="relative w-8 h-8 flex items-center justify-center">
-            <ShoppingCart size={22} style={{ color: itemCount > 0 ? "#F48721" : "#888888" }} strokeWidth={itemCount > 0 ? 2.5 : 1.75} />
-            {itemCount > 0 && (
+            <ShoppingCart size={22} style={{ color: isHydrated && itemCount > 0 ? "#F48721" : "#888888" }} strokeWidth={isHydrated && itemCount > 0 ? 2.5 : 1.75} />
+            {isHydrated && itemCount > 0 && (
               <span
+                suppressHydrationWarning
                 className="absolute -top-1.5 -right-1.5 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold"
                 style={{ backgroundColor: "#F48721" }}
               >
@@ -43,7 +46,7 @@ export default function BottomNav() {
               </span>
             )}
           </div>
-          <span className="text-xs" style={{ color: itemCount > 0 ? "#F48721" : "#888888", fontWeight: itemCount > 0 ? 600 : 400 }}>
+          <span className="text-xs" style={{ color: isHydrated && itemCount > 0 ? "#F48721" : "#888888", fontWeight: isHydrated && itemCount > 0 ? 600 : 400 }}>
             Cart
           </span>
         </button>
@@ -81,8 +84,18 @@ export default function BottomNav() {
           <span className="text-xs" style={{ color: "#888888" }}>WhatsApp</span>
         </a>
 
-        {/* Account */}
-        <NavItem href="/account" icon={User} label="Account" active={false} />
+        {/* Contact — opens the shared contact popup */}
+        <button
+          onClick={() => openContactPopup(true)}
+          className="flex flex-col items-center gap-0.5 px-2"
+          aria-label="Contact"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "0 8px" }}
+        >
+          <div className="w-8 h-8 flex items-center justify-center">
+            <MessageSquare size={22} style={{ color: "#888888" }} strokeWidth={1.75} />
+          </div>
+          <span className="text-xs" style={{ color: "#888888" }}>Contact</span>
+        </button>
       </div>
     </nav>
   );

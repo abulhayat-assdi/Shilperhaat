@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Save,
   RotateCcw,
@@ -11,6 +11,8 @@ import {
   GripVertical,
   AlertCircle,
   CheckCircle2,
+  Upload,
+  X,
 } from "lucide-react";
 import {
   useSiteLayout,
@@ -398,6 +400,23 @@ export default function SiteLayoutClient() {
   const { data, update, save, reset, isDirty } = useSiteLayout();
   const [activeTab, setActiveTab] = useState<Tab>("brand");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved">("idle");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File too large. Maximum size is 2MB.");
+      e.target.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      update({ logoUrl: ev.target?.result as string });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
 
   const handleSave = () => {
     save();
@@ -496,40 +515,150 @@ export default function SiteLayoutClient() {
       {activeTab === "brand" && (
         <div>
           <SectionCard title="Logo & Brand Identity">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+            {/* Site Name + Tagline */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 4 }}>
               <Field label="Site Name" hint="Shown in logo area and browser tab">
                 <Input value={data.siteName} onChange={(v) => update({ siteName: v })} placeholder="Shilperhaat" />
               </Field>
               <Field label="Tagline" hint="Small text below the site name">
                 <Input value={data.tagline} onChange={(v) => update({ tagline: v })} placeholder="Handcraft Marketplace" />
               </Field>
-              <Field label="Logo Letter" hint="Letter shown inside the circle icon">
-                <Input
-                  value={data.logoLetter}
-                  onChange={(v) => update({ logoLetter: v.slice(0, 1).toUpperCase() || "S" })}
-                  placeholder="S"
-                />
-              </Field>
             </div>
+
+            {/* Logo upload area */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>
+                Logo Image
+              </label>
+              <p style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 8 }}>
+                Upload a logo to replace the letter circle everywhere on the site. PNG, JPG, SVG, WebP — max 2 MB.
+              </p>
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".png,.jpg,.jpeg,.svg,.webp,image/png,image/jpeg,image/svg+xml,image/webp"
+                style={{ display: "none" }}
+                onChange={handleFileSelect}
+              />
+
+              {/* Clickable upload zone */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  border: `2px dashed ${data.logoUrl ? "#c8860a" : "#D1D5DB"}`,
+                  borderRadius: 8,
+                  padding: data.logoUrl ? "16px" : "28px 16px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                  backgroundColor: data.logoUrl ? "#FFFBF3" : "#FAFAFA",
+                  transition: "border-color 0.2s, background-color 0.2s",
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "#c8860a"; (e.currentTarget as HTMLDivElement).style.backgroundColor = "#FFFBF3"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = data.logoUrl ? "#c8860a" : "#D1D5DB"; (e.currentTarget as HTMLDivElement).style.backgroundColor = data.logoUrl ? "#FFFBF3" : "#FAFAFA"; }}
+              >
+                {data.logoUrl ? (
+                  <div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={data.logoUrl}
+                      alt="Logo preview"
+                      style={{ maxHeight: 80, maxWidth: 220, objectFit: "contain", margin: "0 auto", display: "block" }}
+                    />
+                    <p style={{ fontSize: 12, color: "#c8860a", marginTop: 8, fontWeight: 500 }}>Click to change</p>
+                  </div>
+                ) : (
+                  <div>
+                    <Upload size={24} style={{ color: "#9CA3AF", margin: "0 auto 8px", display: "block" }} />
+                    <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 4 }}>Click to upload logo</p>
+                    <p style={{ fontSize: 11, color: "#9CA3AF" }}>PNG, JPG, SVG, WebP — max 2 MB</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Remove button */}
+              {data.logoUrl && (
+                <button
+                  onClick={() => update({ logoUrl: "" })}
+                  style={{
+                    marginTop: 8, display: "flex", alignItems: "center", gap: 5,
+                    fontSize: 12, color: "#EF4444",
+                    background: "none", border: "1px solid #EF4444",
+                    borderRadius: 6, padding: "5px 12px", cursor: "pointer",
+                  }}
+                >
+                  <X size={13} /> Remove logo
+                </button>
+              )}
+            </div>
+
+            {/* Width + Height — only shown when logo is uploaded */}
+            {data.logoUrl && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 4 }}>
+                <Field label="Logo Width (px)" hint="Display width in header / footer">
+                  <Input
+                    value={String(data.logoWidth || 140)}
+                    onChange={(v) => update({ logoWidth: Math.max(1, parseInt(v, 10) || 140) })}
+                    placeholder="140"
+                    type="number"
+                  />
+                </Field>
+                <Field label="Logo Height (px)" hint="Display height in header / footer">
+                  <Input
+                    value={String(data.logoHeight || 50)}
+                    onChange={(v) => update({ logoHeight: Math.max(1, parseInt(v, 10) || 50) })}
+                    placeholder="50"
+                    type="number"
+                  />
+                </Field>
+              </div>
+            )}
+
+            {/* Fallback letter — only shown when no logo uploaded */}
+            {!data.logoUrl && (
+              <Field label="Logo Letter (fallback)" hint="Letter shown in the circle when no image is uploaded">
+                <div style={{ maxWidth: 120 }}>
+                  <Input
+                    value={data.logoLetter}
+                    onChange={(v) => update({ logoLetter: v.slice(0, 1).toUpperCase() || "S" })}
+                    placeholder="S"
+                  />
+                </div>
+              </Field>
+            )}
 
             {/* Live preview */}
             <div style={{ marginTop: 16, padding: 16, backgroundColor: "#FBF9F5", borderRadius: 8, border: "1px dashed #E5E7EB" }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: "#9CA3AF", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Preview</p>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div
-                  style={{
-                    width: 44, height: 44, borderRadius: "50%",
-                    backgroundColor: "#F48721",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "white", fontWeight: 700, fontSize: 20,
-                  }}
-                >
-                  {data.logoLetter}
-                </div>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: "#222" }}>{data.siteName}</div>
-                  <div style={{ fontSize: 11, color: "#999" }}>{data.tagline}</div>
-                </div>
+                {data.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={data.logoUrl}
+                    alt={data.siteName}
+                    style={{
+                      maxHeight: 48,
+                      maxWidth: 160,
+                      width: "auto",
+                      height: "auto",
+                      objectFit: "contain",
+                      display: "block",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 44, height: 44, borderRadius: "50%",
+                      backgroundColor: "#F48721",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      color: "white", fontWeight: 700, fontSize: 20,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {data.logoLetter}
+                  </div>
+                )}
               </div>
             </div>
           </SectionCard>

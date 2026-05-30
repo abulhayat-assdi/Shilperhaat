@@ -27,14 +27,21 @@ export function cn(...inputs: ClassValue[]): string {
     .trim();
 }
 
-// Format price in Bengali/BDT format
-export function formatPrice(price: number): string {
-  return `৳${price.toLocaleString("bn-BD")}`;
+// Convert ASCII digits to Bengali digits (0-9 → ০-৯)
+function toBengaliDigits(str: string): string {
+  const map = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  return str.replace(/\d/g, (d) => map[parseInt(d)]);
 }
 
-// Format price in English
+// Format price in Bengali/BDT format — use deterministic digit conversion to avoid server/client locale mismatch
+export function formatPrice(price: number): string {
+  const formatted = Math.round(price).toLocaleString("en-US");
+  return `৳${toBengaliDigits(formatted)}`;
+}
+
+// Format price in English — use "en-US" which is universally supported in Node.js and browsers
 export function formatPriceEn(price: number): string {
-  return `৳${price.toLocaleString("en-BD")}`;
+  return `৳${Math.round(price).toLocaleString("en-US")}`;
 }
 
 // Calculate discount percentage
@@ -43,12 +50,17 @@ export function calculateDiscount(price: number, compareAtPrice: number): number
   return Math.round(((compareAtPrice - price) / compareAtPrice) * 100);
 }
 
-// Generate slug from text
+// Generate slug from text — supports English, Bengali, and mixed Unicode
 export function generateSlug(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
+    // Keep Unicode letters (incl. Bengali ক-ৱ), digits, spaces, hyphens — strip everything else
+    .replace(/[^\p{L}\p{N}\s-]/gu, "")
+    // Collapse spaces/underscores into a single hyphen
+    .replace(/[\s_]+/g, "-")
+    // Collapse consecutive hyphens
+    .replace(/-{2,}/g, "-")
+    // Trim leading/trailing hyphens
     .replace(/^-+|-+$/g, "");
 }
 
@@ -68,27 +80,22 @@ export function truncate(text: string, length: number): string {
   return text.slice(0, length) + "...";
 }
 
-// Format date in Bengali
+const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS_BN = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+
+// Format date in Bengali — deterministic, no locale dependency
 export function formatDateBn(date: Date | string): string {
   const d = new Date(date);
-  return d.toLocaleDateString("bn-BD", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  return `${toBengaliDigits(String(d.getDate()))} ${MONTHS_BN[d.getMonth()]} ${toBengaliDigits(String(d.getFullYear()))}`;
 }
 
-// Format date in English
+// Format date in English — deterministic, no locale dependency
 export function formatDateEn(date: Date | string): string {
   const d = new Date(date);
-  return d.toLocaleDateString("en-BD", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return `${MONTHS_EN[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
-// Order status labels in Bengali
+// Order status labels in Bengali (for customer-facing UI)
 export const ORDER_STATUS_BN: Record<string, string> = {
   PENDING: "অপেক্ষমাণ",
   CONFIRMED: "নিশ্চিত",
@@ -98,11 +105,21 @@ export const ORDER_STATUS_BN: Record<string, string> = {
   CANCELLED: "বাতিল",
 };
 
+// Order status labels in English (for admin panel)
+export const ORDER_STATUS_EN: Record<string, string> = {
+  PENDING: "Pending",
+  CONFIRMED: "Confirmed",
+  PROCESSING: "Processing",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
+
 export const ORDER_STATUS_COLOR: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-800",
   CONFIRMED: "bg-blue-100 text-blue-800",
-  PROCESSING: "bg-purple-100 text-purple-800",
-  SHIPPED: "bg-indigo-100 text-indigo-800",
+  PROCESSING: "bg-blue-100 text-blue-800",
+  SHIPPED: "bg-purple-100 text-purple-800",
   DELIVERED: "bg-green-100 text-green-800",
   CANCELLED: "bg-red-100 text-red-800",
 };

@@ -38,8 +38,10 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const currentPage = Math.max(1, parseInt(page));
   const limit = 12;
 
+  const decodedCategorySlug = categorySlug ? decodeURIComponent(categorySlug) : undefined;
+
   let filtered: typeof dummyProducts = [...dummyProducts];
-  if (categorySlug)   filtered = filtered.filter((p) => p.category?.slug === categorySlug);
+  if (decodedCategorySlug) filtered = filtered.filter((p) => p.category?.slug === decodedCategorySlug);
   if (minPrice)       filtered = filtered.filter((p) => Number(p.price) >= Number(minPrice));
   if (maxPrice)       filtered = filtered.filter((p) => Number(p.price) <= Number(maxPrice));
   if (search) {
@@ -61,7 +63,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const total      = filtered.length;
   const totalPages = Math.ceil(total / limit);
   const paginated  = filtered.slice((currentPage - 1) * limit, currentPage * limit);
-  const activeCategory = dummyCategories.find((c) => c.slug === categorySlug);
+  const activeCategory = dummyCategories.find((c) => c.slug === decodedCategorySlug);
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-5 py-4 md:py-6">

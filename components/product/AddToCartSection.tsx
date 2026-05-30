@@ -114,9 +114,9 @@ export default function AddToCartSection({ product }: AddToCartSectionProps) {
   const btnBase: React.CSSProperties = {
     display: "flex", alignItems: "center", justifyContent: "center",
     gap: 8,
-    height: 48,
-    borderRadius: 6,
-    fontSize: 15, fontWeight: 600,
+    height: 50,
+    borderRadius: 8,
+    fontSize: 14, fontWeight: 600,
     border: "none",
     cursor: "pointer",
     width: "100%",
@@ -135,7 +135,7 @@ export default function AddToCartSection({ product }: AddToCartSectionProps) {
             onClick={dec}
             disabled={quantity <= 1}
             style={{
-              width: 38, height: 38, border: "none",
+              width: 36, height: 36, border: "none",
               backgroundColor: "#f9f9f9",
               color: quantity <= 1 ? "#ccc" : "#333",
               cursor: quantity <= 1 ? "not-allowed" : "pointer",
@@ -147,14 +147,14 @@ export default function AddToCartSection({ product }: AddToCartSectionProps) {
           >
             −
           </button>
-          <span style={{ width: 48, height: 38, fontWeight: 600, color: "#222", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ width: 44, height: 36, fontWeight: 600, color: "#222", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>
             {quantity}
           </span>
           <button
             onClick={inc}
             disabled={quantity >= maxQty}
             style={{
-              width: 38, height: 38, border: "none",
+              width: 36, height: 36, border: "none",
               backgroundColor: "#f9f9f9",
               color: quantity >= maxQty ? "#ccc" : "#333",
               cursor: quantity >= maxQty ? "not-allowed" : "pointer",

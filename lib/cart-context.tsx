@@ -10,6 +10,7 @@ interface CartContextType extends Cart {
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   itemCount: number;
+  isHydrated: boolean;
   cartDrawerOpen: boolean;
   openCartDrawer: () => void;
   closeCartDrawer: () => void;
@@ -79,11 +80,12 @@ function computeCart(items: CartItem[]): Cart {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, dispatch] = useReducer(cartReducer, []);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const openCartDrawer  = useCallback(() => setCartDrawerOpen(true), []);
   const closeCartDrawer = useCallback(() => setCartDrawerOpen(false), []);
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount — set isHydrated after loading
   useEffect(() => {
     try {
       const saved = localStorage.getItem("sh_cart");
@@ -93,16 +95,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
+    setIsHydrated(true);
   }, []);
 
-  // Persist to localStorage on change
+  // Persist to localStorage only after hydration to avoid overwriting saved cart on first mount
   useEffect(() => {
+    if (!isHydrated) return;
     try {
       localStorage.setItem("sh_cart", JSON.stringify(items));
     } catch {
       // ignore
     }
-  }, [items]);
+  }, [items, isHydrated]);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
     dispatch({ type: "ADD_ITEM", payload: item });
@@ -125,7 +129,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ ...cart, addItem, removeItem, updateQuantity, clearCart, itemCount, cartDrawerOpen, openCartDrawer, closeCartDrawer }}
+      value={{ ...cart, addItem, removeItem, updateQuantity, clearCart, itemCount, isHydrated, cartDrawerOpen, openCartDrawer, closeCartDrawer }}
     >
       {children}
     </CartContext.Provider>

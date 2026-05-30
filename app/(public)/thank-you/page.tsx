@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import ThankYouClient from "@/components/checkout/ThankYouClient";
 
 export const metadata: Metadata = {
-  title: "অর্ডার সফল — শিল্পেরহাট",
-  description: "আপনার অর্ডার সফলভাবে সম্পন্ন হয়েছে।",
+  title: "Order Placed Successfully — Shilperhaat",
+  description: "Your order has been placed successfully",
 };
 
 export default function ThankYouPage() {

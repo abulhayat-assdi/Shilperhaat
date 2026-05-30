@@ -5,5 +5,5 @@ export const metadata = { title: 'Delivery Policy - Shilperhaat' }
 
 export default function DeliveryPolicyPage() {
   const page = getPage('delivery-policy')!
-  return <StaticPage title={page.title} subtitle={page.subtitle} section1={page.section1} section2={page.section2} />
+  return <StaticPage title={page.title} subtitle={page.subtitle} sections={page.sections} />
 }

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Plus, Pencil, Trash2, Star, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Category } from "@/types";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, generateSlug } from "@/lib/utils";
 
 interface CategoriesClientProps {
   categories: Category[];
@@ -68,13 +68,6 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
     }
   };
 
-  const autoSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_]+/g, "-")
-      .trim();
-  };
 
   const handleSave = async () => {
     if (!formData.name || !formData.slug) return;
@@ -235,26 +228,36 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                   <input
                     value={formData.name}
                     onChange={(e) => {
+                      const name = e.target.value;
                       setFormData((f) => ({
                         ...f,
-                        name: e.target.value,
-                        slug: f.slug || autoSlug(e.target.value),
+                        name,
+                        // Auto-fill slug from name if slug is still empty/unchanged
+                        slug: f.slug && f.slug !== generateSlug(f.name) ? f.slug : generateSlug(name),
                       }));
                     }}
-                    placeholder="katha"
+                    placeholder="কাঁথা or Katha"
+                    lang="bn"
+                    style={{ fontFamily: "'Hind Siliguri', 'Open Sans', sans-serif" }}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
                   />
                 </div>
 
                 {/* Slug */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Slug *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Slug *
+                    <span className="ml-2 text-xs font-normal bg-[#FFF1E5] text-[#c8860a] px-1.5 py-0.5 rounded">Auto</span>
+                  </label>
                   <input
                     value={formData.slug}
                     onChange={(e) => setFormData((f) => ({ ...f, slug: e.target.value }))}
-                    placeholder="katha"
+                    placeholder="কাঁথা or katha"
+                    dir="auto"
+                    style={{ fontFamily: "'Hind Siliguri', monospace, sans-serif" }}
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
                   />
+                  <p className="text-xs text-gray-400 mt-1">Auto-generated from name. Edit freely.</p>
                 </div>
 
                 {/* Sort order */}

@@ -135,7 +135,7 @@ function CategoryCard({ category }: { category: Category }) {
 
   return (
     <Link
-      href={`/shop?category=${category.slug}`}
+      href={`/shop?category=${encodeURIComponent(category.slug)}`}
       aria-label={`Browse ${category.name}`}
       style={{
         flexShrink: 0,

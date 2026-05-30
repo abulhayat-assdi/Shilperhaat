@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import HeroBanner from "@/components/home/HeroBanner";
 import CategoryGrid from "@/components/home/CategoryGrid";
 import TopSellingSection from "@/components/home/TopSellingSection";
 import CategorySection from "@/components/home/CategorySection";
 import ReviewCarousel from "@/components/home/ReviewCarousel";
+import { ProductGridSkeleton } from "@/components/ui/ProductCardSkeleton";
 import {
   dummyBanners,
   dummyCategories,
@@ -36,22 +38,27 @@ export default async function HomePage() {
       {/* 2. Featured Categories */}
       <CategoryGrid categories={categories as any[]} />
 
-      {/* 4. Top Selling Products */}
-      <TopSellingSection products={products as any[]} />
+      {/* 3. Top Selling Products */}
+      <Suspense fallback={<div style={{ padding: "40px 0", backgroundColor: "#FFFFFF" }}><div className="max-w-7xl mx-auto px-4 md:px-5"><ProductGridSkeleton count={4} /></div></div>}>
+        <TopSellingSection products={products as any[]} />
+      </Suspense>
 
-      {/* 5. Per-Category Sections */}
+      {/* 4. Per-Category Sections */}
       {categoryProducts
         .filter((cp) => cp.products.length > 0)
         .map((cp) => (
-          <CategorySection
-            key={cp.category.id}
-            category={cp.category as any}
-            products={cp.products as any[]}
-          />
+          <Suspense key={cp.category.id} fallback={<div style={{ padding: "40px 0", backgroundColor: "#FBF9F5" }}><div className="max-w-7xl mx-auto px-4 md:px-5"><ProductGridSkeleton count={4} /></div></div>}>
+            <CategorySection
+              category={cp.category as any}
+              products={cp.products as any[]}
+            />
+          </Suspense>
         ))}
 
-      {/* 6. Customer Reviews */}
-      <ReviewCarousel reviews={reviews as any[]} />
+      {/* 5. Customer Reviews */}
+      <Suspense fallback={<div style={{ height: 280, backgroundColor: "#FFFFFF" }} />}>
+        <ReviewCarousel reviews={reviews as any[]} />
+      </Suspense>
     </div>
   );
 }

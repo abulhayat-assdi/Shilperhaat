@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import { Open_Sans, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 
 const openSans = Open_Sans({
@@ -8,6 +8,14 @@ const openSans = Open_Sans({
   variable: "--font-open-sans",
   display: "swap",
   preload: true,
+});
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-hind-siliguri",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -41,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={openSans.variable}>
+    <html lang="en" className={`${openSans.variable} ${hindSiliguri.variable}`}>
       <head>
         {/* Resource hints for external image CDN */}
         <link rel="dns-prefetch" href="https://picsum.photos" />

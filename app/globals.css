@@ -2,6 +2,13 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ─── Editor direction fix ───────────────────────────────── */
+[contenteditable] {
+  direction: ltr !important;
+  text-align: left;
+  unicode-bidi: embed;
+}
+
 /* ─── Raw CSS custom properties ──────────────────────────── */
 :root {
   --color-primary: #F48721;
@@ -67,7 +74,7 @@ html {
 }
 
 body {
-  font-family: var(--font-open-sans, "Open Sans"), sans-serif;
+  font-family: var(--font-open-sans, "Open Sans"), var(--font-hind-siliguri, "Hind Siliguri"), "Noto Sans Bengali", sans-serif;
   font-size: 14px;
   font-weight: 400;
   color: #666666;
@@ -287,4 +294,25 @@ input[type="number"] {
   animation: thankYouSlide 0.35s ease forwards;
   animation-delay: 0.25s;
   opacity: 0;
+}
+
+/* ─── Rich text description (product detail page) ────────── */
+.prose-description h2 { font-size: 1.2em; font-weight: 700; color: #222; margin: 0.8em 0 0.4em; }
+.prose-description h3 { font-size: 1.05em; font-weight: 600; color: #222; margin: 0.6em 0 0.3em; }
+.prose-description ul { list-style-type: disc; padding-left: 1.6em; margin: 0.5em 0; }
+.prose-description ol { list-style-type: decimal; padding-left: 1.6em; margin: 0.5em 0; }
+.prose-description li { margin: 0.2em 0; }
+.prose-description strong { font-weight: 700; color: #222; }
+.prose-description em { font-style: italic; }
+.prose-description a { color: #F48721; text-decoration: underline; }
+.prose-description p { margin: 0.4em 0; }
+
+/* ─── Floating contact widget ────────────────────────────── */
+@keyframes contactPopIn {
+  from { opacity: 0; transform: scale(0.92) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes contactPulse {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.9); opacity: 0; }
 }

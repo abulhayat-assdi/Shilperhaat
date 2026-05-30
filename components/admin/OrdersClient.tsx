@@ -1,15 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, X, ChevronDown, Loader2 } from "lucide-react";
+import { X, Loader2, Truck, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Order } from "@/types";
 import {
   formatPriceEn,
   formatDateEn,
-  ORDER_STATUS_BN,
   ORDER_STATUS_COLOR,
 } from "@/lib/utils";
+
+const ORDER_STATUS_EN: Record<string, string> = {
+  PENDING: "Pending",
+  CONFIRMED: "Confirmed",
+  PROCESSING: "Processing",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
+
+interface CourierInfo {
+  consignmentId: string;
+  trackingCode: string;
+  sentAt: string;
+}
 
 interface OrdersClientProps {
   orders: Order[];
@@ -31,6 +45,13 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [adminNote, setAdminNote] = useState("");
+
+  // Courier state
+  const [courierDialog, setCourierDialog] = useState<Order | null>(null);
+  const [sendingCourierId, setSendingCourierId] = useState<string | null>(null);
+  const [courierMap, setCourierMap] = useState<Record<string, CourierInfo>>({});
+  const [courierError, setCourierError] = useState<string | null>(null);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
 
   const filtered = filterStatus
     ? orders.filter((o) => o.status === filterStatus)
@@ -62,8 +83,102 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
     }
   };
 
+  const openCourierDialog = (e: React.MouseEvent, order: Order) => {
+    e.stopPropagation();
+    setCourierError(null);
+    setCourierDialog(order);
+  };
+
+  const sendToCourier = async (order: Order) => {
+    setSendingCourierId(order.id);
+    setCourierError(null);
+
+    // Read credentials saved in localStorage by the Settings page
+    const apiKey =
+      typeof window !== "undefined"
+        ? localStorage.getItem("steadfast_api_key") || ""
+        : "";
+    const secretKey =
+      typeof window !== "undefined"
+        ? localStorage.getItem("steadfast_secret_key") || ""
+        : "";
+
+    try {
+      const res = await fetch("/api/courier/steadfast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: order.orderNumber,
+          customerName: order.customerName,
+          customerPhone: order.phone,
+          address: order.address,
+          total: order.total,
+          specialNotes: order.notes || "",
+          apiKey,
+          secretKey,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setCourierError(data.error || "Failed to send to courier");
+        return;
+      }
+
+      const info: CourierInfo = {
+        consignmentId: data.consignmentId,
+        trackingCode: data.trackingCode,
+        sentAt: new Date().toISOString(),
+      };
+
+      setCourierMap((prev) => ({ ...prev, [order.id]: info }));
+
+      // Auto-update order status to PROCESSING
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === order.id
+            ? { ...o, status: "PROCESSING" as Order["status"] }
+            : o
+        )
+      );
+      if (selectedOrder?.id === order.id) {
+        setSelectedOrder((prev) =>
+          prev ? { ...prev, status: "PROCESSING" as Order["status"] } : null
+        );
+      }
+
+      setSuccessToast(
+        `✓ Order sent to Steadfast! Tracking ID: ${data.trackingCode}`
+      );
+      setTimeout(() => setSuccessToast(null), 5000);
+      setCourierDialog(null);
+    } catch {
+      setCourierError("Failed to connect to Steadfast API");
+    } finally {
+      setSendingCourierId(null);
+    }
+  };
+
   return (
     <div className="space-y-5">
+      {/* Success toast */}
+      <AnimatePresence>
+        {successToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 right-4 z-[100] bg-green-600 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-2 text-sm font-medium max-w-sm"
+          >
+            <span className="flex-1">{successToast}</span>
+            <button onClick={() => setSuccessToast(null)} className="hover:opacity-70 ml-1">
+              <X size={14} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -79,7 +194,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
           <option value="">All Statuses</option>
           {statusOptions.map((s) => (
             <option key={s} value={s}>
-              {ORDER_STATUS_BN[s]} ({s})
+              {ORDER_STATUS_EN[s]}
             </option>
           ))}
         </select>
@@ -100,39 +215,80 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filtered.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs font-semibold text-[#c8860a]">
-                    {order.orderNumber}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className="font-medium text-gray-800">{order.customerName}</p>
-                      <p className="text-xs text-gray-400">{order.phone}</p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500 hidden md:table-cell text-xs">
-                    {formatDateEn(order.createdAt)}
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-gray-800">
-                    {formatPriceEn(order.total)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ORDER_STATUS_COLOR[order.status]}`}>
-                      {ORDER_STATUS_BN[order.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => openOrder(order)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-blue-600 hover:bg-blue-50 text-xs font-medium transition-colors"
-                    >
-                      <Eye size={12} />
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((order) => {
+                const courier = courierMap[order.id];
+                return (
+                  <tr
+                    key={order.id}
+                    onClick={() => openOrder(order)}
+                    className="transition-colors cursor-pointer"
+                    style={{ backgroundColor: "transparent" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#f9f9f9")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "transparent")
+                    }
+                  >
+                    <td className="px-4 py-3 font-mono text-xs font-semibold text-[#c8860a]">
+                      {order.orderNumber}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div>
+                        <p className="font-medium text-gray-800">{order.customerName}</p>
+                        <p className="text-xs text-gray-400">{order.phone}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 hidden md:table-cell text-xs">
+                      {formatDateEn(order.createdAt)}
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-gray-800">
+                      {formatPriceEn(order.total)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ORDER_STATUS_COLOR[order.status]}`}
+                      >
+                        {ORDER_STATUS_EN[order.status]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      {courier ? (
+                        <div className="text-xs space-y-0.5">
+                          <p className="text-green-600 font-semibold flex items-center gap-1">
+                            <CheckCircle2 size={12} />
+                            Sent
+                          </p>
+                          <p className="text-gray-500 font-mono text-[11px] leading-tight">
+                            {courier.consignmentId}
+                          </p>
+                          <button
+                            onClick={(e) => openCourierDialog(e, order)}
+                            className="text-gray-400 underline text-[11px] hover:text-gray-600 transition-colors"
+                          >
+                            Resend
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={(e) => openCourierDialog(e, order)}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-white text-xs font-semibold transition-colors whitespace-nowrap"
+                          style={{ backgroundColor: "#1a3a6b" }}
+                          onMouseEnter={(e) =>
+                            (e.currentTarget.style.backgroundColor = "#142d54")
+                          }
+                          onMouseLeave={(e) =>
+                            (e.currentTarget.style.backgroundColor = "#1a3a6b")
+                          }
+                        >
+                          <Truck size={12} />
+                          Send to Courier
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
@@ -144,7 +300,98 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
         </div>
       </div>
 
-      {/* Order Detail Modal */}
+      {/* Courier Confirmation Dialog */}
+      <AnimatePresence>
+        {courierDialog && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-[70]"
+              onClick={() => !sendingCourierId && setCourierDialog(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-[80] flex items-center justify-center p-4 pointer-events-none"
+            >
+              <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm pointer-events-auto">
+                <h3 className="font-bold text-gray-800 text-base mb-1">
+                  Send to Steadfast Courier?
+                </h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  Review the order before sending
+                </p>
+
+                <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm mb-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Order #</span>
+                    <span className="font-mono font-semibold text-[#c8860a]">
+                      {courierDialog.orderNumber}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Customer</span>
+                    <span className="font-medium">{courierDialog.customerName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Phone</span>
+                    <span>{courierDialog.phone}</span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-gray-500">Address</span>
+                    <p className="text-gray-700 text-xs">{courierDialog.address}</p>
+                  </div>
+                  <div className="flex justify-between border-t border-gray-200 pt-2 font-bold">
+                    <span>Total (COD)</span>
+                    <span className="text-[#c8860a]">
+                      {formatPriceEn(courierDialog.total)}
+                    </span>
+                  </div>
+                </div>
+
+                {courierError && (
+                  <div className="text-red-600 text-xs mb-3 bg-red-50 border border-red-200 p-3 rounded-lg">
+                    {courierError}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setCourierDialog(null);
+                      setCourierError(null);
+                    }}
+                    disabled={!!sendingCourierId}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => sendToCourier(courierDialog)}
+                    disabled={!!sendingCourierId}
+                    className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-70"
+                    style={{ backgroundColor: "#1a3a6b" }}
+                  >
+                    {sendingCourierId === courierDialog.id ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Confirm & Send"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Order Detail Panel */}
       <AnimatePresence>
         {selectedOrder && (
           <>
@@ -180,8 +427,10 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                 </div>
 
                 {/* Status badge */}
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-5 ${ORDER_STATUS_COLOR[selectedOrder.status]}`}>
-                  {ORDER_STATUS_BN[selectedOrder.status]}
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-5 ${ORDER_STATUS_COLOR[selectedOrder.status]}`}
+                >
+                  {ORDER_STATUS_EN[selectedOrder.status]}
                 </span>
 
                 {/* Customer info */}
@@ -202,7 +451,10 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                   <h4 className="font-semibold text-gray-700 text-sm mb-3">Items</h4>
                   <div className="space-y-2">
                     {selectedOrder.items.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between py-2 border-b border-gray-100">
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between py-2 border-b border-gray-100"
+                      >
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-800 truncate">
                             {item.productTitle}
@@ -220,7 +472,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                 </div>
 
                 {/* Totals */}
-                <div className="bg-gray-50 rounded-xl p-4 mb-5 space-y-2 text-sm">
+                <div className="bg-gray-50 rounded-xl p-4 mb-4 space-y-2 text-sm">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
                     <span>{formatPriceEn(selectedOrder.subtotal)}</span>
@@ -231,8 +483,48 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                   </div>
                   <div className="flex justify-between font-bold text-gray-800 border-t border-gray-200 pt-2">
                     <span>Total</span>
-                    <span className="text-[#c8860a]">{formatPriceEn(selectedOrder.total)}</span>
+                    <span className="text-[#c8860a]">
+                      {formatPriceEn(selectedOrder.total)}
+                    </span>
                   </div>
+                </div>
+
+                {/* Courier info */}
+                <div className="bg-gray-50 rounded-xl p-4 mb-5">
+                  <h4 className="font-semibold text-gray-700 text-sm mb-3 flex items-center gap-2">
+                    <Truck size={14} />
+                    Courier
+                  </h4>
+                  {courierMap[selectedOrder.id] ? (
+                    <div className="space-y-1.5 text-sm">
+                      <p className="text-gray-600">
+                        Courier:{" "}
+                        <span className="font-medium text-gray-800">Steadfast</span>
+                      </p>
+                      <p className="text-gray-600">
+                        Consignment ID:{" "}
+                        <span className="font-mono font-medium text-gray-800">
+                          {courierMap[selectedOrder.id].consignmentId}
+                        </span>
+                      </p>
+                      <p className="text-gray-600">
+                        Tracking Code:{" "}
+                        <span className="font-mono font-medium text-gray-800">
+                          {courierMap[selectedOrder.id].trackingCode}
+                        </span>
+                      </p>
+                      <a
+                        href={`https://steadfast.com.bd/t/${courierMap[selectedOrder.id].trackingCode}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-blue-600 text-xs hover:underline"
+                      >
+                        Track on Steadfast →
+                      </a>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-400">Not sent to courier yet</p>
+                  )}
                 </div>
 
                 {/* Update status */}
@@ -244,7 +536,9 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                     className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
                   >
                     {statusOptions.map((s) => (
-                      <option key={s} value={s}>{ORDER_STATUS_BN[s]}</option>
+                      <option key={s} value={s}>
+                        {ORDER_STATUS_EN[s]}
+                      </option>
                     ))}
                   </select>
 
@@ -262,7 +556,10 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                     className="w-full flex items-center justify-center gap-2 bg-[#c8860a] text-white py-3 rounded-xl font-semibold text-sm disabled:opacity-70"
                   >
                     {updatingStatus ? (
-                      <><Loader2 size={14} className="animate-spin" /> Updating...</>
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        Updating...
+                      </>
                     ) : (
                       "Update Order"
                     )}

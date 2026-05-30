@@ -35,7 +35,7 @@ export default function CategorySection({ category, products }: CategorySectionP
             />
           </div>
           <Link
-            href={`/shop?category=${category.slug}`}
+            href={`/shop?category=${encodeURIComponent(category.slug)}`}
             className="flex items-center gap-1 transition-all duration-200 hover:gap-2"
             style={{
               color: "#F48721",
@@ -72,7 +72,7 @@ export default function CategorySection({ category, products }: CategorySectionP
         {/* See all button — pill/rounded-full style */}
         <div className="flex justify-center" style={{ marginTop: "28px" }}>
           <Link
-            href={`/shop?category=${category.slug}`}
+            href={`/shop?category=${encodeURIComponent(category.slug)}`}
             className="inline-block border-2 border-[#F48721] text-[#F48721] hover:bg-[#F48721] hover:text-white transition-colors rounded-full"
             style={{
               padding: "10px 36px",

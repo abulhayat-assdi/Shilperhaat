@@ -67,7 +67,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         el.style.transform  = "translateY(0)";
       }}
     >
-      <Link href={`/product/${product.slug}`} style={{ textDecoration: "none", display: "block" }}>
+      <Link href={`/product/${encodeURIComponent(product.slug)}`} style={{ textDecoration: "none", display: "block" }}>
         {/* Product image — 4:3 ratio via padding-bottom trick */}
         <div style={{ position: "relative", width: "100%", paddingBottom: "75%", backgroundColor: "#F8F8F8", overflow: "hidden" }}>
           {/* Badges inside image area */}
@@ -84,7 +84,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   display: "inline-block",
                 }}
               >
-                -{discount}%
+                Save {discount}%
               </span>
             )}
             {product.isBestSelling && (

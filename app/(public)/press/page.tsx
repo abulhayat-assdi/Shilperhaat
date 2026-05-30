@@ -5,5 +5,5 @@ export const metadata = { title: 'Press - Shilperhaat' }
 
 export default function PressPage() {
   const page = getPage('press')!
-  return <StaticPage title={page.title} subtitle={page.subtitle} section1={page.section1} section2={page.section2} />
+  return <StaticPage title={page.title} subtitle={page.subtitle} sections={page.sections} />
 }

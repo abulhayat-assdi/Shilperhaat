@@ -41,12 +41,14 @@ export interface Product {
   isFeatured: boolean;
   isBestSelling: boolean;
   status: ProductStatus;
-  sku: string | null;
   tags: string[];
   createdAt: Date;
   updatedAt: Date;
   category?: Pick<Category, "id" | "name" | "slug"> | null;
   images: ProductImage[];
+  videoUrl?: string | null;
+  youtubeUrl?: string | null;
+  youtubeVideoId?: string | null;
 }
 
 export interface Review {
@@ -104,6 +106,10 @@ export interface Order {
   createdAt: Date;
   updatedAt: Date;
   items: OrderItem[];
+  courierConsignmentId?: string | null;
+  courierTrackingCode?: string | null;
+  courierSentAt?: string | null;
+  courierStatus?: "pending" | "sent" | "failed" | null;
 }
 
 export interface SiteSetting {

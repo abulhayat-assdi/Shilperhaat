@@ -1,18 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { getAllPages, PageContent } from '@/lib/pages-data'
+import { getAllPages, PageContent, PageSection } from '@/lib/pages-data'
 import AdminLayout from '@/components/admin/AdminLayout'
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+}
 
 export default function AdminPagesManager() {
   const [pages, setPages] = useState<PageContent[]>(getAllPages())
   const [selectedPage, setSelectedPage] = useState<PageContent | null>(null)
   const [editMode, setEditMode] = useState<'richtext' | 'html'>('richtext')
   const [saveMsg, setSaveMsg] = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   const handleEdit = (page: PageContent) => {
-    setSelectedPage({ ...page })
+    setSelectedPage({ ...page, sections: page.sections.map(s => ({ ...s })) })
     setSaveMsg('')
+    setDeleteConfirm(null)
   }
 
   const handleSave = () => {
@@ -23,6 +29,39 @@ export default function AdminPagesManager() {
     } : p))
     setSaveMsg('Saved successfully!')
     setTimeout(() => setSaveMsg(''), 3000)
+  }
+
+  const updateSection = (id: string, updates: Partial<PageSection>) => {
+    if (!selectedPage) return
+    setSelectedPage({
+      ...selectedPage,
+      sections: selectedPage.sections.map(s => s.id === id ? { ...s, ...updates } : s)
+    })
+  }
+
+  const addSection = () => {
+    if (!selectedPage) return
+    const newSec: PageSection = {
+      id: genId(),
+      title: 'Additional Content',
+      content: '',
+      order: selectedPage.sections.length + 1,
+    }
+    setSelectedPage({ ...selectedPage, sections: [...selectedPage.sections, newSec] })
+    setTimeout(() => {
+      document.getElementById('add-section-btn')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 80)
+  }
+
+  const deleteSection = (id: string) => {
+    if (!selectedPage) return
+    setSelectedPage({
+      ...selectedPage,
+      sections: selectedPage.sections
+        .filter(s => s.id !== id)
+        .map((s, i) => ({ ...s, order: i + 1 })),
+    })
+    setDeleteConfirm(null)
   }
 
   return (
@@ -49,9 +88,7 @@ export default function AdminPagesManager() {
                   <p className="text-xs text-gray-400">/{page.slug}</p>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
-                  page.isPublished
-                    ? 'bg-green-100 text-green-600'
-                    : 'bg-gray-100 text-gray-400'
+                  page.isPublished ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
                 }`}>
                   {page.isPublished ? 'Live' : 'Draft'}
                 </span>
@@ -147,23 +184,31 @@ export default function AdminPagesManager() {
                 </div>
               </div>
 
-              {/* Section 1 */}
-              <ContentSection
-                title="Section 1 — Main Content"
-                value={selectedPage.section1}
-                onChange={v => setSelectedPage({ ...selectedPage, section1: v })}
-                editMode={editMode}
-                sectionId="editor-s1"
-              />
+              {/* Dynamic Sections */}
+              {selectedPage.sections.map((section, idx) => (
+                <SectionCard
+                  key={section.id}
+                  section={section}
+                  index={idx}
+                  editMode={editMode}
+                  canDelete={selectedPage.sections.length > 1}
+                  isConfirmingDelete={deleteConfirm === section.id}
+                  onTitleChange={t => updateSection(section.id, { title: t })}
+                  onContentChange={c => updateSection(section.id, { content: c })}
+                  onDeleteClick={() => setDeleteConfirm(section.id)}
+                  onDeleteConfirm={() => deleteSection(section.id)}
+                  onDeleteCancel={() => setDeleteConfirm(null)}
+                />
+              ))}
 
-              {/* Section 2 */}
-              <ContentSection
-                title="Section 2 — Additional Content"
-                value={selectedPage.section2}
-                onChange={v => setSelectedPage({ ...selectedPage, section2: v })}
-                editMode={editMode}
-                sectionId="editor-s2"
-              />
+              {/* Add New Section */}
+              <button
+                id="add-section-btn"
+                onClick={addSection}
+                className="w-full py-4 mb-6 border-2 border-dashed border-[#F48121] rounded-xl text-[#F48121] font-semibold text-sm text-center cursor-pointer hover:bg-orange-50 transition-colors"
+              >
+                + Add New Section
+              </button>
 
               {/* Save */}
               <div className="flex items-center gap-4 pb-6">
@@ -193,6 +238,123 @@ export default function AdminPagesManager() {
   )
 }
 
+function SectionCard({
+  section,
+  index,
+  editMode,
+  canDelete,
+  isConfirmingDelete,
+  onTitleChange,
+  onContentChange,
+  onDeleteClick,
+  onDeleteConfirm,
+  onDeleteCancel,
+}: {
+  section: PageSection
+  index: number
+  editMode: 'richtext' | 'html'
+  canDelete: boolean
+  isConfirmingDelete: boolean
+  onTitleChange: (t: string) => void
+  onContentChange: (c: string) => void
+  onDeleteClick: () => void
+  onDeleteConfirm: () => void
+  onDeleteCancel: () => void
+}) {
+  const [collapsed, setCollapsed] = useState(false)
+  const [editingTitle, setEditingTitle] = useState(false)
+
+  return (
+    <div className="border border-gray-200 rounded-xl mb-4 bg-white overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-5 py-3 bg-gray-50 border-b border-gray-200">
+        <button
+          onClick={() => setCollapsed(c => !c)}
+          className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+          title={collapsed ? 'Expand' : 'Collapse'}
+        >
+          <svg
+            width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2"
+            style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+
+        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider flex-shrink-0">
+          Section {index + 1} —
+        </span>
+
+        {editingTitle ? (
+          <input
+            autoFocus
+            value={section.title}
+            onChange={e => onTitleChange(e.target.value)}
+            onBlur={() => setEditingTitle(false)}
+            onKeyDown={e => { if (e.key === 'Enter') setEditingTitle(false) }}
+            className="flex-1 text-sm font-semibold text-gray-700 border border-gray-300 rounded px-2 py-0.5 focus:outline-none focus:border-[#c8860a]"
+          />
+        ) : (
+          <button
+            onClick={() => setEditingTitle(true)}
+            className="flex-1 text-sm font-semibold text-gray-700 hover:text-[#c8860a] text-left truncate"
+            title="Click to rename"
+          >
+            {section.title}
+          </button>
+        )}
+
+        {canDelete && (
+          <button
+            onClick={onDeleteClick}
+            className="flex-shrink-0 ml-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded p-1.5 transition-colors"
+            title="Delete section"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6M14 11v6" />
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* Delete confirmation */}
+      {isConfirmingDelete && (
+        <div className="px-5 py-3 bg-red-50 border-b border-red-100 flex items-center gap-3">
+          <span className="text-sm text-red-700 font-medium">Delete this section?</span>
+          <button
+            onClick={onDeleteConfirm}
+            className="px-3 py-1 bg-red-500 text-white text-xs font-semibold rounded hover:bg-red-600"
+          >
+            Yes, Delete
+          </button>
+          <button
+            onClick={onDeleteCancel}
+            className="px-3 py-1 bg-white text-gray-600 text-xs font-semibold rounded border border-gray-300 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* Body */}
+      {!collapsed && (
+        <div className="p-5">
+          <SectionContentEditor
+            key={section.id + editMode}
+            value={section.content}
+            onChange={onContentChange}
+            editMode={editMode}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
 const TOOLBAR_BUTTONS = [
   { label: 'B', cmd: 'bold', val: undefined, style: 'font-bold' },
   { label: 'I', cmd: 'italic', val: undefined, style: 'italic' },
@@ -203,34 +365,29 @@ const TOOLBAR_BUTTONS = [
   { label: '1. List', cmd: 'insertOrderedList', val: undefined, style: '' },
 ] as const
 
-function ContentSection({
-  title,
+function SectionContentEditor({
   value,
   onChange,
   editMode,
-  sectionId,
 }: {
-  title: string
   value: string
   onChange: (v: string) => void
   editMode: 'richtext' | 'html'
-  sectionId: string
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-      <h3 className="text-sm font-bold text-gray-800 mb-3">{title}</h3>
-
+    <div>
       {editMode === 'html' ? (
         <textarea
+          dir="ltr"
           value={value}
           onChange={e => onChange(e.target.value)}
-          rows={12}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#c8860a]"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#c8860a] resize-y text-left"
+          style={{ minHeight: '300px', direction: 'ltr' }}
           placeholder="<h2>Section Title</h2><p>Your content here...</p>"
         />
       ) : (
         <div>
-          <div className="flex flex-wrap gap-1 mb-0 p-2 bg-gray-50 border border-gray-200 rounded-t-lg">
+          <div className="flex flex-wrap gap-1 p-2 bg-gray-50 border border-gray-200 rounded-t-lg">
             {TOOLBAR_BUTTONS.map(btn => (
               <button
                 key={btn.cmd + btn.label}
@@ -245,12 +402,13 @@ function ContentSection({
             ))}
           </div>
           <div
-            id={sectionId}
             contentEditable
             suppressContentEditableWarning
+            dir="ltr"
             onInput={e => onChange((e.target as HTMLElement).innerHTML)}
             dangerouslySetInnerHTML={{ __html: value }}
-            className="w-full min-h-[180px] border border-gray-300 border-t-0 rounded-b-lg px-4 py-3 text-sm focus:outline-none prose max-w-none"
+            className="w-full border border-gray-300 border-t-0 rounded-b-lg px-4 py-3 text-sm focus:outline-none prose max-w-none text-left"
+            style={{ minHeight: '260px', direction: 'ltr', unicodeBidi: 'embed' }}
           />
         </div>
       )}

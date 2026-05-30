@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import BottomNav from "@/components/layout/BottomNav";
+import LazyFloatingContact from "@/components/ui/LazyFloatingContact";
 import { Providers } from "@/components/ui/Providers";
 
 export default function PublicLayout({
@@ -18,6 +19,7 @@ export default function PublicLayout({
         </main>
         <Footer />
         <BottomNav />
+        <LazyFloatingContact />
       </div>
     </Providers>
   );

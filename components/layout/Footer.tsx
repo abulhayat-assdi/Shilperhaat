@@ -77,23 +77,26 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-3 lg:col-span-1">
             {/* Logo */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <div
-                style={{
-                  width: 44, height: 44, borderRadius: "50%",
-                  backgroundColor: "#F48721",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  color: "white", fontWeight: 700, fontSize: 20,
-                  flexShrink: 0,
-                }}
-              >
-                {layout.logoLetter}
-              </div>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#222", fontFamily: "'Open Sans',sans-serif", lineHeight: 1.2 }}>
-                  {layout.siteName}
+              {layout.logoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={layout.logoUrl}
+                  alt={layout.siteName}
+                  style={{ maxHeight: 44, maxWidth: 140, width: "auto", height: "auto", objectFit: "contain", display: "block" }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 44, height: 44, borderRadius: "50%",
+                    backgroundColor: "#F48721",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "white", fontWeight: 700, fontSize: 20,
+                    flexShrink: 0,
+                  }}
+                >
+                  {layout.logoLetter}
                 </div>
-                <div style={{ fontSize: 11, color: "#999" }}>{layout.tagline}</div>
-              </div>
+              )}
             </div>
 
             <p
@@ -221,7 +224,7 @@ export default function Footer() {
           className="w-full max-w-7xl mx-auto px-4 md:px-5"
           style={{ padding: "16px 20px", textAlign: "center" }}
         >
-          <p style={{ fontSize: 12, color: "#999", fontFamily: "'Open Sans',sans-serif" }}>
+          <p suppressHydrationWarning style={{ fontSize: 12, color: "#999", fontFamily: "'Open Sans',sans-serif" }}>
             {layout.footerCopyright || `© ${currentYear} ${layout.siteName}. All rights reserved.`}
             {" "}· Made with ❤️ to support Bangladesh's artisans
           </p>

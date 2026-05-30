@@ -15,12 +15,13 @@ interface ProductPageProps {
 }
 
 export async function generateStaticParams() {
-  return dummyProducts.map((p) => ({ slug: p.slug }));
+  return dummyProducts.map((p) => ({ slug: encodeURIComponent(p.slug) }));
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product  = dummyProducts.find((p) => p.slug === slug);
+  const decodedSlug = decodeURIComponent(slug);
+  const product  = dummyProducts.find((p) => p.slug === decodedSlug);
   if (!product) return { title: "Product not found" };
   return {
     title: `${product.title} — Shilperhaat`,
@@ -35,7 +36,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product  = dummyProducts.find((p) => p.slug === slug) as any as Product | undefined;
+  const decodedSlug = decodeURIComponent(slug);
+  const product  = dummyProducts.find((p) => p.slug === decodedSlug) as any as Product | undefined;
   if (!product) notFound();
 
   const discount   = product.compareAtPrice
@@ -96,7 +98,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
           >
             {/* Left: gallery */}
             <div>
-              <ProductGallery images={product.images} title={product.title} />
+              <ProductGallery
+              images={product.images}
+              title={product.title}
+              videoUrl={product.videoUrl}
+              youtubeVideoId={product.youtubeVideoId}
+            />
             </div>
 
             {/* Right: product info */}
@@ -106,7 +113,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {product.category && (
                 <div>
                   <Link
-                    href={`/shop?category=${product.category.slug}`}
+                    href={`/shop?category=${encodeURIComponent(product.category.slug)}`}
                     style={{
                       display: "inline-block",
                       fontSize: 13, color: "#555",
@@ -181,13 +188,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 )}
               </div>
 
-              {/* SKU */}
-              {product.sku && (
-                <p style={{ fontSize: 12, color: "#888", fontFamily: "'Open Sans',sans-serif" }}>
-                  SKU: <span style={{ color: "#555" }}>{product.sku}</span>
-                </p>
-              )}
-
               {/* Add to cart section */}
               <AddToCartSection product={product} />
             </div>
@@ -220,7 +220,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
                 {product.category && (
                   <Link
-                    href={`/shop?category=${product.category.slug}`}
+                    href={`/shop?category=${encodeURIComponent(product.category.slug)}`}
                     style={{ color: "#F48721", fontSize: 13, fontWeight: 600, textDecoration: "none" }}
                     className="hover:underline"
                   >

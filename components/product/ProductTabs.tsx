@@ -31,12 +31,13 @@ export default function ProductTabs({ description, tags, reviewCount = 0 }: Prod
                 fontSize: 14,
                 fontWeight: isActive ? 600 : 400,
                 color: isActive ? "#F48721" : "#666",
-                borderBottom: isActive ? "3px solid #F48721" : "3px solid transparent",
                 marginBottom: -2,
                 background: "none",
-                border: "none",
-                borderBottomStyle: "solid",
+                borderTopWidth: 0,
+                borderLeftWidth: 0,
+                borderRightWidth: 0,
                 borderBottomWidth: 3,
+                borderBottomStyle: "solid",
                 borderBottomColor: isActive ? "#F48721" : "transparent",
                 cursor: "pointer",
                 fontFamily: "'Open Sans', sans-serif",
@@ -79,14 +80,13 @@ export default function ProductTabs({ description, tags, reviewCount = 0 }: Prod
 
             {description ? (
               <div
+                className="prose-description"
                 style={{
                   fontSize: 14, lineHeight: 1.8, color: "#444",
-                  whiteSpace: "pre-line",
                   fontFamily: "'Open Sans', sans-serif",
                 }}
-              >
-                {description}
-              </div>
+                dangerouslySetInnerHTML={{ __html: description }}
+              />
             ) : (
               <p style={{ color: "#aaa", fontSize: 14 }}>No description available.</p>
             )}

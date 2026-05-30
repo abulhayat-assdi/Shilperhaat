@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+const IMAGE_MAX = 15 * 1024 * 1024;  // 15 MB
+const VIDEO_MAX = 200 * 1024 * 1024; // 200 MB
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -12,19 +17,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
+    const isImage = IMAGE_TYPES.includes(file.type);
+    const isVideo = VIDEO_TYPES.includes(file.type);
+
+    if (!isImage && !isVideo) {
       return NextResponse.json(
-        { error: "Only image files are allowed" },
+        { error: "Only image (JPG, PNG, WebP, GIF) or video (MP4, WebM, MOV) files are allowed" },
         { status: 400 }
       );
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    if (isImage && file.size > IMAGE_MAX) {
       return NextResponse.json(
-        { error: "File size must be under 5MB" },
+        { error: "Image size must be under 15MB" },
+        { status: 400 }
+      );
+    }
+
+    if (isVideo && file.size > VIDEO_MAX) {
+      return NextResponse.json(
+        { error: "Video file must be under 200MB. Please use YouTube link instead." },
         { status: 400 }
       );
     }
@@ -32,32 +44,16 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Generate unique filename
-    const ext = file.name.split(".").pop() || "jpg";
+    const ext = file.name.split(".").pop() || (isImage ? "jpg" : "mp4");
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
 
-    // Create directory if it doesn't exist
     await mkdir(uploadDir, { recursive: true });
+    await writeFile(path.join(uploadDir, filename), buffer);
 
-    const filePath = path.join(uploadDir, filename);
-    await writeFile(filePath, buffer);
-
-    // TODO: Use Sharp to optimize image
-    // const sharp = (await import("sharp")).default;
-    // await sharp(buffer)
-    //   .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
-    //   .jpeg({ quality: 85 })
-    //   .toFile(filePath);
-
-    const url = `/uploads/${folder}/${filename}`;
-
-    return NextResponse.json({ success: true, url });
+    return NextResponse.json({ success: true, url: `/uploads/${folder}/${filename}` });
   } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json(
-      { error: "Upload failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

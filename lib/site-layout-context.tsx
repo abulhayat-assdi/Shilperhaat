@@ -23,6 +23,9 @@ export interface SiteLayoutData {
   siteName: string;
   tagline: string;
   logoLetter: string;
+  logoUrl: string;
+  logoWidth: number;
+  logoHeight: number;
 
   // Contact
   phone: string;
@@ -53,6 +56,9 @@ const DEFAULT_DATA: SiteLayoutData = {
   siteName: "Shilperhaat",
   tagline: "Handcraft Marketplace",
   logoLetter: "S",
+  logoUrl: "",
+  logoWidth: 140,
+  logoHeight: 50,
 
   phone: "01700000000",
   whatsappNumber: "01700000000",
@@ -158,7 +164,7 @@ export function SiteLayoutProvider({ children }: { children: React.ReactNode }) 
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored) as SiteLayoutData;
+        const parsed = { ...DEFAULT_DATA, ...(JSON.parse(stored) as Partial<SiteLayoutData>) };
         setData(parsed);
         setSaved(parsed);
       }
