@@ -36,42 +36,50 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
     if (!formData.name || !formData.content) return;
     setIsSaving(true);
     try {
-      await new Promise((r) => setTimeout(r, 500));
+      const url = editingReview ? `/api/admin/reviews/${editingReview.id}` : "/api/admin/reviews";
+      const res = await fetch(url, {
+        method: editingReview ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      const data = await res.json();
       if (editingReview) {
-        setReviews((prev) =>
-          prev.map((r) => (r.id === editingReview.id ? { ...r, ...formData } as Review : r))
-        );
+        setReviews((prev) => prev.map((r) => (r.id === editingReview.id ? data.review : r)));
       } else {
-        const newReview: Review = {
-          id: "rev-" + Date.now(),
-          name: formData.name!,
-          title: formData.title || null,
-          rating: formData.rating || 5,
-          content: formData.content!,
-          avatarUrl: null,
-          role: formData.role || null,
-          isVisible: formData.isVisible ?? true,
-          sortOrder: formData.sortOrder || 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        setReviews((prev) => [...prev, newReview]);
+        setReviews((prev) => [...prev, data.review]);
       }
       setModalOpen(false);
+    } catch {
+      alert("Failed to save review. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const toggleVisible = (id: string) => {
-    setReviews((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, isVisible: !r.isVisible } : r))
-    );
+  const toggleVisible = async (id: string) => {
+    const review = reviews.find((r) => r.id === id);
+    if (!review) return;
+    try {
+      const res = await fetch(`/api/admin/reviews/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...review, isVisible: !review.isVisible }),
+      });
+      if (res.ok) setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, isVisible: !r.isVisible } : r)));
+    } catch {
+      // silent fail
+    }
   };
 
-  const deleteReview = (id: string) => {
-    if (confirm("Delete this review?")) {
-      setReviews((prev) => prev.filter((r) => r.id !== id));
+  const deleteReview = async (id: string) => {
+    if (!confirm("Delete this review?")) return;
+    try {
+      const res = await fetch(`/api/admin/reviews/${id}`, { method: "DELETE" });
+      if (res.ok) setReviews((prev) => prev.filter((r) => r.id !== id));
+      else alert("Failed to delete review.");
+    } catch {
+      alert("Failed to delete review.");
     }
   };
 

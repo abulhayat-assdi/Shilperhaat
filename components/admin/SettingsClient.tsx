@@ -69,8 +69,12 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (data: any) => {
     try {
-      // TODO: Save to DB via API
-      await new Promise((r) => setTimeout(r, 600));
+      const res = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...data, logoUrl }),
+      });
+      if (!res.ok) throw new Error("Save failed");
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {

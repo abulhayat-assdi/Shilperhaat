@@ -73,36 +73,35 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
     if (!formData.name || !formData.slug) return;
     setIsSaving(true);
     try {
-      // Simulate save (replace with API call)
-      await new Promise((r) => setTimeout(r, 500));
-
+      const url = editingCategory ? `/api/admin/categories/${editingCategory.id}` : "/api/admin/categories";
+      const res = await fetch(url, {
+        method: editingCategory ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      const data = await res.json();
       if (editingCategory) {
-        setCategories((prev) =>
-          prev.map((c) =>
-            c.id === editingCategory.id
-              ? { ...c, ...formData }
-              : c
-          )
-        );
+        setCategories((prev) => prev.map((c) => (c.id === editingCategory.id ? data.category : c)));
       } else {
-        const newCat: Category = {
-          id: "cat-" + Date.now(),
-          ...formData,
-          imageUrl: formData.imageUrl || null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        setCategories((prev) => [...prev, newCat]);
+        setCategories((prev) => [...prev, data.category]);
       }
       setModalOpen(false);
+    } catch {
+      alert("Failed to save category. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this category?")) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this category?")) return;
+    try {
+      const res = await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
+      if (res.ok) setCategories((prev) => prev.filter((c) => c.id !== id));
+      else alert("Failed to delete category.");
+    } catch {
+      alert("Failed to delete category.");
     }
   };
 

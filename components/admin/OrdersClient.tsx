@@ -67,17 +67,17 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
     if (!selectedOrder) return;
     setUpdatingStatus(true);
     try {
-      await new Promise((r) => setTimeout(r, 500));
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === selectedOrder.id
-            ? { ...o, status: newStatus as Order["status"], adminNote }
-            : o
-        )
-      );
-      setSelectedOrder((prev) =>
-        prev ? { ...prev, status: newStatus as Order["status"], adminNote } : null
-      );
+      const res = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, adminNote }),
+      });
+      if (!res.ok) throw new Error("Update failed");
+      const updated = newStatus as Order["status"];
+      setOrders((prev) => prev.map((o) => (o.id === selectedOrder.id ? { ...o, status: updated, adminNote } : o)));
+      setSelectedOrder((prev) => (prev ? { ...prev, status: updated, adminNote } : null));
+    } catch {
+      alert("Failed to update order status.");
     } finally {
       setUpdatingStatus(false);
     }

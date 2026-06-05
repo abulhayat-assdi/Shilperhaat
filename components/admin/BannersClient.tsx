@@ -66,42 +66,49 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
     }
     setIsSaving(true);
     try {
-      await new Promise((r) => setTimeout(r, 500));
+      const url = editingBanner ? `/api/admin/banners/${editingBanner.id}` : "/api/admin/banners";
+      const res = await fetch(url, {
+        method: editingBanner ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      const data = await res.json();
       if (editingBanner) {
-        setBanners((prev) =>
-          prev.map((b) => (b.id === editingBanner.id ? { ...b, ...formData } as Banner : b))
-        );
+        setBanners((prev) => prev.map((b) => (b.id === editingBanner.id ? data.banner : b)));
       } else {
-        const newBanner: Banner = {
-          id: "ban-" + Date.now(),
-          title: formData.title || null,
-          subtitle: formData.subtitle || null,
-          imageUrl: formData.imageUrl!,
-          mobileImageUrl: formData.mobileImageUrl || null,
-          buttonText: formData.buttonText || null,
-          buttonLink: formData.buttonLink || null,
-          sortOrder: formData.sortOrder || 0,
-          isActive: formData.isActive ?? true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        setBanners((prev) => [...prev, newBanner]);
+        setBanners((prev) => [...prev, data.banner]);
       }
       setModalOpen(false);
+    } catch {
+      alert("Failed to save banner. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const toggleActive = (id: string) => {
-    setBanners((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b))
-    );
+  const toggleActive = async (id: string) => {
+    const banner = banners.find((b) => b.id === id);
+    if (!banner) return;
+    try {
+      const res = await fetch(`/api/admin/banners/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...banner, isActive: !banner.isActive }),
+      });
+      if (res.ok) setBanners((prev) => prev.map((b) => (b.id === id ? { ...b, isActive: !b.isActive } : b)));
+    } catch {
+      // silent fail
+    }
   };
 
-  const deleteBanner = (id: string) => {
-    if (confirm("Delete this banner?")) {
-      setBanners((prev) => prev.filter((b) => b.id !== id));
+  const deleteBanner = async (id: string) => {
+    if (!confirm("Delete this banner?")) return;
+    try {
+      const res = await fetch(`/api/admin/banners/${id}`, { method: "DELETE" });
+      if (res.ok) setBanners((prev) => prev.filter((b) => b.id !== id));
+    } catch {
+      alert("Failed to delete banner.");
     }
   };
 

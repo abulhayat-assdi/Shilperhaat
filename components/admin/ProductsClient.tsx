@@ -13,9 +13,14 @@ interface ProductsClientProps {
 export default function ProductsClient({ products: initialProducts }: ProductsClientProps) {
   const [products, setProducts] = useState(initialProducts);
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      setProducts((prev) => prev.filter((p) => p.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+      if (res.ok) setProducts((prev) => prev.filter((p) => p.id !== id));
+      else alert("Failed to delete product.");
+    } catch {
+      alert("Failed to delete product.");
     }
   };
 

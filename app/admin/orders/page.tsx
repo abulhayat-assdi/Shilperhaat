@@ -1,4 +1,5 @@
 import { requirePageAccess } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import AdminLayout from "@/components/admin/AdminLayout";
 import OrdersClient from "@/components/admin/OrdersClient";
 
@@ -47,9 +48,20 @@ const demoOrders = [
 export default async function OrdersPage() {
   const session = await requirePageAccess("orders");
 
+  let orders: any[] = [];
+  try {
+    orders = await prisma.order.findMany({
+      include: { items: true },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    });
+  } catch {
+    // DB unavailable
+  }
+
   return (
     <AdminLayout title="Orders" adminName={session.name}>
-      <OrdersClient orders={demoOrders as any[]} />
+      <OrdersClient orders={orders} />
     </AdminLayout>
   );
 }
