@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ADMIN_PAGES } from "@/lib/admin-pages";
+
+const VALID_PAGE_KEYS = new Set(ADMIN_PAGES.map((p) => p.key));
 
 // PUT /api/admin/users/[id] — update role and/or page access
 export async function PUT(
@@ -22,6 +25,9 @@ export async function PUT(
   try {
     const { role, pageAccess } = await req.json();
     const adminRole = role === "super_admin" ? "super_admin" : "admin";
+    const validatedPages = Array.isArray(pageAccess)
+      ? pageAccess.filter((k: unknown) => typeof k === "string" && VALID_PAGE_KEYS.has(k))
+      : [];
 
     // Delete existing page access and recreate
     await prisma.adminPageAccess.deleteMany({ where: { adminId: id } });
@@ -30,10 +36,10 @@ export async function PUT(
       where: { id },
       data: {
         role: adminRole,
-        ...(adminRole === "admin" && Array.isArray(pageAccess)
+        ...(adminRole === "admin" && validatedPages.length > 0
           ? {
               pageAccess: {
-                create: pageAccess.map((key: string) => ({ pageKey: key })),
+                create: validatedPages.map((key: string) => ({ pageKey: key })),
               },
             }
           : {}),

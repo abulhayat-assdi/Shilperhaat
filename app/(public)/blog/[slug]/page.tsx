@@ -2,6 +2,7 @@
 
 import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
+import DOMPurify from 'dompurify'
 import { loadBlogPosts, BlogPost } from '@/lib/blog-data'
 
 function formatDate(iso: string): string {
@@ -136,7 +137,7 @@ export default function BlogPostPage({
           {/* Content */}
           <div
             className="blog-content text-gray-700 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
 
           {/* Back button */}

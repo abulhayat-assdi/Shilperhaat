@@ -1,11 +1,15 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
+import { cache } from "react";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const jwt = require("jsonwebtoken");
 import { prisma } from "./prisma";
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || "fallback-secret-change-me";
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === "production") {
+  throw new Error("NEXTAUTH_SECRET environment variable must be set in production");
+}
+const JWT_SECRET = process.env.NEXTAUTH_SECRET || "dev-only-secret-not-for-production";
 const COOKIE_NAME = "sh_admin_token";
 
 export interface AdminSession {
@@ -27,7 +31,7 @@ export async function verifyPassword(
 }
 
 export function createToken(payload: AdminSession): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "8h" });
 }
 
 export function verifyToken(token: string): AdminSession | null {
@@ -38,12 +42,12 @@ export function verifyToken(token: string): AdminSession | null {
   }
 }
 
-export async function getAdminSession(): Promise<AdminSession | null> {
+export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
   return verifyToken(token);
-}
+});
 
 export async function requireAdminSession(): Promise<AdminSession> {
   const session = await getAdminSession();
@@ -135,7 +139,7 @@ export async function adminLogin(
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 8,
     path: "/",
   });
 

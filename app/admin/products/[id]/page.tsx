@@ -1,4 +1,4 @@
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { requirePageAccess } from "@/lib/auth";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ProductForm from "@/components/admin/ProductForm";
@@ -9,12 +9,7 @@ interface EditProductPageProps {
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
-  let session;
-  try {
-    session = await requirePageAccess("products");
-  } catch {
-    redirect("/admin/login");
-  }
+  const session = await requirePageAccess("products");
 
   const { id } = await params;
   const product = dummyProducts.find((p) => p.id === id);

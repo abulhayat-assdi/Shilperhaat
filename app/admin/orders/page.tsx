@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { requirePageAccess } from "@/lib/auth";
 import AdminLayout from "@/components/admin/AdminLayout";
 import OrdersClient from "@/components/admin/OrdersClient";
@@ -46,12 +45,7 @@ const demoOrders = [
 ];
 
 export default async function OrdersPage() {
-  let session;
-  try {
-    session = await requirePageAccess("orders");
-  } catch {
-    redirect("/admin/login");
-  }
+  const session = await requirePageAccess("orders");
 
   return (
     <AdminLayout title="Orders" adminName={session.name}>

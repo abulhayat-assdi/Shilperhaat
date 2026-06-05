@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession, hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ADMIN_PAGES } from "@/lib/admin-pages";
+
+const VALID_PAGE_KEYS = new Set(ADMIN_PAGES.map((p) => p.key));
 
 // GET /api/admin/users — list all admins with their page access
 export async function GET() {
@@ -48,24 +51,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 });
     }
 
-    const existing = await prisma.adminUser.findUnique({ where: { email } });
+    if (password.length < 8) {
+      return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const existing = await prisma.adminUser.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
       return NextResponse.json({ error: "An admin with this email already exists" }, { status: 409 });
     }
 
     const passwordHash = await hashPassword(password);
     const adminRole = role === "super_admin" ? "super_admin" : "admin";
+    const validatedPages = Array.isArray(pageAccess)
+      ? pageAccess.filter((k: unknown) => typeof k === "string" && VALID_PAGE_KEYS.has(k))
+      : [];
 
     const user = await prisma.adminUser.create({
       data: {
         name: name.trim(),
-        email: email.trim().toLowerCase(),
+        email: normalizedEmail,
         passwordHash,
         role: adminRole,
-        ...(adminRole === "admin" && Array.isArray(pageAccess) && pageAccess.length > 0
+        ...(adminRole === "admin" && validatedPages.length > 0
           ? {
               pageAccess: {
-                create: pageAccess.map((key: string) => ({ pageKey: key })),
+                create: validatedPages.map((key: string) => ({ pageKey: key })),
               },
             }
           : {}),

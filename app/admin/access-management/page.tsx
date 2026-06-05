@@ -1,16 +1,10 @@
-import { redirect } from "next/navigation";
 import { requireSuperAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AccessManagementClient from "@/components/admin/AccessManagementClient";
 
 export default async function AccessManagementPage() {
-  let session;
-  try {
-    session = await requireSuperAdmin();
-  } catch {
-    redirect("/admin/dashboard");
-  }
+  const session = await requireSuperAdmin();
 
   let users: {
     id: string;

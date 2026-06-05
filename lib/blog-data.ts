@@ -172,6 +172,20 @@ export function saveBlogPosts(posts: BlogPost[]): void {
   }
 }
 
+export function ensureUniqueSlug(
+  slug: string,
+  existingPosts: BlogPost[],
+  excludeId?: string
+): string {
+  const taken = new Set(
+    existingPosts.filter((p) => p.id !== excludeId).map((p) => p.slug)
+  )
+  if (!taken.has(slug)) return slug
+  let counter = 2
+  while (taken.has(`${slug}-${counter}`)) counter++
+  return `${slug}-${counter}`
+}
+
 export function generateSlug(title: string): string {
   const ascii = title
     .toLowerCase()
