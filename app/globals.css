@@ -5,8 +5,8 @@
 /* ─── Editor direction fix ───────────────────────────────── */
 [contenteditable] {
   direction: ltr !important;
-  text-align: left;
-  unicode-bidi: embed;
+  text-align: left !important;
+  unicode-bidi: isolate !important;
 }
 
 /* ─── Raw CSS custom properties ──────────────────────────── */

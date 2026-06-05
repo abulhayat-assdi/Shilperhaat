@@ -12,7 +12,7 @@ export interface AdminSession {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: "super_admin" | "admin";
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -53,24 +53,72 @@ export async function requireAdminSession(): Promise<AdminSession> {
   return session;
 }
 
+export async function requireSuperAdmin(): Promise<AdminSession> {
+  const session = await requireAdminSession();
+  if (session.role !== "super_admin") {
+    redirect("/admin/dashboard");
+  }
+  return session;
+}
+
+export async function getAdminPageAccess(adminId: string): Promise<string[]> {
+  try {
+    const access = await prisma.adminPageAccess.findMany({
+      where: { adminId },
+      select: { pageKey: true },
+    });
+    return access.map((a: { pageKey: string }) => a.pageKey);
+  } catch {
+    return [];
+  }
+}
+
+export async function requirePageAccess(pageKey: string): Promise<AdminSession> {
+  const session = await requireAdminSession();
+  if (session.role === "super_admin") return session;
+
+  let hasAccess = false;
+  try {
+    const access = await prisma.adminPageAccess.findUnique({
+      where: { adminId_pageKey: { adminId: session.id, pageKey } },
+    });
+    hasAccess = !!access;
+  } catch {
+    hasAccess = false;
+  }
+
+  if (!hasAccess) {
+    redirect("/admin/dashboard");
+  }
+  return session;
+}
+
 export async function adminLogin(
   email: string,
   password: string
 ): Promise<{ success: boolean; error?: string }> {
-  const devEmail    = process.env.ADMIN_EMAIL    || "admin@shilperhaat.com";
-  const devPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const superAdminEmail    = process.env.ADMIN_EMAIL;
+  const superAdminPassword = process.env.ADMIN_PASSWORD;
 
-  /* ── Dev / fallback: check hardcoded env credentials first ── */
   let session: AdminSession | null = null;
 
-  if (email === devEmail && password === devPassword) {
-    session = { id: "dev-admin", name: "Admin", email: devEmail, role: "admin" };
+  if (
+    superAdminEmail &&
+    superAdminPassword &&
+    email === superAdminEmail &&
+    password === superAdminPassword
+  ) {
+    session = { id: "super-admin", name: "Super Admin", email: superAdminEmail, role: "super_admin" };
   } else {
-    /* ── Production: check database ── */
     try {
       const admin = await prisma.adminUser.findUnique({ where: { email } });
       if (admin && (await verifyPassword(password, admin.passwordHash))) {
-        session = { id: admin.id, name: admin.name, email: admin.email, role: admin.role };
+        session = {
+          id: admin.id,
+          name: admin.name,
+          email: admin.email,
+          role: (admin.role as "super_admin" | "admin") || "admin",
+        };
       }
     } catch (dbError) {
       console.error("DB login error (falling back to env credentials):", dbError);
@@ -100,20 +148,21 @@ export async function adminLogout(): Promise<void> {
 }
 
 export async function seedAdminUser(): Promise<void> {
-  const email = process.env.ADMIN_EMAIL || "admin@shilperhaat.com";
-  const password = process.env.ADMIN_PASSWORD || "admin123";
+  const email = process.env.ADMIN_EMAIL;
+  const password = process.env.ADMIN_PASSWORD;
+  if (!email || !password) return;
 
   const existing = await prisma.adminUser.findUnique({ where: { email } });
   if (!existing) {
     const passwordHash = await hashPassword(password);
     await prisma.adminUser.create({
       data: {
-        name: "Admin",
+        name: "Super Admin",
         email,
         passwordHash,
-        role: "admin",
+        role: "super_admin",
       },
     });
-    console.log("Admin user seeded successfully");
+    console.log("Super admin user seeded successfully");
   }
 }

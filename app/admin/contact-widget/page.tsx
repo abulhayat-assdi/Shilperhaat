@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import { requireAdminSession } from "@/lib/auth";
+import { requirePageAccess } from "@/lib/auth";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ContactWidgetClient from "@/components/admin/ContactWidgetClient";
 
 export default async function ContactWidgetPage() {
   let session;
   try {
-    session = await requireAdminSession();
+    session = await requirePageAccess("contact-widget");
   } catch {
     redirect("/admin/login");
   }

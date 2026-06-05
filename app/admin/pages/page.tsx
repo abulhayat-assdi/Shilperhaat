@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { getAllPages, PageContent, PageSection } from '@/lib/pages-data'
 import AdminLayout from '@/components/admin/AdminLayout'
 
@@ -374,6 +374,24 @@ function SectionContentEditor({
   onChange: (v: string) => void
   editMode: 'richtext' | 'html'
 }) {
+  const editorRef = useRef<HTMLDivElement>(null)
+  const pendingChange = useRef(false)
+
+  useEffect(() => {
+    if (pendingChange.current) {
+      pendingChange.current = false
+      return
+    }
+    if (editorRef.current && editorRef.current.innerHTML !== value) {
+      editorRef.current.innerHTML = value
+    }
+  }, [value])
+
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    pendingChange.current = true
+    onChange((e.currentTarget as HTMLElement).innerHTML)
+  }
+
   return (
     <div>
       {editMode === 'html' ? (
@@ -402,13 +420,13 @@ function SectionContentEditor({
             ))}
           </div>
           <div
+            ref={editorRef}
             contentEditable
             suppressContentEditableWarning
             dir="ltr"
-            onInput={e => onChange((e.target as HTMLElement).innerHTML)}
-            dangerouslySetInnerHTML={{ __html: value }}
+            onInput={handleInput}
             className="w-full border border-gray-300 border-t-0 rounded-b-lg px-4 py-3 text-sm focus:outline-none prose max-w-none text-left"
-            style={{ minHeight: '260px', direction: 'ltr', unicodeBidi: 'embed' }}
+            style={{ minHeight: '260px', direction: 'ltr' }}
           />
         </div>
       )}

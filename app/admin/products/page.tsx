@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireAdminSession } from "@/lib/auth";
+import { requirePageAccess } from "@/lib/auth";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ProductsClient from "@/components/admin/ProductsClient";
 import { dummyProducts } from "@/lib/dummy-data";
@@ -7,7 +7,7 @@ import { dummyProducts } from "@/lib/dummy-data";
 export default async function ProductsPage() {
   let session;
   try {
-    session = await requireAdminSession();
+    session = await requirePageAccess("products");
   } catch {
     redirect("/admin/login");
   }

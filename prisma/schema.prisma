@@ -11,15 +11,27 @@ datasource db {
 }
 
 model AdminUser {
-  id           String   @id @default(cuid())
+  id           String            @id @default(cuid())
   name         String
-  email        String   @unique
+  email        String            @unique
   passwordHash String
-  role         String   @default("admin")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role         String            @default("admin")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  pageAccess   AdminPageAccess[]
 
   @@map("admin_users")
+}
+
+model AdminPageAccess {
+  id        String    @id @default(cuid())
+  adminId   String
+  pageKey   String
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@unique([adminId, pageKey])
+  @@map("admin_page_access")
 }
 
 model Category {
