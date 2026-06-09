@@ -1,13 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
+import { getAdminSession } from "@/lib/auth";
 
-const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+const ALLOWED_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ALLOWED_IMAGE_EXT = ["jpg", "jpeg", "png", "webp", "gif"];
+const ALLOWED_VIDEO_MIME = ["video/mp4", "video/webm", "video/quicktime"];
+const ALLOWED_VIDEO_EXT = ["mp4", "webm", "mov"];
+
 const IMAGE_MAX = 15 * 1024 * 1024;  // 15 MB
 const VIDEO_MAX = 200 * 1024 * 1024; // 200 MB
 
 export async function POST(req: NextRequest) {
+  // Admin-only: reject if not logged in
+  const session = await getAdminSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -17,8 +28,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const isImage = IMAGE_TYPES.includes(file.type);
-    const isVideo = VIDEO_TYPES.includes(file.type);
+    const originalExt = (file.name.split(".").pop() || "").toLowerCase();
+    const isImage = ALLOWED_IMAGE_MIME.includes(file.type) && ALLOWED_IMAGE_EXT.includes(originalExt);
+    const isVideo = ALLOWED_VIDEO_MIME.includes(file.type) && ALLOWED_VIDEO_EXT.includes(originalExt);
 
     if (!isImage && !isVideo) {
       return NextResponse.json(
@@ -28,10 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (isImage && file.size > IMAGE_MAX) {
-      return NextResponse.json(
-        { error: "Image size must be under 15MB" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Image size must be under 15MB" }, { status: 400 });
     }
 
     if (isVideo && file.size > VIDEO_MAX) {
@@ -44,14 +53,25 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const ext = file.name.split(".").pop() || (isImage ? "jpg" : "mp4");
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
-
     await mkdir(uploadDir, { recursive: true });
-    await writeFile(path.join(uploadDir, filename), buffer);
 
-    return NextResponse.json({ success: true, url: `/uploads/${folder}/${filename}` });
+    if (isImage) {
+      // Convert all images to WebP and compress
+      const filename = `${uniqueSuffix}.webp`;
+      const optimized = await sharp(buffer)
+        .webp({ quality: 82 })
+        .toBuffer();
+
+      await writeFile(path.join(uploadDir, filename), optimized);
+      return NextResponse.json({ success: true, url: `/uploads/${folder}/${filename}` });
+    } else {
+      // Video: save as-is
+      const filename = `${uniqueSuffix}.${originalExt}`;
+      await writeFile(path.join(uploadDir, filename), buffer);
+      return NextResponse.json({ success: true, url: `/uploads/${folder}/${filename}` });
+    }
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
