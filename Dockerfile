@@ -45,5 +45,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Run DB migration first, then start the app
-CMD ["sh", "-c", "npx prisma migrate deploy && node_modules/.bin/next start"]
+# Run DB migration first, then start the app regardless
+CMD ["sh", "-c", "npx prisma migrate deploy; node_modules/.bin/next start"]
