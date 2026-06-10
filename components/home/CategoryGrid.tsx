@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
@@ -119,19 +119,7 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
 
 /* ─── Category Card — circle icon style ─────────────────────── */
 function CategoryCard({ category }: { category: Category }) {
-  const imageUrl = getImageUrl(category.imageUrl);
-
-  const emojiMap: Record<string, string> = {
-    katha: "🧣",
-    chador: "🧤",
-    kambal: "🛌",
-    "nakshi-katha": "🪡",
-    muslin: "🧵",
-    jamdani: "✨",
-    gamcha: "🏮",
-    "new-arrivals": "🆕",
-  };
-  const emoji = emojiMap[category.slug] ?? "🛍️";
+  const [imgSrc, setImgSrc] = useState(getImageUrl(category.imageUrl));
 
   return (
     <Link
@@ -156,7 +144,6 @@ function CategoryCard({ category }: { category: Category }) {
           borderRadius: "50%",
           backgroundColor: "#FFF0F0",
           border: "2px solid #f5d0d0",
-          display: "flex", alignItems: "center", justifyContent: "center",
           overflow: "hidden",
           position: "relative",
           flexShrink: 0,
@@ -171,21 +158,17 @@ function CategoryCard({ category }: { category: Category }) {
           (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
         }}
       >
-        {/* Emoji fallback (shown when image fails) */}
-        <span className="text-2xl select-none" aria-hidden style={{ position: "absolute" }}>
-          {emoji}
-        </span>
-        {/* Image on top */}
         <Image
-          src={imageUrl}
+          src={imgSrc}
           alt={category.name}
           fill
-          unoptimized={!imageUrl.startsWith("http")}
-          className="object-contain"
-          style={{ padding: 10, transition: "transform 0.3s ease", zIndex: 1 }}
+          unoptimized
+          className="object-cover"
           sizes="80px"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
+          onError={() => {
+            if (imgSrc !== "/placeholder-product.svg") {
+              setImgSrc("/placeholder-product.svg");
+            }
           }}
         />
       </div>

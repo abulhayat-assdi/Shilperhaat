@@ -131,21 +131,18 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
           >
             {/* Image */}
             <div className="relative aspect-square bg-[#f0e8d8] overflow-hidden">
-              {/* Emoji always rendered as fallback behind image */}
-              <div className="absolute inset-0 flex items-center justify-center text-4xl select-none">
-                🧵
-              </div>
-              {cat.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={getImageUrl(cat.imageUrl)}
-                  alt={cat.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              )}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={getImageUrl(cat.imageUrl)}
+                alt={cat.name}
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (!img.src.endsWith("/placeholder-product.svg")) {
+                    img.src = "/placeholder-product.svg";
+                  }
+                }}
+              />
               {cat.isFeatured && (
                 <div className="absolute top-2 right-2 bg-[#800000] text-white rounded-full p-1 z-10">
                   <Star size={10} fill="currentColor" />
@@ -207,21 +204,20 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Image</label>
                   <div className="flex items-center gap-3">
-                    {formData.imageUrl ? (
-                      <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={getImageUrl(formData.imageUrl)}
-                          alt="Category"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).style.display = "none";
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center text-2xl">🧵</div>
-                    )}
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#f0e8d8]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={getImageUrl(formData.imageUrl)}
+                        alt="Category"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          if (!img.src.endsWith("/placeholder-product.svg")) {
+                            img.src = "/placeholder-product.svg";
+                          }
+                        }}
+                      />
+                    </div>
                     <label className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 cursor-pointer hover:bg-gray-50">
                       {isUploading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
                       Upload
