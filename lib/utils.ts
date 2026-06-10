@@ -139,7 +139,7 @@ export function getStars(rating: number): { full: number; empty: number } {
 
 // Image URL helper
 export function getImageUrl(url: string | null | undefined): string {
-  if (!url) return "/placeholder-product.jpg";
+  if (!url) return "/placeholder-product.svg";
   if (url.startsWith("http")) return url;
   return url;
 }

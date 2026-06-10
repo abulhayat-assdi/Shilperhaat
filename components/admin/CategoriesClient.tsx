@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Plus, Pencil, Trash2, Star, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Category } from "@/types";
@@ -133,14 +132,17 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
             {/* Image */}
             <div className="relative aspect-square bg-[#f0e8d8]">
               {cat.imageUrl ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={getImageUrl(cat.imageUrl)}
                   alt={cat.name}
-                  fill
-                  className="object-cover"
-                  sizes="200px"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
                 />
-              ) : (
+              ) : null}
+              {!cat.imageUrl && (
                 <div className="absolute inset-0 flex items-center justify-center text-4xl">
                   🧵
                 </div>
@@ -208,7 +210,15 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                   <div className="flex items-center gap-3">
                     {formData.imageUrl ? (
                       <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100">
-                        <Image src={getImageUrl(formData.imageUrl)} alt="Category" fill className="object-cover" sizes="80px" />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={getImageUrl(formData.imageUrl)}
+                          alt="Category"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).style.display = "none";
+                          }}
+                        />
                       </div>
                     ) : (
                       <div className="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center text-2xl">🧵</div>

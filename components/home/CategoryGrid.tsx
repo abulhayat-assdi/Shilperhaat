@@ -180,6 +180,7 @@ function CategoryCard({ category }: { category: Category }) {
           src={imageUrl}
           alt={category.name}
           fill
+          unoptimized={!imageUrl.startsWith("http")}
           className="object-contain"
           style={{ padding: 10, transition: "transform 0.3s ease", zIndex: 1 }}
           sizes="80px"
