@@ -297,7 +297,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
   const cardCls = "bg-white border border-[#eee] rounded-lg p-5";
   const cardTitleCls = "text-sm font-bold text-[#333] mb-[14px] pb-[10px] border-b border-[#f0f0f0]";
   const inputCls = "w-full h-10 border rounded-lg px-3 text-sm outline-none transition-colors";
-  const inputNormalCls = `${inputCls} border-gray-200 focus:border-[#c8860a]`;
+  const inputNormalCls = `${inputCls} border-gray-200 focus:border-[#800000]`;
 
   // ── UI ────────────────────────────────────────────────────────────────────────
   return (
@@ -322,7 +322,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                   placeholder="Enter product title (English or Bengali)"
                   lang="bn"
                   style={{ fontFamily: "'Hind Siliguri', 'Open Sans', sans-serif" }}
-                  className={`${inputCls} ${errors.title ? "border-red-400" : "border-gray-200 focus:border-[#c8860a]"}`}
+                  className={`${inputCls} ${errors.title ? "border-red-400" : "border-gray-200 focus:border-[#800000]"}`}
                 />
                 {errors.title && (
                   <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
@@ -333,7 +333,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Slug <span className="text-red-500">*</span>
-                  <span className="ml-2 text-xs font-normal bg-[#FFF1E5] text-[#c8860a] px-1.5 py-0.5 rounded">
+                  <span className="ml-2 text-xs font-normal bg-[#FFF0F0] text-[#800000] px-1.5 py-0.5 rounded">
                     Auto
                   </span>
                 </label>
@@ -348,7 +348,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                       errors.slug
                         ? "border-red-400"
                         : slugEditable
-                        ? "border-gray-200 focus:border-[#c8860a] bg-white"
+                        ? "border-gray-200 focus:border-[#800000] bg-white"
                         : "border-gray-200 bg-gray-50 text-gray-500 cursor-default"
                     }`}
                   />
@@ -429,7 +429,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                     width: 90,
                     height: 90,
                     opacity: dragOverIndex === i && dragIndexRef.current !== i ? 0.5 : 1,
-                    outline: dragOverIndex === i ? "2px dashed #c8860a" : "none",
+                    outline: dragOverIndex === i ? "2px dashed #800000" : "none",
                   }}
                 >
                   <Image
@@ -450,7 +450,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                     <X size={10} />
                   </button>
                   {i === 0 && (
-                    <span className="absolute bottom-1 left-1 bg-[#c8860a] text-white text-xs px-1.5 py-0.5 rounded z-10">
+                    <span className="absolute bottom-1 left-1 bg-[#800000] text-white text-xs px-1.5 py-0.5 rounded z-10">
                       Main
                     </span>
                   )}
@@ -459,7 +459,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
 
               {images.length < 10 && (
                 <label
-                  className="flex-shrink-0 rounded-lg border-2 border-dashed border-gray-300 hover:border-[#c8860a] flex flex-col items-center justify-center cursor-pointer transition-colors"
+                  className="flex-shrink-0 rounded-lg border-2 border-dashed border-gray-300 hover:border-[#800000] flex flex-col items-center justify-center cursor-pointer transition-colors"
                   style={{ width: 90, height: 90 }}
                 >
                   {isUploading ? (
@@ -565,7 +565,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             {videoTab === "upload" && (
               <div className="space-y-2">
                 {!videoUrl && !isUploadingVideo && (
-                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 hover:border-[#c8860a] rounded-lg p-4 cursor-pointer transition-colors">
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 hover:border-[#800000] rounded-lg p-4 cursor-pointer transition-colors">
                     <Play size={24} className="text-gray-400 mb-1" />
                     <span className="text-sm font-medium text-gray-600">Click to upload a video</span>
                     <span className="text-xs text-gray-400 mt-0.5">MP4, WebM, MOV — max {VIDEO_MAX_MB}MB</span>
@@ -586,7 +586,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#c8860a] rounded-full transition-all duration-300"
+                        className="h-full bg-[#800000] rounded-full transition-all duration-300"
                         style={{ width: `${videoUploadProgress}%` }}
                       />
                     </div>
@@ -645,7 +645,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                 <input
                   {...register("isFeatured")}
                   type="checkbox"
-                  className="w-4 h-4 accent-[#c8860a]"
+                  className="w-4 h-4 accent-[#800000]"
                 />
                 <span className="text-sm text-gray-700">Featured Product</span>
               </label>
@@ -653,7 +653,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                 <input
                   {...register("isBestSelling")}
                   type="checkbox"
-                  className="w-4 h-4 accent-[#c8860a]"
+                  className="w-4 h-4 accent-[#800000]"
                 />
                 <span className="text-sm text-gray-700">Best Selling</span>
               </label>
@@ -690,7 +690,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                   type="number"
                   step="0.01"
                   placeholder="0.00"
-                  className={`${inputCls} ${errors.price ? "border-red-400" : "border-gray-200 focus:border-[#c8860a]"}`}
+                  className={`${inputCls} ${errors.price ? "border-red-400" : "border-gray-200 focus:border-[#800000]"}`}
                 />
                 <p className="text-xs text-gray-400 mt-1">Current selling price</p>
                 {errors.price && (
@@ -722,7 +722,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                   {...register("stock")}
                   type="number"
                   placeholder="0"
-                  className={`${inputCls} ${errors.stock ? "border-red-400" : "border-gray-200 focus:border-[#c8860a]"}`}
+                  className={`${inputCls} ${errors.stock ? "border-red-400" : "border-gray-200 focus:border-[#800000]"}`}
                 />
                 {errors.stock && (
                   <p className="text-red-500 text-xs mt-1">{errors.stock.message}</p>
@@ -737,7 +737,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 bg-[#F48121] hover:bg-[#d97318] disabled:opacity-70 text-white font-bold rounded-[8px] transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-[#800000] hover:bg-[#5C0000] disabled:opacity-70 text-white font-bold rounded-[8px] transition-colors"
               style={{ height: 46, fontSize: 15 }}
             >
               {isSubmitting ? (

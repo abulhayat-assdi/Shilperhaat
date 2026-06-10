@@ -214,9 +214,9 @@ export default function CouponsClient() {
             <button
               onClick={openNew}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-colors"
-              style={{ backgroundColor: '#c8860a' }}
+              style={{ backgroundColor: '#800000' }}
               onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#a86e08' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#c8860a' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#800000' }}
             >
               <Plus size={16} />
               Add Coupon
@@ -315,7 +315,7 @@ export default function CouponsClient() {
                           <div className="flex items-center gap-2 justify-end">
                             <button
                               onClick={() => openEdit(coupon)}
-                              className="p-1.5 rounded-lg text-gray-400 hover:text-[#c8860a] hover:bg-orange-50 transition-colors"
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-[#800000] hover:bg-[#FFF0F0] transition-colors"
                               title="Edit"
                             >
                               <Pencil size={15} />
@@ -387,7 +387,7 @@ export default function CouponsClient() {
                   onChange={e => setForm({ ...form, code: e.target.value.toUpperCase() })}
                   placeholder="e.g. SAVE20, EID100"
                   maxLength={20}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 font-mono font-bold text-gray-800 text-sm focus:outline-none focus:border-[#c8860a] tracking-wider transition-colors"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 font-mono font-bold text-gray-800 text-sm focus:outline-none focus:border-[#800000] tracking-wider transition-colors"
                 />
                 <p className="text-xs text-gray-400 mt-1">Only A-Z, 0-9, -, _ allowed (2–20 characters)</p>
               </div>
@@ -402,7 +402,7 @@ export default function CouponsClient() {
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
                   placeholder="e.g. Eid special offer"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                 />
               </div>
 
@@ -417,8 +417,8 @@ export default function CouponsClient() {
                       onClick={() => setForm({ ...form, type: t })}
                       className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-colors ${
                         form.type === t
-                          ? 'bg-[#c8860a] text-white border-[#c8860a]'
-                          : 'bg-white text-gray-600 border-gray-300 hover:border-[#c8860a]'
+                          ? 'bg-[#800000] text-white border-[#800000]'
+                          : 'bg-white text-gray-600 border-gray-300 hover:border-[#800000]'
                       }`}
                     >
                       {t === 'PERCENTAGE' ? '% Percentage' : '৳ Fixed Amount'}
@@ -435,7 +435,7 @@ export default function CouponsClient() {
                     max={form.type === 'PERCENTAGE' ? 100 : undefined}
                     value={form.value}
                     onChange={e => setForm({ ...form, value: Math.max(1, Number(e.target.value)) })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                   />
                 </div>
               </div>
@@ -451,7 +451,7 @@ export default function CouponsClient() {
                   value={form.minOrderAmount}
                   onChange={e => setForm({ ...form, minOrderAmount: Math.max(0, Number(e.target.value)) })}
                   placeholder="0 means no minimum"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                 />
               </div>
 
@@ -466,7 +466,7 @@ export default function CouponsClient() {
                       setMaxUsesEnabled(e.target.checked)
                       if (e.target.checked && !form.maxUses) setForm({ ...form, maxUses: 100 })
                     }}
-                    className="w-4 h-4 accent-[#c8860a]"
+                    className="w-4 h-4 accent-[#800000]"
                   />
                   <label htmlFor="maxUsesCheck" className="text-xs font-semibold text-gray-600 cursor-pointer">
                     Set maximum usage limit
@@ -478,7 +478,7 @@ export default function CouponsClient() {
                     min={1}
                     value={form.maxUses ?? 100}
                     onChange={e => setForm({ ...form, maxUses: Math.max(1, Number(e.target.value)) })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                   />
                 )}
               </div>
@@ -494,7 +494,7 @@ export default function CouponsClient() {
                       setExpiresEnabled(e.target.checked)
                       if (!e.target.checked) setForm({ ...form, expiresAt: null })
                     }}
-                    className="w-4 h-4 accent-[#c8860a]"
+                    className="w-4 h-4 accent-[#800000]"
                   />
                   <label htmlFor="expiresCheck" className="text-xs font-semibold text-gray-600 cursor-pointer">
                     Set expiry date
@@ -510,7 +510,7 @@ export default function CouponsClient() {
                         expiresAt: e.target.value ? `${e.target.value}T23:59:59.000Z` : null,
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                   />
                 )}
               </div>
@@ -553,9 +553,9 @@ export default function CouponsClient() {
               <button
                 onClick={handleSave}
                 className="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm transition-colors"
-                style={{ backgroundColor: '#c8860a' }}
+                style={{ backgroundColor: '#800000' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#a86e08' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#c8860a' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#800000' }}
               >
                 {editing ? 'Update Coupon' : 'Add Coupon'}
               </button>

@@ -142,7 +142,7 @@ function EmptyState({ search, category }: { search?: string; category?: string }
         href="/shop"
         style={{
           marginTop: 20, display: "inline-block",
-          backgroundColor: "#F48721", color: "#fff",
+          backgroundColor: "#800000", color: "#fff",
           padding: "10px 24px", borderRadius: 999,
           fontSize: 13, fontWeight: 600, textDecoration: "none",
         }}
@@ -179,7 +179,7 @@ function Pagination({ current, total, params }: {
           <a key={p} href={buildUrl(p)} style={{
             width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center",
             borderRadius: 8, fontSize: 13, fontWeight: 500, textDecoration: "none",
-            backgroundColor: p === current ? "#F48721" : "transparent",
+            backgroundColor: p === current ? "#800000" : "transparent",
             color: p === current ? "#fff" : "#222831",
             border: p === current ? "none" : "1px solid #CCC",
           }}>

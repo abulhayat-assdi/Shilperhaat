@@ -50,7 +50,7 @@ export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProp
         {/* ── Orange header ── */}
         <div
           style={{
-            backgroundColor: "#F48721",
+            backgroundColor: "#800000",
             padding: "16px 20px",
             display: "flex",
             alignItems: "center",
@@ -98,7 +98,7 @@ export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProp
           <div
             style={{
               width: 44, height: 44, borderRadius: "50%",
-              backgroundColor: "#F48721",
+              backgroundColor: "#800000",
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0,
             }}
@@ -107,7 +107,7 @@ export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProp
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#333" }}>Hello there!</div>
-            <div style={{ fontSize: 13, color: "#F48721", fontWeight: 500 }}>Sign in / Register →</div>
+            <div style={{ fontSize: 13, color: "#800000", fontWeight: 500 }}>Sign in / Register →</div>
           </div>
         </Link>
 
@@ -129,7 +129,7 @@ export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProp
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#fff8f0";
-                (e.currentTarget as HTMLAnchorElement).style.color = "#F48721";
+                (e.currentTarget as HTMLAnchorElement).style.color = "#800000";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "";

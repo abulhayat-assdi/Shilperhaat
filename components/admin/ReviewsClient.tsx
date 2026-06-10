@@ -92,7 +92,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 bg-[#c8860a] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#a06c07] transition-colors"
+          className="flex items-center gap-2 bg-[#800000] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#5C0000] transition-colors"
         >
           <Plus size={16} />
           Add Review
@@ -126,7 +126,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                       <Star
                         key={i}
                         size={12}
-                        className={i < review.rating ? "text-[#c8860a] fill-[#c8860a]" : "text-gray-300"}
+                        className={i < review.rating ? "text-[#800000] fill-[#800000]" : "text-gray-300"}
                       />
                     ))}
                   </div>
@@ -194,7 +194,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                     <input
                       value={formData.name || ""}
                       onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000]"
                     />
                   </div>
                   <div>
@@ -203,7 +203,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                       value={formData.role || ""}
                       onChange={(e) => setFormData((f) => ({ ...f, role: e.target.value }))}
                       placeholder="Dhaka, Bangladesh"
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000]"
                     />
                   </div>
                 </div>
@@ -213,7 +213,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                   <input
                     value={formData.title || ""}
                     onChange={(e) => setFormData((f) => ({ ...f, title: e.target.value }))}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000]"
                   />
                 </div>
 
@@ -229,7 +229,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                       >
                         <Star
                           size={24}
-                          className={v <= (formData.rating || 0) ? "text-[#c8860a] fill-[#c8860a]" : "text-gray-300"}
+                          className={v <= (formData.rating || 0) ? "text-[#800000] fill-[#800000]" : "text-gray-300"}
                         />
                       </button>
                     ))}
@@ -242,7 +242,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                     value={formData.content || ""}
                     onChange={(e) => setFormData((f) => ({ ...f, content: e.target.value }))}
                     rows={4}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a] resize-none"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000] resize-none"
                   />
                 </div>
 
@@ -251,7 +251,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                     type="checkbox"
                     checked={formData.isVisible ?? true}
                     onChange={(e) => setFormData((f) => ({ ...f, isVisible: e.target.checked }))}
-                    className="w-4 h-4 accent-[#c8860a]"
+                    className="w-4 h-4 accent-[#800000]"
                   />
                   <span className="text-sm text-gray-700">Visible on website</span>
                 </label>
@@ -259,7 +259,7 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !formData.name || !formData.content}
-                  className="w-full flex items-center justify-center gap-2 bg-[#c8860a] text-white py-3 rounded-xl font-semibold disabled:opacity-70"
+                  className="w-full flex items-center justify-center gap-2 bg-[#800000] text-white py-3 rounded-xl font-semibold disabled:opacity-70"
                 >
                   {isSaving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : "Save Review"}
                 </button>

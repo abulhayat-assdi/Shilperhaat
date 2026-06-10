@@ -52,7 +52,7 @@ function FooterLink({ href, label }: { href: string; label: string }) {
       <Link
         href={href}
         style={linkStyle}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#800000"; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#666"; }}
       >
         {label}
@@ -88,7 +88,7 @@ export default function Footer() {
                 <div
                   style={{
                     width: 44, height: 44, borderRadius: "50%",
-                    backgroundColor: "#F48721",
+                    backgroundColor: "#800000",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     color: "white", fontWeight: 700, fontSize: 20,
                     flexShrink: 0,
@@ -116,7 +116,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#666", textDecoration: "none" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#800000"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#666"; }}
               >
                 <Phone size={13} style={{ flexShrink: 0 }} />
@@ -126,7 +126,7 @@ export default function Footer() {
               <a
                 href={`mailto:${layout.email}`}
                 style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#666", textDecoration: "none" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#800000"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#666"; }}
               >
                 <Mail size={13} style={{ flexShrink: 0 }} />
@@ -162,8 +162,8 @@ export default function Footer() {
                     transition: "border-color 0.2s, color 0.2s, background-color 0.2s",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "#F48721";
-                    (e.currentTarget as HTMLAnchorElement).style.color = "#F48721";
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "#800000";
+                    (e.currentTarget as HTMLAnchorElement).style.color = "#800000";
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLAnchorElement).style.borderColor = "#ddd";

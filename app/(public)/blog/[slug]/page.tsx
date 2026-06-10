@@ -35,7 +35,7 @@ export default function BlogPostPage({
         <div className="text-center">
           <div
             className="inline-block w-10 h-10 border-4 border-t-transparent rounded-full animate-spin mb-4"
-            style={{ borderColor: '#F48721', borderTopColor: 'transparent' }}
+            style={{ borderColor: '#800000', borderTopColor: 'transparent' }}
           />
           <p className="text-gray-400 text-sm">Loading...</p>
         </div>
@@ -56,7 +56,7 @@ export default function BlogPostPage({
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold transition-colors"
-            style={{ backgroundColor: '#F48721' }}
+            style={{ backgroundColor: '#800000' }}
           >
             ← Blog-এ ফিরে যান
           </Link>
@@ -70,9 +70,9 @@ export default function BlogPostPage({
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2 text-sm text-gray-500">
-          <Link href="/" className="hover:text-orange-600 transition-colors">Home</Link>
+          <Link href="/" className="hover:text-[#800000] transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/blog" className="hover:text-orange-600 transition-colors">Blog</Link>
+          <Link href="/blog" className="hover:text-[#800000] transition-colors">Blog</Link>
           <span>/</span>
           <span className="text-gray-800 font-medium truncate max-w-xs">{post.title}</span>
         </div>
@@ -95,7 +95,7 @@ export default function BlogPostPage({
           {/* Category badge */}
           <span
             className="inline-block text-xs font-semibold px-3 py-1 rounded-full text-white mb-4"
-            style={{ backgroundColor: '#F48721' }}
+            style={{ backgroundColor: '#800000' }}
           >
             {post.category}
           </span>
@@ -109,7 +109,7 @@ export default function BlogPostPage({
           <div className="flex flex-wrap items-center gap-3 pb-6 border-b border-gray-100 mb-8">
             <span
               className="inline-flex items-center justify-center w-9 h-9 rounded-full text-white font-bold text-sm flex-shrink-0"
-              style={{ backgroundColor: '#F48721' }}
+              style={{ backgroundColor: '#800000' }}
             >
               {post.author.charAt(0)}
             </span>
@@ -126,7 +126,7 @@ export default function BlogPostPage({
               {post.tags.map(tag => (
                 <span
                   key={tag}
-                  className="text-xs px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-100"
+                  className="text-xs px-3 py-1 rounded-full bg-[#FFF0F0] text-[#800000] border border-[#f5d0d0]"
                 >
                   #{tag}
                 </span>
@@ -145,16 +145,16 @@ export default function BlogPostPage({
             <Link
               href="/blog"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 font-semibold text-sm transition-all hover:text-white"
-              style={{ borderColor: '#F48721', color: '#F48721' }}
+              style={{ borderColor: '#800000', color: '#800000' }}
               onMouseEnter={e => {
                 const el = e.currentTarget as HTMLAnchorElement
-                el.style.backgroundColor = '#F48721'
+                el.style.backgroundColor = '#800000'
                 el.style.color = '#fff'
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget as HTMLAnchorElement
                 el.style.backgroundColor = 'transparent'
-                el.style.color = '#F48721'
+                el.style.color = '#800000'
               }}
             >
               ← Back to Blog
@@ -199,7 +199,7 @@ export default function BlogPostPage({
           line-height: 1.7;
         }
         .blog-content a {
-          color: #F48721;
+          color: #800000;
           text-decoration: underline;
         }
         .blog-content strong {

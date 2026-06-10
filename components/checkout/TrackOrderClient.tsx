@@ -116,15 +116,15 @@ export default function TrackOrderClient() {
   const stepIndex = order ? getStepIndex(order.status) : -1;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#FBF9F5" }}>
+    <div className="min-h-screen" style={{ backgroundColor: "#FAF0E6" }}>
       {/* Header section */}
       <div className="bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 py-8 md:py-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-2 h-2 rounded-full bg-[#c8860a] animate-pulse" />
-                <span className="text-xs font-semibold text-[#c8860a] tracking-widest uppercase">
+                <span className="w-2 h-2 rounded-full bg-[#800000] animate-pulse" />
+                <span className="text-xs font-semibold text-[#800000] tracking-widest uppercase">
                   Live Order Tracking
                 </span>
               </div>
@@ -148,13 +148,13 @@ export default function TrackOrderClient() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Enter order number..."
-                  className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#c8860a]/30 focus:border-[#c8860a] bg-gray-50"
+                  className="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#800000]/30 focus:border-[#800000] bg-gray-50"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="px-5 py-3 bg-[#c8860a] text-white font-semibold rounded-xl text-sm hover:bg-[#a06c07] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+                className="px-5 py-3 bg-[#800000] text-white font-semibold rounded-xl text-sm hover:bg-[#5C0000] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
               >
                 {loading ? (
                   <RefreshCw size={16} className="animate-spin" />
@@ -173,7 +173,7 @@ export default function TrackOrderClient() {
         {/* Loading state */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="w-12 h-12 border-4 border-[#c8860a] border-t-transparent rounded-full animate-spin" />
+            <div className="w-12 h-12 border-4 border-[#800000] border-t-transparent rounded-full animate-spin" />
             <p className="text-[#7a6045] text-sm">Looking up your order...</p>
           </div>
         )}
@@ -192,7 +192,7 @@ export default function TrackOrderClient() {
               </p>
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-2 bg-[#c8860a] text-white font-semibold py-3 px-6 rounded-xl text-sm hover:bg-[#a06c07] transition-colors"
+                className="inline-flex items-center gap-2 bg-[#800000] text-white font-semibold py-3 px-6 rounded-xl text-sm hover:bg-[#5C0000] transition-colors"
               >
                 <ShoppingBag size={16} />
                 Back to Shopping
@@ -209,7 +209,7 @@ export default function TrackOrderClient() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <p className="text-xs text-[#7a6045] mb-1">Order Number</p>
-                  <p className="text-xl font-bold text-[#c8860a]">
+                  <p className="text-xl font-bold text-[#800000]">
                     #{order.orderNumber}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
@@ -237,7 +237,7 @@ export default function TrackOrderClient() {
                   {/* Connector line */}
                   <div className="absolute top-5 left-5 right-5 h-0.5 bg-gray-100 hidden sm:block" />
                   <div
-                    className="absolute top-5 left-5 h-0.5 bg-[#c8860a] hidden sm:block transition-all duration-700"
+                    className="absolute top-5 left-5 h-0.5 bg-[#800000] hidden sm:block transition-all duration-700"
                     style={{
                       width:
                         stepIndex <= 0
@@ -257,9 +257,9 @@ export default function TrackOrderClient() {
                           <div
                             className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
                               isCurrent
-                                ? "bg-[#c8860a] text-white shadow-md shadow-[#c8860a]/30 scale-110"
+                                ? "bg-[#800000] text-white shadow-md shadow-[#800000]/30 scale-110"
                                 : isCompleted
-                                ? "bg-[#c8860a] text-white"
+                                ? "bg-[#800000] text-white"
                                 : "bg-gray-100 text-gray-400"
                             }`}
                           >
@@ -276,7 +276,7 @@ export default function TrackOrderClient() {
                               {step.label}
                             </p>
                             {isCurrent && (
-                              <p className="text-xs text-[#c8860a] font-medium mt-0.5">
+                              <p className="text-xs text-[#800000] font-medium mt-0.5">
                                 Current
                               </p>
                             )}
@@ -305,7 +305,7 @@ export default function TrackOrderClient() {
             {/* Items + totals */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 md:p-6">
               <h2 className="font-bold text-[#1a1208] mb-4 flex items-center gap-2">
-                <Package size={18} className="text-[#c8860a]" />
+                <Package size={18} className="text-[#800000]" />
                 Ordered Items
               </h2>
               <div className="space-y-3">
@@ -357,7 +357,7 @@ export default function TrackOrderClient() {
                 </div>
                 <div className="flex justify-between font-bold text-base text-[#1a1208]">
                   <span>Total</span>
-                  <span className="text-[#c8860a]">
+                  <span className="text-[#800000]">
                     {formatPriceEn(order.total)}
                   </span>
                 </div>
@@ -383,7 +383,7 @@ export default function TrackOrderClient() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-[#f0e8d8] flex items-center justify-center flex-shrink-0">
-                    <Phone size={14} className="text-[#c8860a]" />
+                    <Phone size={14} className="text-[#800000]" />
                   </div>
                   <div>
                     <p className="text-xs text-[#7a6045]">Phone</p>
@@ -392,7 +392,7 @@ export default function TrackOrderClient() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-[#f0e8d8] flex items-center justify-center flex-shrink-0">
-                    <MapPin size={14} className="text-[#c8860a]" />
+                    <MapPin size={14} className="text-[#800000]" />
                   </div>
                   <div>
                     <p className="text-xs text-[#7a6045]">Address</p>
@@ -401,7 +401,7 @@ export default function TrackOrderClient() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-full bg-[#f0e8d8] flex items-center justify-center flex-shrink-0">
-                    <Clock size={14} className="text-[#c8860a]" />
+                    <Clock size={14} className="text-[#800000]" />
                   </div>
                   <div>
                     <p className="text-xs text-[#7a6045]">Payment</p>
@@ -419,13 +419,13 @@ export default function TrackOrderClient() {
             <div className="flex flex-col sm:flex-row gap-3 pb-4">
               <Link
                 href="/"
-                className="flex items-center justify-center gap-2 flex-1 bg-[#c8860a] text-white font-bold py-3.5 rounded-xl hover:bg-[#a06c07] transition-colors text-sm"
+                className="flex items-center justify-center gap-2 flex-1 bg-[#800000] text-white font-bold py-3.5 rounded-xl hover:bg-[#5C0000] transition-colors text-sm"
               >
                 Back to Home
               </Link>
               <Link
                 href="/shop"
-                className="flex items-center justify-center gap-2 flex-1 border-2 border-[#c8860a] text-[#c8860a] font-bold py-3.5 rounded-xl hover:bg-[#c8860a] hover:text-white transition-colors text-sm"
+                className="flex items-center justify-center gap-2 flex-1 border-2 border-[#800000] text-[#800000] font-bold py-3.5 rounded-xl hover:bg-[#800000] hover:text-white transition-colors text-sm"
               >
                 <ShoppingBag size={16} />
                 Continue Shopping
@@ -438,7 +438,7 @@ export default function TrackOrderClient() {
         {!loading && !searched && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-20 h-20 rounded-full bg-[#f0e8d8] flex items-center justify-center mb-5">
-              <Package size={36} className="text-[#c8860a]" />
+              <Package size={36} className="text-[#800000]" />
             </div>
             <h2 className="text-lg font-bold text-[#1a1208] mb-2">
               Enter Your Order Number

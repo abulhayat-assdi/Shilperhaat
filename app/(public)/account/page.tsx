@@ -12,7 +12,7 @@ export default function AccountPage() {
               <input
                 type="text"
                 placeholder="Enter your phone or email"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#800000]"
               />
             </div>
             <div>
@@ -20,15 +20,15 @@ export default function AccountPage() {
               <input
                 type="password"
                 placeholder="Enter your password"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#800000]"
               />
             </div>
-            <button className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+            <button className="w-full text-white py-3 rounded-lg font-semibold transition-colors" style={{ backgroundColor: "#800000" }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5C0000")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#800000")}>
               Sign In
             </button>
             <p className="text-center text-sm text-gray-500">
               New customer?{' '}
-              <a href="#" className="text-orange-500 font-medium hover:underline">
+              <a href="#" className="text-[#800000] font-medium hover:underline">
                 Create account
               </a>
             </p>

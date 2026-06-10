@@ -41,7 +41,7 @@ export default function AdminSidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-2 px-4 py-5 border-b border-white/10">
-        <div className="w-8 h-8 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-[#800000] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
           S
         </div>
         {!collapsed && (
@@ -62,7 +62,7 @@ export default function AdminSidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-colors mb-0.5 ${
                 active
-                  ? "bg-[#c8860a] text-white"
+                  ? "bg-[#800000] text-white"
                   : "text-white/70 hover:bg-white/10 hover:text-white"
               }`}
               title={collapsed ? item.label : undefined}

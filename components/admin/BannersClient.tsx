@@ -121,7 +121,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 bg-[#c8860a] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#a06c07] transition-colors"
+          className="flex items-center gap-2 bg-[#800000] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#5C0000] transition-colors"
         >
           <Plus size={16} />
           Add Banner
@@ -163,7 +163,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                       <p className="text-sm text-gray-500 mt-0.5">{banner.subtitle}</p>
                     )}
                     {banner.buttonText && (
-                      <span className="inline-block mt-2 text-xs bg-[#fdf8f3] border border-[#e0d0b0] text-[#c8860a] px-2 py-0.5 rounded-full">
+                      <span className="inline-block mt-2 text-xs bg-[#fdf8f3] border border-[#e0d0b0] text-[#800000] px-2 py-0.5 rounded-full">
                         Button: {banner.buttonText}
                       </span>
                     )}
@@ -249,7 +249,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                       <Image src={getImageUrl(formData.imageUrl)} alt="Banner" fill className="object-cover" sizes="400px" />
                     </div>
                   ) : null}
-                  <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl p-4 cursor-pointer hover:border-[#c8860a] transition-colors">
+                  <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl p-4 cursor-pointer hover:border-[#800000] transition-colors">
                     {isUploading ? <Loader2 size={16} className="animate-spin text-gray-400" /> : <Plus size={16} className="text-gray-400" />}
                     <span className="text-sm text-gray-500">Upload Desktop Image (recommended: 1920×600)</span>
                     <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, "desktop")} />
@@ -259,7 +259,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                 {/* Mobile image */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Mobile Image (optional)</label>
-                  <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl p-3 cursor-pointer hover:border-[#c8860a] transition-colors">
+                  <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl p-3 cursor-pointer hover:border-[#800000] transition-colors">
                     <Plus size={14} className="text-gray-400" />
                     <span className="text-sm text-gray-500">Upload Mobile Image (recommended: 768×400)</span>
                     <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, "mobile")} />
@@ -273,7 +273,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                       value={formData.title || ""}
                       onChange={(e) => setFormData((f) => ({ ...f, title: e.target.value }))}
                       placeholder="Banner title"
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000]"
                     />
                   </div>
                   <div>
@@ -282,7 +282,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                       value={formData.buttonText || ""}
                       onChange={(e) => setFormData((f) => ({ ...f, buttonText: e.target.value }))}
                       placeholder="Shop Now"
-                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000]"
                     />
                   </div>
                 </div>
@@ -293,7 +293,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                     value={formData.subtitle || ""}
                     onChange={(e) => setFormData((f) => ({ ...f, subtitle: e.target.value }))}
                     placeholder="Banner subtitle"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000]"
                   />
                 </div>
 
@@ -303,7 +303,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                     value={formData.buttonLink || ""}
                     onChange={(e) => setFormData((f) => ({ ...f, buttonLink: e.target.value }))}
                     placeholder="/shop"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000]"
                   />
                 </div>
 
@@ -312,7 +312,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                     type="checkbox"
                     checked={formData.isActive ?? true}
                     onChange={(e) => setFormData((f) => ({ ...f, isActive: e.target.checked }))}
-                    className="w-4 h-4 accent-[#c8860a]"
+                    className="w-4 h-4 accent-[#800000]"
                   />
                   <span className="text-sm text-gray-700">Active (visible on site)</span>
                 </label>
@@ -320,7 +320,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !formData.imageUrl}
-                  className="w-full flex items-center justify-center gap-2 bg-[#c8860a] text-white py-3 rounded-xl font-semibold disabled:opacity-70"
+                  className="w-full flex items-center justify-center gap-2 bg-[#800000] text-white py-3 rounded-xl font-semibold disabled:opacity-70"
                 >
                   {isSaving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : "Save Banner"}
                 </button>

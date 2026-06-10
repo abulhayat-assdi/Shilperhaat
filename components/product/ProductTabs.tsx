@@ -30,7 +30,7 @@ export default function ProductTabs({ description, tags, reviewCount = 0 }: Prod
                 padding: "12px 24px",
                 fontSize: 14,
                 fontWeight: isActive ? 600 : 400,
-                color: isActive ? "#F48721" : "#666",
+                color: isActive ? "#800000" : "#666",
                 marginBottom: -2,
                 background: "none",
                 borderTopWidth: 0,
@@ -38,7 +38,7 @@ export default function ProductTabs({ description, tags, reviewCount = 0 }: Prod
                 borderRightWidth: 0,
                 borderBottomWidth: 3,
                 borderBottomStyle: "solid",
-                borderBottomColor: isActive ? "#F48721" : "transparent",
+                borderBottomColor: isActive ? "#800000" : "transparent",
                 cursor: "pointer",
                 fontFamily: "'Open Sans', sans-serif",
                 transition: "color 0.2s",
@@ -75,7 +75,7 @@ export default function ProductTabs({ description, tags, reviewCount = 0 }: Prod
               >
                 Product Details
               </h3>
-              <div style={{ height: 3, width: 48, backgroundColor: "#F48721", borderRadius: 2, marginTop: -4 }} />
+              <div style={{ height: 3, width: 48, backgroundColor: "#800000", borderRadius: 2, marginTop: -4 }} />
             </div>
 
             {description ? (
@@ -104,19 +104,19 @@ export default function ProductTabs({ description, tags, reviewCount = 0 }: Prod
                       href={`/shop?search=${encodeURIComponent(tag)}`}
                       style={{
                         fontSize: 12, padding: "4px 12px",
-                        backgroundColor: "#FFF1E5", color: "#F48721",
+                        backgroundColor: "#FFF0F0", color: "#800000",
                         borderRadius: 4, textDecoration: "none",
                         fontFamily: "'Open Sans',sans-serif", fontWeight: 500,
-                        border: "1px solid #fde8cc",
+                        border: "1px solid #f5d0d0",
                         transition: "background-color 0.2s, color 0.2s",
                       }}
                       onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#F48721";
+                        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#800000";
                         (e.currentTarget as HTMLAnchorElement).style.color = "#fff";
                       }}
                       onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#FFF1E5";
-                        (e.currentTarget as HTMLAnchorElement).style.color = "#F48721";
+                        (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#FFF0F0";
+                        (e.currentTarget as HTMLAnchorElement).style.color = "#800000";
                       }}
                     >
                       #{tag}

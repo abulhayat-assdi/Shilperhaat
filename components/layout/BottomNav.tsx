@@ -35,18 +35,18 @@ export default function BottomNav() {
           style={{ background: "none", border: "none", cursor: "pointer", padding: "0 8px" }}
         >
           <div className="relative w-8 h-8 flex items-center justify-center">
-            <ShoppingCart size={22} style={{ color: isHydrated && itemCount > 0 ? "#F48721" : "#888888" }} strokeWidth={isHydrated && itemCount > 0 ? 2.5 : 1.75} />
+            <ShoppingCart size={22} style={{ color: isHydrated && itemCount > 0 ? "#800000" : "#888888" }} strokeWidth={isHydrated && itemCount > 0 ? 2.5 : 1.75} />
             {isHydrated && itemCount > 0 && (
               <span
                 suppressHydrationWarning
                 className="absolute -top-1.5 -right-1.5 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold"
-                style={{ backgroundColor: "#F48721" }}
+                style={{ backgroundColor: "#800000" }}
               >
                 {itemCount > 9 ? "9+" : itemCount}
               </span>
             )}
           </div>
-          <span className="text-xs" style={{ color: isHydrated && itemCount > 0 ? "#F48721" : "#888888", fontWeight: isHydrated && itemCount > 0 ? 600 : 400 }}>
+          <span className="text-xs" style={{ color: isHydrated && itemCount > 0 ? "#800000" : "#888888", fontWeight: isHydrated && itemCount > 0 ? 600 : 400 }}>
             Cart
           </span>
         </button>
@@ -57,7 +57,7 @@ export default function BottomNav() {
             <div
               className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center -mt-5 border-4 border-white"
               style={{
-                backgroundColor: isActive("/") ? "#F48721" : "#041F1E",
+                backgroundColor: isActive("/") ? "#800000" : "#041F1E",
                 transition: "transform 0.1s ease, background-color 0.2s",
               }}
               onMouseDown={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "scale(0.92)"; }}
@@ -121,14 +121,14 @@ function NavItem({
       <div className="w-8 h-8 flex items-center justify-center">
         <Icon
           size={22}
-          style={{ color: active ? "#F48721" : "#888888" }}
+          style={{ color: active ? "#800000" : "#888888" }}
           strokeWidth={active ? 2.5 : 1.75}
         />
       </div>
       <span
         className="text-xs"
         style={{
-          color: active ? "#F48721" : "#888888",
+          color: active ? "#800000" : "#888888",
           fontWeight: active ? 600 : 400,
         }}
       >

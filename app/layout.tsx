@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Open_Sans, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
+import { prisma } from "@/lib/prisma";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -18,30 +19,50 @@ const hindSiliguri = Hind_Siliguri({
   preload: false,
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Shilperhaat — Bangladesh's Finest Handcraft Textiles",
-    template: "%s | Shilperhaat",
-  },
-  description:
-    "Shop Bangladesh's best handcraft textiles — Katha, Chadar, Blankets, Nakshi Katha and much more at Shilperhaat.",
-  keywords: [
-    "katha",
-    "nakshi katha",
-    "chadar",
-    "blanket",
-    "handcraft",
-    "bangladesh",
-    "shilperhaat",
-    "textile",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    siteName: "Shilperhaat",
-  },
-  robots: { index: true, follow: true },
-};
+async function getSiteSettings() {
+  try {
+    return await prisma.siteSetting.findFirst();
+  } catch {
+    return null;
+  }
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || "Shilperhaat";
+  const faviconUrl = settings?.faviconUrl || "/favicon.ico";
+  const logoUrl = settings?.logoUrl;
+
+  return {
+    title: {
+      default: `${siteName} — Bangladesh's Finest Handcraft Textiles`,
+      template: `%s | ${siteName}`,
+    },
+    description:
+      "Shop Bangladesh's best handcraft textiles — Katha, Chadar, Blankets, Nakshi Katha and much more at Shilperhaat.",
+    keywords: [
+      "katha",
+      "nakshi katha",
+      "chadar",
+      "blanket",
+      "handcraft",
+      "bangladesh",
+      "shilperhaat",
+      "textile",
+    ],
+    icons: {
+      icon: faviconUrl,
+      apple: faviconUrl,
+    },
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      siteName,
+      ...(logoUrl && { images: [{ url: logoUrl }] }),
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
 export default function RootLayout({
   children,

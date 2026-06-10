@@ -7,14 +7,22 @@ import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { formatPriceEn, getImageUrl } from "@/lib/utils";
 import { dummySiteSettings } from "@/lib/dummy-data";
+import { useState } from "react";
 
 export default function CartPageClient() {
   const { items, subtotal, deliveryCharge, total, removeItem, updateQuantity } = useCart();
   const { toast } = useToast();
+  const [confirmItem, setConfirmItem] = useState<{ id: string; title: string } | null>(null);
 
   const handleRemove = (id: string, title: string) => {
-    removeItem(id);
-    toast.info(`"${title}" removed from cart`);
+    setConfirmItem({ id, title });
+  };
+
+  const confirmRemove = () => {
+    if (!confirmItem) return;
+    removeItem(confirmItem.id);
+    toast.info(`"${confirmItem.title}" removed from cart`);
+    setConfirmItem(null);
   };
 
   if (items.length === 0) {
@@ -23,6 +31,49 @@ export default function CartPageClient() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
+      {/* Delete confirmation dialog */}
+      {confirmItem && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+          onClick={() => setConfirmItem(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-xl p-7 text-center"
+            style={{
+              maxWidth: 320,
+              width: "90%",
+              boxShadow: "0 8px 32px rgba(128,0,0,0.18)",
+              border: "2px solid #800000",
+            }}
+          >
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{ backgroundColor: "#fff0f0", border: "2px solid #800000" }}>
+              <Trash2 size={22} color="#800000" />
+            </div>
+            <h3 className="text-base font-bold text-[#1a1208] mb-2">Remove Item?</h3>
+            <p className="text-sm text-[#7a6045] mb-5 leading-relaxed">
+              &ldquo;{confirmItem.title}&rdquo; কার্ট থেকে সরিয়ে দেবেন?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmItem(null)}
+                className="flex-1 py-2.5 rounded-lg font-bold text-sm border-2 border-[#800000] text-[#800000] bg-white hover:bg-[#fff0f0] transition-colors"
+              >
+                No
+              </button>
+              <button
+                onClick={confirmRemove}
+                className="flex-1 py-2.5 rounded-lg font-bold text-sm bg-[#800000] text-white hover:bg-[#5C0000] transition-colors"
+              >
+                Yes, Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-2xl md:text-3xl font-bold text-[#1a1208] mb-6">
         My Cart ({items.length} {items.length === 1 ? "item" : "items"})
       </h1>
@@ -54,13 +105,13 @@ export default function CartPageClient() {
                 {/* Details */}
                 <div className="flex-1 min-w-0">
                   <Link href={`/product/${item.slug}`}>
-                    <h3 className="font-semibold text-[#1a1208] text-sm md:text-base line-clamp-2 hover:text-[#c8860a] transition-colors">
+                    <h3 className="font-semibold text-[#1a1208] text-sm md:text-base line-clamp-2 hover:text-[#800000] transition-colors">
                       {item.title}
                     </h3>
                   </Link>
 
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="font-bold text-[#c8860a]">
+                    <span className="font-bold text-[#800000]">
                       {formatPriceEn(item.price)}
                     </span>
                     {item.compareAtPrice && (
@@ -113,7 +164,7 @@ export default function CartPageClient() {
           <div className="pt-2">
             <Link
               href="/shop"
-              className="text-[#c8860a] text-sm font-medium hover:underline flex items-center gap-1"
+              className="text-[#800000] text-sm font-medium hover:underline flex items-center gap-1"
             >
               ← Continue Shopping
             </Link>
@@ -151,14 +202,14 @@ export default function CartPageClient() {
               <div className="border-t border-[#f0e8d8] pt-3">
                 <div className="flex justify-between font-bold text-[#1a1208] text-base">
                   <span>Total</span>
-                  <span className="text-[#c8860a] text-lg">{formatPriceEn(total)}</span>
+                  <span className="text-[#800000] text-lg">{formatPriceEn(total)}</span>
                 </div>
               </div>
             </div>
 
             <Link
               href="/checkout"
-              className="mt-5 flex items-center justify-center gap-2 w-full bg-[#c8860a] hover:bg-[#a06c07] text-white font-bold py-4 rounded-xl transition-colors"
+              className="mt-5 flex items-center justify-center gap-2 w-full bg-[#800000] hover:bg-[#5C0000] text-white font-bold py-4 rounded-xl transition-colors"
             >
               Place Order
               <ArrowRight size={18} />
@@ -185,7 +236,7 @@ function EmptyCart() {
       </p>
       <Link
         href="/shop"
-        className="flex items-center gap-2 bg-[#c8860a] text-white font-bold px-8 py-3.5 rounded-full hover:bg-[#a06c07] transition-colors"
+        className="flex items-center gap-2 bg-[#800000] text-white font-bold px-8 py-3.5 rounded-full hover:bg-[#5C0000] transition-colors"
       >
         <ShoppingBag size={18} />
         Start Shopping

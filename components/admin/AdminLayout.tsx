@@ -84,7 +84,7 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
               onClick={() => mobile && setMobileSidebarOpen(false)}
               className={`flex items-center gap-3 px-4 py-[10px] mx-2 rounded-lg transition-colors mb-0.5 ${
                 active
-                  ? "bg-[#c8860a] text-white"
+                  ? "bg-[#800000] text-white"
                   : "text-white/70 hover:bg-white/10 hover:text-white"
               }`}
             >
@@ -102,7 +102,7 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
               onClick={() => mobile && setMobileSidebarOpen(false)}
               className={`flex items-center gap-3 px-4 py-[10px] mx-2 rounded-lg transition-colors mb-0.5 ${
                 isActive("/admin/access-management")
-                  ? "bg-[#c8860a] text-white"
+                  ? "bg-[#800000] text-white"
                   : "text-white/70 hover:bg-white/10 hover:text-white"
               }`}
             >
@@ -116,8 +116,8 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
       <div className="border-t border-white/10 p-3 space-y-1 flex-shrink-0">
         {isSuperAdmin && (
           <div className="flex items-center gap-2 px-3 py-1.5 mb-1">
-            <Crown size={14} className="text-[#c8860a]" />
-            <span className="text-xs text-[#c8860a] font-semibold">Super Admin</span>
+            <Crown size={14} className="text-[#800000]" />
+            <span className="text-xs text-[#800000] font-semibold">Super Admin</span>
           </div>
         )}
         <a
@@ -153,7 +153,7 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
               style={{ maxHeight: 36, maxWidth: 120, width: "auto", height: "auto", objectFit: "contain", display: "block" }}
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#800000] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
               {layout.logoLetter || "S"}
             </div>
           )}
@@ -179,7 +179,7 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
                     style={{ maxHeight: 32, maxWidth: 110, width: "auto", height: "auto", objectFit: "contain", display: "block" }}
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[#800000] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     {layout.logoLetter || "S"}
                   </div>
                 )}
@@ -214,7 +214,7 @@ export default function AdminLayout({ children, title, adminName }: AdminLayoutP
                 {isSuperAdmin ? "Super Admin" : "Admin"}
               </p>
             </div>
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base shadow ${isSuperAdmin ? "bg-[#c8860a]" : "bg-gray-500"}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base shadow ${isSuperAdmin ? "bg-[#800000]" : "bg-gray-500"}`}>
               {displayName.charAt(0).toUpperCase()}
             </div>
           </div>

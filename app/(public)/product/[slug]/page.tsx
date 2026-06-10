@@ -73,7 +73,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <Link
                   href={crumb.href}
                   style={{ fontSize: 13, color: "#888", textDecoration: "none" }}
-                  className="hover:text-[#F48721] transition-colors"
+                  className="hover:text-[#800000] transition-colors"
                 >
                   {crumb.label}
                 </Link>
@@ -124,7 +124,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       fontFamily: "'Open Sans',sans-serif",
                       transition: "border-color 0.2s, color 0.2s",
                     }}
-                    className="hover:border-[#F48721] hover:text-[#F48721] transition-colors"
+                    className="hover:border-[#800000] hover:text-[#800000] transition-colors"
                   >
                     {product.category.name}
                   </Link>
@@ -162,7 +162,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="flex flex-wrap items-center" style={{ gap: 12 }}>
                 <span
                   style={{
-                    fontSize: 26, fontWeight: 700, color: "#F48721",
+                    fontSize: 26, fontWeight: 700, color: "#800000",
                     fontFamily: "'Open Sans',sans-serif",
                   }}
                 >
@@ -215,13 +215,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   </h2>
                   <span
                     className="absolute bottom-0 left-0"
-                    style={{ width: 48, height: 3, backgroundColor: "#F48721", borderRadius: 2 }}
+                    style={{ width: 48, height: 3, backgroundColor: "#800000", borderRadius: 2 }}
                   />
                 </div>
                 {product.category && (
                   <Link
                     href={`/shop?category=${encodeURIComponent(product.category.slug)}`}
-                    style={{ color: "#F48721", fontSize: 13, fontWeight: 600, textDecoration: "none" }}
+                    style={{ color: "#800000", fontSize: 13, fontWeight: 600, textDecoration: "none" }}
                     className="hover:underline"
                   >
                     View All →

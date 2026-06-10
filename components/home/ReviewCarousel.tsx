@@ -17,7 +17,7 @@ function StarRating({ rating }: { rating: number }) {
         <Star
           key={i}
           size={14}
-          style={i < rating ? { color: "#F48721", fill: "#F48721" } : { color: "#D1D5DB" }}
+          style={i < rating ? { color: "#800000", fill: "#800000" } : { color: "#D1D5DB" }}
         />
       ))}
     </div>
@@ -38,7 +38,7 @@ function ReviewCard({ review }: { review: Review }) {
         height: "100%",
       }}
     >
-      <Quote size={26} style={{ color: "#F48721", opacity: 0.55, marginBottom: 12 }} />
+      <Quote size={26} style={{ color: "#800000", opacity: 0.55, marginBottom: 12 }} />
       <StarRating rating={review.rating} />
       {review.title && (
         <h4
@@ -76,7 +76,7 @@ function ReviewCard({ review }: { review: Review }) {
           <div
             style={{
               width: 38, height: 38, borderRadius: "50%",
-              backgroundColor: "#F48721",
+              backgroundColor: "#800000",
               display: "flex", alignItems: "center", justifyContent: "center",
               color: "white", fontWeight: 700, fontSize: 16,
               flexShrink: 0,
@@ -162,7 +162,7 @@ export default function ReviewCarousel({ reviews }: ReviewCarouselProps) {
             <span
               style={{
                 position: "absolute", bottom: 0, left: 0,
-                width: 48, height: 3, backgroundColor: "#F48721", borderRadius: 2,
+                width: 48, height: 3, backgroundColor: "#800000", borderRadius: 2,
               }}
             />
           </div>
@@ -181,7 +181,7 @@ export default function ReviewCarousel({ reviews }: ReviewCarouselProps) {
                 transition: "background-color 0.2s",
                 padding: 0,
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F48721"; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#800000"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F5F5F5"; }}
             >
               <ChevronLeft size={18} style={{ color: "#555" }} />
@@ -191,15 +191,15 @@ export default function ReviewCarousel({ reviews }: ReviewCarouselProps) {
               aria-label="Next reviews"
               style={{
                 width: 36, height: 36, borderRadius: "50%",
-                backgroundColor: "#F48721",
+                backgroundColor: "#800000",
                 border: "none",
                 cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 transition: "background-color 0.2s",
                 padding: 0,
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E07318"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F48721"; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#5C0000"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#800000"; }}
             >
               <ChevronRight size={18} style={{ color: "#fff" }} />
             </button>
@@ -241,7 +241,7 @@ export default function ReviewCarousel({ reviews }: ReviewCarouselProps) {
                 width: i === current ? 24 : 8,
                 height: 8,
                 borderRadius: 4,
-                backgroundColor: i === current ? "#F48721" : "#ddd",
+                backgroundColor: i === current ? "#800000" : "#ddd",
                 border: "none",
                 cursor: "pointer",
                 padding: 0,

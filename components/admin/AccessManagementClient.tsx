@@ -26,7 +26,7 @@ type Panel = "edit" | "add" | null;
 function RoleBadge({ role }: { role: string }) {
   if (role === "super_admin") {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#FFF0F0] text-[#800000] border border-[#f5d0d0]">
         <Crown size={11} />
         Super Admin
       </span>
@@ -195,7 +195,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
           <button
             type="button"
             onClick={() => setPages(ADMIN_PAGES.map((p) => p.key))}
-            className="text-xs text-[#c8860a] hover:underline"
+            className="text-xs text-[#800000] hover:underline"
           >
             Select All
           </button>
@@ -219,13 +219,13 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
               onClick={() => togglePage(page.key, pages, setPages)}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-sm transition-colors ${
                 checked
-                  ? "bg-[#fdf6ec] border-[#c8860a] text-[#7a4a1a]"
+                  ? "bg-[#FFF0F0] border-[#800000] text-[#7a4a1a]"
                   : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
               }`}
             >
               <div
                 className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 border transition-colors ${
-                  checked ? "bg-[#c8860a] border-[#c8860a]" : "border-gray-300"
+                  checked ? "bg-[#800000] border-[#800000]" : "border-gray-300"
                 }`}
               >
                 {checked && <Check size={10} className="text-white" />}
@@ -236,7 +236,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
         })}
       </div>
       {pages.length === 0 && (
-        <p className="text-xs text-amber-600 mt-2 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
+        <p className="text-xs text-[#800000] mt-2 bg-[#FFF0F0] px-3 py-2 rounded-lg border border-[#f5d0d0]">
           No pages selected — this admin will only see the Dashboard.
         </p>
       )}
@@ -273,8 +273,8 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-              <Crown size={18} className="text-amber-600" />
+            <div className="w-10 h-10 rounded-xl bg-[#FFF0F0] flex items-center justify-center">
+              <Crown size={18} className="text-[#800000]" />
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-800">{superAdmins.length}</p>
@@ -300,7 +300,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
         <h2 className="text-base font-semibold text-gray-700">All Admin Users</h2>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold bg-[#c8860a] hover:bg-[#a86e08] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold bg-[#800000] hover:bg-[#5C0000] transition-colors"
         >
           <Plus size={16} />
           Add Admin
@@ -325,7 +325,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${user.role === "super_admin" ? "bg-[#c8860a]" : "bg-gray-400"}`}>
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${user.role === "super_admin" ? "bg-[#800000]" : "bg-gray-400"}`}>
                         {user.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -349,7 +349,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
                     {user.role === "super_admin" ? (
                       <span className="text-xs text-gray-400 italic">All pages</span>
                     ) : user.pageAccess.length === 0 ? (
-                      <span className="text-xs text-amber-600">Dashboard only</span>
+                      <span className="text-xs text-[#800000]">Dashboard only</span>
                     ) : (
                       <span className="text-xs text-gray-600">
                         {user.pageAccess.length} page{user.pageAccess.length !== 1 ? "s" : ""}
@@ -360,7 +360,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
                     <div className="flex items-center gap-2 justify-end">
                       <button
                         onClick={() => openEdit(user)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 text-gray-600 hover:border-[#c8860a] hover:text-[#c8860a] hover:bg-orange-50 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-200 text-gray-600 hover:border-[#800000] hover:text-[#800000] hover:bg-[#FFF0F0] transition-colors"
                       >
                         <Pencil size={13} />
                         Edit
@@ -449,14 +449,14 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
                       onClick={() => setEditRole(r)}
                       className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
                         editRole === r
-                          ? "border-[#c8860a] bg-[#fdf6ec]"
+                          ? "border-[#800000] bg-[#FFF0F0]"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       {r === "super_admin" ? (
-                        <Crown size={18} className={editRole === r ? "text-amber-600" : "text-gray-400"} />
+                        <Crown size={18} className={editRole === r ? "text-[#800000]" : "text-gray-400"} />
                       ) : (
-                        <Shield size={18} className={editRole === r ? "text-[#c8860a]" : "text-gray-400"} />
+                        <Shield size={18} className={editRole === r ? "text-[#800000]" : "text-gray-400"} />
                       )}
                       <div>
                         <p className={`text-sm font-semibold ${editRole === r ? "text-[#7a4a1a]" : "text-gray-600"}`}>
@@ -477,7 +477,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
               )}
 
               {editRole === "super_admin" && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700">
+                <div className="bg-[#FFF0F0] border border-[#f5d0d0] rounded-xl p-4 text-sm text-[#800000]">
                   <p className="font-semibold">Super Admin privileges</p>
                   <p className="text-xs mt-1">This admin will have full access to all pages and can manage other admins.</p>
                 </div>
@@ -488,7 +488,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
               <button
                 onClick={handleSaveEdit}
                 disabled={saving}
-                className="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-[#c8860a] hover:bg-[#a86e08] transition-colors disabled:opacity-60"
+                className="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-[#800000] hover:bg-[#5C0000] transition-colors disabled:opacity-60"
               >
                 {saving ? "Saving..." : "Save Changes"}
               </button>
@@ -526,7 +526,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
                   value={addName}
                   onChange={(e) => setAddName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                 />
               </div>
 
@@ -537,7 +537,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
                   value={addEmail}
                   onChange={(e) => setAddEmail(e.target.value)}
                   placeholder="admin@example.com"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                 />
               </div>
 
@@ -549,7 +549,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
                     value={addPassword}
                     onChange={(e) => setAddPassword(e.target.value)}
                     placeholder="Minimum 8 characters"
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 pr-10 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 pr-10 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                   />
                   <button
                     type="button"
@@ -571,13 +571,13 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
                       type="button"
                       onClick={() => setAddRole(r)}
                       className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
-                        addRole === r ? "border-[#c8860a] bg-[#fdf6ec]" : "border-gray-200 hover:border-gray-300"
+                        addRole === r ? "border-[#800000] bg-[#FFF0F0]" : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       {r === "super_admin" ? (
-                        <Crown size={18} className={addRole === r ? "text-amber-600" : "text-gray-400"} />
+                        <Crown size={18} className={addRole === r ? "text-[#800000]" : "text-gray-400"} />
                       ) : (
-                        <Shield size={18} className={addRole === r ? "text-[#c8860a]" : "text-gray-400"} />
+                        <Shield size={18} className={addRole === r ? "text-[#800000]" : "text-gray-400"} />
                       )}
                       <div>
                         <p className={`text-sm font-semibold ${addRole === r ? "text-[#7a4a1a]" : "text-gray-600"}`}>
@@ -597,7 +597,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
               )}
 
               {addRole === "super_admin" && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700">
+                <div className="bg-[#FFF0F0] border border-[#f5d0d0] rounded-xl p-4 text-sm text-[#800000]">
                   <p className="font-semibold">Super Admin privileges</p>
                   <p className="text-xs mt-1">This admin will have full access to all pages and can manage other admins.</p>
                 </div>
@@ -608,7 +608,7 @@ export default function AccessManagementClient({ initialUsers, currentAdminId }:
               <button
                 onClick={handleAdd}
                 disabled={saving}
-                className="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-[#c8860a] hover:bg-[#a86e08] transition-colors disabled:opacity-60"
+                className="flex-1 py-2.5 rounded-lg text-white font-semibold text-sm bg-[#800000] hover:bg-[#5C0000] transition-colors disabled:opacity-60"
               >
                 {saving ? "Creating..." : "Create Admin"}
               </button>

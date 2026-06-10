@@ -135,7 +135,7 @@ export default function TopSellingCard({ product }: TopSellingCardProps) {
           <div className="flex items-center flex-wrap" style={{ gap: 8, marginBottom: 12 }}>
             <span
               className="text-base md:text-2xl"
-              style={{ fontWeight: 700, color: "#F48721" }}
+              style={{ fontWeight: 700, color: "#800000" }}
             >
               {formatPriceEn(Number(product.price))}
             </span>
@@ -172,23 +172,23 @@ export default function TopSellingCard({ product }: TopSellingCardProps) {
               style={{
                 flex: 1, padding: "8px 8px",
                 borderRadius: 4, fontSize: 12, fontWeight: 600,
-                border: product.stock === 0 ? "2px solid #ddd" : "2px solid #F48721",
+                border: product.stock === 0 ? "2px solid #ddd" : "2px solid #800000",
                 backgroundColor: "white",
-                color: product.stock === 0 ? "#aaa" : "#F48721",
+                color: product.stock === 0 ? "#aaa" : "#800000",
                 cursor: product.stock === 0 ? "not-allowed" : "pointer",
                 transition: "background-color 0.2s, color 0.2s, transform 0.1s",
                 whiteSpace: "nowrap",
               }}
               onMouseEnter={(e) => {
                 if (product.stock > 0) {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F48721";
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#800000";
                   (e.currentTarget as HTMLButtonElement).style.color = "#FFFFFF";
                 }
               }}
               onMouseLeave={(e) => {
                 if (product.stock > 0) {
                   (e.currentTarget as HTMLButtonElement).style.backgroundColor = "white";
-                  (e.currentTarget as HTMLButtonElement).style.color = "#F48721";
+                  (e.currentTarget as HTMLButtonElement).style.color = "#800000";
                 }
                 (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
               }}
@@ -213,7 +213,7 @@ export default function TopSellingCard({ product }: TopSellingCardProps) {
               style={{
                 flex: 1, padding: "8px 8px",
                 borderRadius: 4, fontSize: 12, fontWeight: 600,
-                backgroundColor: product.stock === 0 ? "#F5F5F5" : "#F48721",
+                backgroundColor: product.stock === 0 ? "#F5F5F5" : "#800000",
                 color: product.stock === 0 ? "#aaa" : "#FFFFFF",
                 border: "none",
                 cursor: product.stock === 0 ? "not-allowed" : "pointer",
@@ -222,12 +222,12 @@ export default function TopSellingCard({ product }: TopSellingCardProps) {
               }}
               onMouseEnter={(e) => {
                 if (product.stock > 0) {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#E07318";
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#5C0000";
                 }
               }}
               onMouseLeave={(e) => {
                 if (product.stock > 0) {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F48721";
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#800000";
                 }
                 (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
               }}

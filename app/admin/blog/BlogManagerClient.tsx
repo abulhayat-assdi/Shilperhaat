@@ -191,9 +191,9 @@ export default function BlogManagerClient() {
             <button
               onClick={handleNewPost}
               className="w-full py-2.5 rounded-lg text-white text-sm font-semibold transition-colors"
-              style={{ backgroundColor: '#F48721' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#c8860a' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#F48721' }}
+              style={{ backgroundColor: '#800000' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#800000' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#800000' }}
             >
               + New Post
             </button>
@@ -211,9 +211,9 @@ export default function BlogManagerClient() {
                 <button
                   key={post.id}
                   onClick={() => handleSelect(post)}
-                  className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-orange-50 transition-colors ${
+                  className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#FFF0F0] transition-colors ${
                     selected?.id === post.id
-                      ? 'bg-orange-50 border-l-4 border-l-[#c8860a]'
+                      ? 'bg-[#FFF0F0] border-l-4 border-l-[#800000]'
                       : ''
                   }`}
                 >
@@ -258,7 +258,7 @@ export default function BlogManagerClient() {
                       value={selected.title}
                       onChange={e => handleTitleChange(e.target.value)}
                       placeholder="Post title..."
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base font-semibold focus:outline-none focus:border-[#c8860a] transition-colors"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-base font-semibold focus:outline-none focus:border-[#800000] transition-colors"
                     />
                   </div>
                   <div className="flex-shrink-0 pt-6">
@@ -303,7 +303,7 @@ export default function BlogManagerClient() {
                       value={selected.category}
                       onChange={e => setSelected({ ...selected, category: e.target.value })}
                       placeholder="e.g. Heritage, Care Guide"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                     />
                   </div>
                   <div>
@@ -313,7 +313,7 @@ export default function BlogManagerClient() {
                       value={selected.author}
                       onChange={e => setSelected({ ...selected, author: e.target.value })}
                       placeholder="Author name"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                     />
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export default function BlogManagerClient() {
                   value={selected.excerpt}
                   onChange={e => setSelected({ ...selected, excerpt: e.target.value })}
                   placeholder="Short description shown on the blog listing..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a] transition-colors resize-none"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000] transition-colors resize-none"
                 />
               </div>
 
@@ -368,7 +368,7 @@ export default function BlogManagerClient() {
                         <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center gap-2">
                           <div
                             className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin"
-                            style={{ borderColor: '#F48721', borderTopColor: 'transparent' }}
+                            style={{ borderColor: '#800000', borderTopColor: 'transparent' }}
                           />
                           <span className="text-sm text-gray-600 font-medium">Uploading...</span>
                         </div>
@@ -399,21 +399,21 @@ export default function BlogManagerClient() {
                     type="button"
                     onClick={() => !isUploading && fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="w-full rounded-xl border-2 border-dashed border-gray-300 hover:border-[#F48721] hover:bg-orange-50 transition-all duration-200 flex flex-col items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full rounded-xl border-2 border-dashed border-gray-300 hover:border-[#800000] hover:bg-[#FFF0F0] transition-all duration-200 flex flex-col items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
                     style={{ minHeight: 180 }}
                   >
                     {isUploading ? (
                       <>
                         <div
                           className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin"
-                          style={{ borderColor: '#F48721', borderTopColor: 'transparent' }}
+                          style={{ borderColor: '#800000', borderTopColor: 'transparent' }}
                         />
                         <span className="text-sm text-gray-500 font-medium">Uploading...</span>
                       </>
                     ) : (
                       <>
-                        <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F48721" strokeWidth="2">
+                        <div className="w-14 h-14 rounded-full bg-[#FFF0F0] flex items-center justify-center">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#800000" strokeWidth="2">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                             <circle cx="8.5" cy="8.5" r="1.5" />
                             <polyline points="21 15 16 10 5 21" />
@@ -442,7 +442,7 @@ export default function BlogManagerClient() {
                       value={tagsInput}
                       onChange={e => setTagsInput(e.target.value)}
                       placeholder="textile, heritage, handcraft"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                     />
                   </div>
                   <div>
@@ -455,7 +455,7 @@ export default function BlogManagerClient() {
                       max={60}
                       value={selected.readTime}
                       onChange={e => setSelected({ ...selected, readTime: Math.max(1, parseInt(e.target.value) || 1) })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a] transition-colors"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000] transition-colors"
                     />
                   </div>
                 </div>
@@ -478,9 +478,9 @@ export default function BlogManagerClient() {
                   <button
                     onClick={handleSave}
                     className="px-8 py-3 rounded-lg text-white font-semibold text-sm transition-colors shadow-sm"
-                    style={{ backgroundColor: '#c8860a' }}
+                    style={{ backgroundColor: '#800000' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#a86e08' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#c8860a' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#800000' }}
                   >
                     Save & Publish
                   </button>

@@ -99,7 +99,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
                   width: i === currentIndex ? 20 : 8,
                   height: 8,
                   borderRadius: 4,
-                  backgroundColor: i === currentIndex ? "#F48721" : "rgba(255,255,255,0.5)",
+                  backgroundColor: i === currentIndex ? "#800000" : "rgba(255,255,255,0.5)",
                   border: "none", padding: 0, cursor: "pointer",
                   transition: "all 0.25s ease",
                 }}

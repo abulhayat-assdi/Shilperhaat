@@ -6,7 +6,7 @@ import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { formatPriceEn, getImageUrl } from "@/lib/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function CartDrawer() {
   const {
@@ -15,6 +15,7 @@ export default function CartDrawer() {
     itemCount, cartDrawerOpen, closeCartDrawer,
   } = useCart();
   const { toast } = useToast();
+  const [confirmItem, setConfirmItem] = useState<{ id: string; title: string } | null>(null);
 
   /* Lock body scroll when drawer is open */
   useEffect(() => {
@@ -23,14 +24,85 @@ export default function CartDrawer() {
   }, [cartDrawerOpen]);
 
   const handleRemove = (id: string, title: string) => {
-    removeItem(id);
-    toast.info(`"${title}" removed from cart`);
+    setConfirmItem({ id, title });
+  };
+
+  const confirmRemove = () => {
+    if (!confirmItem) return;
+    removeItem(confirmItem.id);
+    toast.info(`"${confirmItem.title}" removed from cart`);
+    setConfirmItem(null);
   };
 
   if (!cartDrawerOpen) return null;
 
   return (
     <>
+      {/* Delete confirmation dialog */}
+      {confirmItem && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.45)" }}
+          onClick={() => setConfirmItem(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: 12,
+              padding: "28px 28px 22px",
+              maxWidth: 320,
+              width: "90%",
+              boxShadow: "0 8px 32px rgba(128,0,0,0.18)",
+              border: "2px solid #800000",
+              textAlign: "center",
+            }}
+          >
+            <div style={{
+              width: 48, height: 48, borderRadius: "50%",
+              backgroundColor: "#fff0f0", display: "flex",
+              alignItems: "center", justifyContent: "center",
+              margin: "0 auto 14px",
+              border: "2px solid #800000",
+            }}>
+              <Trash2 size={22} color="#800000" />
+            </div>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1208", marginBottom: 8, fontFamily: "'Open Sans',sans-serif" }}>
+              Remove Item?
+            </h3>
+            <p style={{ fontSize: 13, color: "#7a6045", marginBottom: 20, lineHeight: 1.5, fontFamily: "'Open Sans',sans-serif" }}>
+              &ldquo;{confirmItem.title}&rdquo; কার্ট থেকে সরিয়ে দেবেন?
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => setConfirmItem(null)}
+                style={{
+                  flex: 1, padding: "10px 0",
+                  border: "2px solid #800000", borderRadius: 8,
+                  backgroundColor: "#fff", color: "#800000",
+                  fontSize: 14, fontWeight: 700, cursor: "pointer",
+                  fontFamily: "'Open Sans',sans-serif",
+                }}
+              >
+                No
+              </button>
+              <button
+                onClick={confirmRemove}
+                style={{
+                  flex: 1, padding: "10px 0",
+                  backgroundColor: "#800000", border: "2px solid #800000",
+                  borderRadius: 8, color: "#fff",
+                  fontSize: 14, fontWeight: 700, cursor: "pointer",
+                  fontFamily: "'Open Sans',sans-serif",
+                }}
+              >
+                Yes, Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Overlay */}
       <div
         className="fixed inset-0 z-[80]"
@@ -65,7 +137,7 @@ export default function CartDrawer() {
               <span
                 style={{
                   marginLeft: 8, fontSize: 13, fontWeight: 600,
-                  backgroundColor: "#F48721", color: "#fff",
+                  backgroundColor: "#800000", color: "#fff",
                   padding: "2px 8px", borderRadius: 20,
                 }}
               >
@@ -139,7 +211,7 @@ export default function CartDrawer() {
                         {item.title}
                       </p>
                     </Link>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: "#F48721", marginTop: 4, fontFamily: "'Open Sans',sans-serif" }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: "#800000", marginTop: 4, fontFamily: "'Open Sans',sans-serif" }}>
                       {formatPriceEn(item.price)}
                     </p>
 
@@ -250,7 +322,7 @@ export default function CartDrawer() {
               }}
             >
               <span>Total</span>
-              <span style={{ color: "#F48721" }}>{formatPriceEn(total)}</span>
+              <span style={{ color: "#800000" }}>{formatPriceEn(total)}</span>
             </div>
 
             {/* Buttons */}
@@ -260,8 +332,8 @@ export default function CartDrawer() {
                 onClick={closeCartDrawer}
                 style={{
                   flex: 1, padding: "11px 0",
-                  border: "2px solid #F48721", borderRadius: 4,
-                  backgroundColor: "#fff", color: "#F48721",
+                  border: "2px solid #800000", borderRadius: 4,
+                  backgroundColor: "#fff", color: "#800000",
                   fontSize: 14, fontWeight: 600, textAlign: "center",
                   textDecoration: "none",
                   fontFamily: "'Open Sans',sans-serif",
@@ -275,7 +347,7 @@ export default function CartDrawer() {
                 onClick={closeCartDrawer}
                 style={{
                   flex: 1, padding: "11px 0",
-                  backgroundColor: "#F48721", borderRadius: 4,
+                  backgroundColor: "#800000", borderRadius: 4,
                   color: "#fff", border: "none",
                   fontSize: 14, fontWeight: 600, textAlign: "center",
                   textDecoration: "none",
@@ -309,7 +381,7 @@ function EmptyState({ onClose }: { onClose: () => void }) {
         onClick={onClose}
         style={{
           display: "inline-block",
-          backgroundColor: "#F48721", color: "#fff",
+          backgroundColor: "#800000", color: "#fff",
           padding: "11px 28px", borderRadius: 4,
           fontSize: 14, fontWeight: 600,
           textDecoration: "none",

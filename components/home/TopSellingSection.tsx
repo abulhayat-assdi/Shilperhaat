@@ -32,14 +32,14 @@ export default function TopSellingSection({ products }: TopSellingSectionProps) 
             </h2>
             <span
               className="absolute bottom-0 left-0"
-              style={{ width: "48px", height: "3px", backgroundColor: "#F48721", borderRadius: "2px" }}
+              style={{ width: "48px", height: "3px", backgroundColor: "#800000", borderRadius: "2px" }}
             />
           </div>
           <Link
             href="/shop?sort=best_selling"
             className="flex items-center gap-1 transition-all duration-200 hover:gap-2"
             style={{
-              color: "#F48721",
+              color: "#800000",
               fontSize: "13px",
               fontWeight: 600,
               textDecoration: "none",
@@ -60,7 +60,7 @@ export default function TopSellingSection({ products }: TopSellingSectionProps) 
         <div className="text-center" style={{ marginTop: "32px" }}>
           <Link
             href="/shop?sort=best_selling"
-            className="inline-block border-2 border-[#F48721] text-[#F48721] hover:bg-[#F48721] hover:text-white transition-colors"
+            className="inline-block border-2 border-[#800000] text-[#800000] hover:bg-[#800000] hover:text-white transition-colors"
             style={{
               padding: "12px 40px",
               borderRadius: "4px",

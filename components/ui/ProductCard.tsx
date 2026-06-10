@@ -128,7 +128,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Card body */}
         <div style={{ padding: "10px 12px 4px" }}>
           {product.category && (
-            <p style={{ fontSize: 11, color: "#F48721", fontWeight: 500, marginBottom: 3 }}>
+            <p style={{ fontSize: 11, color: "#800000", fontWeight: 500, marginBottom: 3 }}>
               {product.category.name}
             </p>
           )}
@@ -139,7 +139,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </h4>
           <div className="flex items-center flex-wrap" style={{ gap: 6, marginBottom: 10 }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "#F48721" }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#800000" }}>
               {formatPriceEn(Number(product.price))}
             </span>
             {product.compareAtPrice && (
@@ -160,8 +160,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           style={{
             padding: "8px 12px",
             backgroundColor: "white",
-            color: product.stock === 0 ? "#aaa" : "#F48721",
-            border: product.stock === 0 ? "2px solid #ddd" : "2px solid #F48721",
+            color: product.stock === 0 ? "#aaa" : "#800000",
+            border: product.stock === 0 ? "2px solid #ddd" : "2px solid #800000",
             borderRadius: 4,
             fontSize: 12, fontWeight: 600,
             cursor: product.stock === 0 ? "not-allowed" : "pointer",
@@ -169,14 +169,14 @@ export default function ProductCard({ product }: ProductCardProps) {
           }}
           onMouseEnter={(e) => {
             if (product.stock > 0) {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#F48721";
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#800000";
               (e.currentTarget as HTMLButtonElement).style.color = "#FFFFFF";
             }
           }}
           onMouseLeave={(e) => {
             if (product.stock > 0) {
               (e.currentTarget as HTMLButtonElement).style.backgroundColor = "white";
-              (e.currentTarget as HTMLButtonElement).style.color = "#F48721";
+              (e.currentTarget as HTMLButtonElement).style.color = "#800000";
             }
             (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
           }}

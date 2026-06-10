@@ -31,7 +31,7 @@ export default async function HomePage() {
   }));
 
   return (
-    <div style={{ backgroundColor: "#FBF9F5" }}>
+    <div style={{ backgroundColor: "#FAF0E6" }}>
       {/* 1. Hero Banner */}
       <HeroBanner banners={banners as any[]} />
 
@@ -47,7 +47,7 @@ export default async function HomePage() {
       {categoryProducts
         .filter((cp) => cp.products.length > 0)
         .map((cp) => (
-          <Suspense key={cp.category.id} fallback={<div style={{ padding: "40px 0", backgroundColor: "#FBF9F5" }}><div className="max-w-7xl mx-auto px-4 md:px-5"><ProductGridSkeleton count={4} /></div></div>}>
+          <Suspense key={cp.category.id} fallback={<div style={{ padding: "40px 0", backgroundColor: "#FAF0E6" }}><div className="max-w-7xl mx-auto px-4 md:px-5"><ProductGridSkeleton count={4} /></div></div>}>
             <CategorySection
               category={cp.category as any}
               products={cp.products as any[]}

@@ -21,7 +21,7 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
   if (categories.length === 0) return null;
 
   return (
-    <section style={{ padding: "40px 0", backgroundColor: "#FBF9F5" }}>
+    <section style={{ padding: "40px 0", backgroundColor: "#FAF0E6" }}>
       <div className="max-w-7xl mx-auto px-4 md:px-5">
 
         {/* Section header */}
@@ -37,14 +37,14 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
             </h2>
             <span
               className="absolute bottom-0 left-0"
-              style={{ width: 48, height: 3, backgroundColor: "#F48721", borderRadius: 2 }}
+              style={{ width: 48, height: 3, backgroundColor: "#800000", borderRadius: 2 }}
             />
           </div>
           <Link
             href="/shop"
             className="flex items-center gap-1 transition-all duration-200 hover:gap-2"
             style={{
-              color: "#F48721", fontSize: 13, fontWeight: 600,
+              color: "#800000", fontSize: 13, fontWeight: 600,
               textDecoration: "none", fontFamily: "'Open Sans', sans-serif",
             }}
           >
@@ -61,7 +61,7 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
             className="md:hidden flex absolute -left-1 z-10 items-center justify-center transition-colors"
             style={{
               top: "38%", transform: "translateY(-50%)",
-              backgroundColor: "#F48721", color: "#fff",
+              backgroundColor: "#800000", color: "#fff",
               border: "none", width: 28, height: 28,
               borderRadius: "50%", cursor: "pointer",
               boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
@@ -103,7 +103,7 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
             className="md:hidden flex absolute -right-1 z-10 items-center justify-center transition-colors"
             style={{
               top: "38%", transform: "translateY(-50%)",
-              backgroundColor: "#F48721", color: "#fff",
+              backgroundColor: "#800000", color: "#fff",
               border: "none", width: 28, height: 28,
               borderRadius: "50%", cursor: "pointer",
               boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
@@ -154,8 +154,8 @@ function CategoryCard({ category }: { category: Category }) {
         style={{
           width: 80, height: 80,
           borderRadius: "50%",
-          backgroundColor: "#fff8f0",
-          border: "2px solid #fde8cc",
+          backgroundColor: "#FFF0F0",
+          border: "2px solid #f5d0d0",
           display: "flex", alignItems: "center", justifyContent: "center",
           overflow: "hidden",
           position: "relative",
@@ -163,7 +163,7 @@ function CategoryCard({ category }: { category: Category }) {
           transition: "box-shadow 0.2s, transform 0.2s",
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 16px rgba(244,135,33,0.25)";
+          (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 16px rgba(128,0,0,0.25)";
           (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)";
         }}
         onMouseLeave={(e) => {
@@ -197,7 +197,7 @@ function CategoryCard({ category }: { category: Category }) {
           fontFamily: "'Open Sans', sans-serif",
           transition: "color 0.2s",
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLSpanElement).style.color = "#F48721"; }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLSpanElement).style.color = "#800000"; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLSpanElement).style.color = "#333"; }}
       >
         {category.name}

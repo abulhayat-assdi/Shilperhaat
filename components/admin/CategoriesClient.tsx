@@ -115,7 +115,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 bg-[#c8860a] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#a06c07] transition-colors"
+          className="flex items-center gap-2 bg-[#800000] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#5C0000] transition-colors"
         >
           <Plus size={16} />
           Add Category
@@ -146,7 +146,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                 </div>
               )}
               {cat.isFeatured && (
-                <div className="absolute top-2 right-2 bg-[#c8860a] text-white rounded-full p-1">
+                <div className="absolute top-2 right-2 bg-[#800000] text-white rounded-full p-1">
                   <Star size={10} fill="currentColor" />
                 </div>
               )}
@@ -238,7 +238,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                     placeholder="কাঁথা or Katha"
                     lang="bn"
                     style={{ fontFamily: "'Hind Siliguri', 'Open Sans', sans-serif" }}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
                   />
                 </div>
 
@@ -246,7 +246,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Slug *
-                    <span className="ml-2 text-xs font-normal bg-[#FFF1E5] text-[#c8860a] px-1.5 py-0.5 rounded">Auto</span>
+                    <span className="ml-2 text-xs font-normal bg-[#FFF0F0] text-[#800000] px-1.5 py-0.5 rounded">Auto</span>
                   </label>
                   <input
                     value={formData.slug}
@@ -254,7 +254,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                     placeholder="কাঁথা or katha"
                     dir="auto"
                     style={{ fontFamily: "'Hind Siliguri', monospace, sans-serif" }}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
                   />
                   <p className="text-xs text-gray-400 mt-1">Auto-generated from name. Edit freely.</p>
                 </div>
@@ -266,7 +266,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                     type="number"
                     value={formData.sortOrder}
                     onChange={(e) => setFormData((f) => ({ ...f, sortOrder: parseInt(e.target.value) || 0 }))}
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
                   />
                 </div>
 
@@ -276,7 +276,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                     type="checkbox"
                     checked={formData.isFeatured}
                     onChange={(e) => setFormData((f) => ({ ...f, isFeatured: e.target.checked }))}
-                    className="w-4 h-4 accent-[#c8860a]"
+                    className="w-4 h-4 accent-[#800000]"
                   />
                   <span className="text-sm text-gray-700">Featured on Homepage</span>
                 </label>
@@ -284,7 +284,7 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !formData.name || !formData.slug}
-                  className="w-full flex items-center justify-center gap-2 bg-[#c8860a] text-white py-3 rounded-xl font-semibold disabled:opacity-70"
+                  className="w-full flex items-center justify-center gap-2 bg-[#800000] text-white py-3 rounded-xl font-semibold disabled:opacity-70"
                 >
                   {isSaving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : "Save Category"}
                 </button>

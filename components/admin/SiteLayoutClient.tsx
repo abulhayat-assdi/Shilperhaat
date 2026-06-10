@@ -73,7 +73,7 @@ function Input({
         transition: "border-color 0.15s",
         fontFamily: "inherit",
       }}
-      onFocus={(e) => { e.currentTarget.style.borderColor = "#c8860a"; }}
+      onFocus={(e) => { e.currentTarget.style.borderColor = "#800000"; }}
       onBlur={(e)  => { e.currentTarget.style.borderColor = "#D1D5DB"; }}
     />
   );
@@ -109,7 +109,7 @@ function Textarea({
         fontFamily: "inherit",
         transition: "border-color 0.15s",
       }}
-      onFocus={(e) => { e.currentTarget.style.borderColor = "#c8860a"; }}
+      onFocus={(e) => { e.currentTarget.style.borderColor = "#800000"; }}
       onBlur={(e)  => { e.currentTarget.style.borderColor = "#D1D5DB"; }}
     />
   );
@@ -218,7 +218,7 @@ function LinkListEditor({
         onClick={addItem}
         style={{
           display: "flex", alignItems: "center", gap: 6,
-          fontSize: 13, color: "#c8860a", background: "none", border: "1px dashed #c8860a",
+          fontSize: 13, color: "#800000", background: "none", border: "1px dashed #800000",
           borderRadius: 6, padding: "7px 14px", cursor: "pointer", width: "100%",
           justifyContent: "center", marginTop: 4,
         }}
@@ -332,7 +332,7 @@ function NavItemEditor({
                     {!item.dropdown && (
                       <button
                         onClick={() => addDropdown(i)}
-                        style={{ fontSize: 12, color: "#c8860a", background: "none", border: "1px solid #c8860a", borderRadius: 4, padding: "3px 10px", cursor: "pointer" }}
+                        style={{ fontSize: 12, color: "#800000", background: "none", border: "1px solid #800000", borderRadius: 4, padding: "3px 10px", cursor: "pointer" }}
                       >
                         + Add Dropdown
                       </button>
@@ -341,7 +341,7 @@ function NavItemEditor({
                       <>
                         <button
                           onClick={() => addDropdown(i)}
-                          style={{ fontSize: 12, color: "#c8860a", background: "none", border: "1px solid #c8860a", borderRadius: 4, padding: "3px 10px", cursor: "pointer" }}
+                          style={{ fontSize: 12, color: "#800000", background: "none", border: "1px solid #800000", borderRadius: 4, padding: "3px 10px", cursor: "pointer" }}
                         >
                           + Add
                         </button>
@@ -384,7 +384,7 @@ function NavItemEditor({
         onClick={add}
         style={{
           display: "flex", alignItems: "center", gap: 6,
-          fontSize: 13, color: "#c8860a", background: "none", border: "1px dashed #c8860a",
+          fontSize: 13, color: "#800000", background: "none", border: "1px dashed #800000",
           borderRadius: 6, padding: "8px 14px", cursor: "pointer", width: "100%",
           justifyContent: "center", marginTop: 4,
         }}
@@ -474,7 +474,7 @@ export default function SiteLayoutClient() {
             style={{
               display: "flex", alignItems: "center", gap: 6,
               padding: "8px 18px", borderRadius: 6,
-              border: "none", backgroundColor: "#c8860a",
+              border: "none", backgroundColor: "#800000",
               fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer",
             }}
           >
@@ -500,8 +500,8 @@ export default function SiteLayoutClient() {
               padding: "10px 18px",
               border: "none", background: "none",
               fontSize: 13, fontWeight: activeTab === tab.id ? 700 : 500,
-              color: activeTab === tab.id ? "#c8860a" : "#6B7280",
-              borderBottom: activeTab === tab.id ? "2px solid #c8860a" : "2px solid transparent",
+              color: activeTab === tab.id ? "#800000" : "#6B7280",
+              borderBottom: activeTab === tab.id ? "2px solid #800000" : "2px solid transparent",
               marginBottom: -1, cursor: "pointer", whiteSpace: "nowrap",
               transition: "color 0.15s",
             }}
@@ -547,16 +547,16 @@ export default function SiteLayoutClient() {
               <div
                 onClick={() => fileInputRef.current?.click()}
                 style={{
-                  border: `2px dashed ${data.logoUrl ? "#c8860a" : "#D1D5DB"}`,
+                  border: `2px dashed ${data.logoUrl ? "#800000" : "#D1D5DB"}`,
                   borderRadius: 8,
                   padding: data.logoUrl ? "16px" : "28px 16px",
                   textAlign: "center",
                   cursor: "pointer",
-                  backgroundColor: data.logoUrl ? "#FFFBF3" : "#FAFAFA",
+                  backgroundColor: data.logoUrl ? "#FFF0F0" : "#FAFAFA",
                   transition: "border-color 0.2s, background-color 0.2s",
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "#c8860a"; (e.currentTarget as HTMLDivElement).style.backgroundColor = "#FFFBF3"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = data.logoUrl ? "#c8860a" : "#D1D5DB"; (e.currentTarget as HTMLDivElement).style.backgroundColor = data.logoUrl ? "#FFFBF3" : "#FAFAFA"; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "#800000"; (e.currentTarget as HTMLDivElement).style.backgroundColor = "#FFF0F0"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = data.logoUrl ? "#800000" : "#D1D5DB"; (e.currentTarget as HTMLDivElement).style.backgroundColor = data.logoUrl ? "#FFF0F0" : "#FAFAFA"; }}
               >
                 {data.logoUrl ? (
                   <div>
@@ -566,7 +566,7 @@ export default function SiteLayoutClient() {
                       alt="Logo preview"
                       style={{ maxHeight: 80, maxWidth: 220, objectFit: "contain", margin: "0 auto", display: "block" }}
                     />
-                    <p style={{ fontSize: 12, color: "#c8860a", marginTop: 8, fontWeight: 500 }}>Click to change</p>
+                    <p style={{ fontSize: 12, color: "#800000", marginTop: 8, fontWeight: 500 }}>Click to change</p>
                   </div>
                 ) : (
                   <div>
@@ -629,7 +629,7 @@ export default function SiteLayoutClient() {
             )}
 
             {/* Live preview */}
-            <div style={{ marginTop: 16, padding: 16, backgroundColor: "#FBF9F5", borderRadius: 8, border: "1px dashed #E5E7EB" }}>
+            <div style={{ marginTop: 16, padding: 16, backgroundColor: "#FAF0E6", borderRadius: 8, border: "1px dashed #E5E7EB" }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: "#9CA3AF", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>Preview</p>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 {data.logoUrl ? (
@@ -650,7 +650,7 @@ export default function SiteLayoutClient() {
                   <div
                     style={{
                       width: 44, height: 44, borderRadius: "50%",
-                      backgroundColor: "#F48721",
+                      backgroundColor: "#800000",
                       display: "flex", alignItems: "center", justifyContent: "center",
                       color: "white", fontWeight: 700, fontSize: 20,
                       flexShrink: 0,

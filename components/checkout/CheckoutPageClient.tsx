@@ -20,7 +20,7 @@ function SectionTitle({ children, extra }: { children: React.ReactNode; extra?: 
     <div className="flex items-center gap-2 mb-4">
       <h2
         style={{
-          borderLeft: "3px solid #F48121",
+          borderLeft: "3px solid #800000",
           paddingLeft: 10,
           fontSize: 15,
           fontWeight: 700,
@@ -57,7 +57,7 @@ const inputStyle = {
 };
 
 function inputCls(hasError?: boolean) {
-  return `${inputBase} ${hasError ? "border-red-400 focus:border-red-500" : "focus:border-[#F48121]"}`;
+  return `${inputBase} ${hasError ? "border-red-400 focus:border-red-500" : "focus:border-[#800000]"}`;
 }
 
 export default function CheckoutPageClient() {
@@ -107,7 +107,7 @@ export default function CheckoutPageClient() {
         <Link
           href="/shop"
           className="text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          style={{ backgroundColor: "#F48121" }}
+          style={{ backgroundColor: "#800000" }}
         >
           Shop Now
         </Link>
@@ -185,13 +185,13 @@ export default function CheckoutPageClient() {
           Checkout
         </h1>
         <p style={{ fontSize: 13, color: "#999" }}>
-          <Link href="/" className="hover:text-[#F48121] transition-colors">
+          <Link href="/" className="hover:text-[#800000] transition-colors">
             Home
           </Link>
           <span className="mx-1.5" style={{ color: "#bbb" }}>
             &gt;
           </span>
-          <span style={{ color: "#F48121" }}>Checkout</span>
+          <span style={{ color: "#800000" }}>Checkout</span>
         </p>
       </div>
 
@@ -226,7 +226,7 @@ export default function CheckoutPageClient() {
             <button
               type="button"
               style={{
-                background: "#F48121",
+                background: "#800000",
                 color: "white",
                 border: "none",
                 padding: "7px 18px",
@@ -288,7 +288,7 @@ export default function CheckoutPageClient() {
                             {item.title}
                           </p>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0 }}>
-                            <span style={{ fontSize: 14, fontWeight: 700, color: "#F48121", whiteSpace: "nowrap" }}>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: "#800000", whiteSpace: "nowrap" }}>
                               ৳{fmtAmt(item.price * item.quantity)}
                             </span>
                             {item.compareAtPrice && item.compareAtPrice > item.price && (
@@ -423,7 +423,7 @@ export default function CheckoutPageClient() {
                           {...register("phone")}
                           type="tel"
                           placeholder="017********"
-                          className={`${inputBase} ${errors.phone ? "border-red-400 focus:border-red-500" : "focus:border-[#F48121]"}`}
+                          className={`${inputBase} ${errors.phone ? "border-red-400 focus:border-red-500" : "focus:border-[#800000]"}`}
                           style={{
                             ...inputStyle,
                             paddingLeft: 46,
@@ -493,7 +493,7 @@ export default function CheckoutPageClient() {
                   {...register("notes")}
                   maxLength={90}
                   placeholder="Any special instructions..."
-                  className="w-full outline-none transition-colors resize-y focus:border-[#F48121]"
+                  className="w-full outline-none transition-colors resize-y focus:border-[#800000]"
                   style={{
                     height: 80,
                     border: "1px solid #e0e0e0",
@@ -520,13 +520,13 @@ export default function CheckoutPageClient() {
                 <div
                   className="flex items-center gap-3"
                   style={{
-                    border: "1px solid #F48121",
+                    border: "1px solid #800000",
                     borderRadius: 8,
                     padding: "14px 16px",
                     background: "#fff8f0",
                   }}
                 >
-                  <span style={{ fontSize: 26, lineHeight: 1, color: "#F48121" }}>💵</span>
+                  <span style={{ fontSize: 26, lineHeight: 1, color: "#800000" }}>💵</span>
                   <div className="flex-1">
                     <p style={{ fontSize: 14, fontWeight: 700, color: "#222", marginBottom: 2 }}>
                       Cash On Delivery
@@ -539,7 +539,7 @@ export default function CheckoutPageClient() {
                       width: 22,
                       height: 22,
                       borderRadius: "50%",
-                      background: "#F48121",
+                      background: "#800000",
                     }}
                   >
                     <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
@@ -586,7 +586,7 @@ export default function CheckoutPageClient() {
                       type="button"
                       className="transition-colors"
                       style={{
-                        background: "#F48121",
+                        background: "#800000",
                         color: "white",
                         border: "none",
                         padding: "0 16px",
@@ -648,7 +648,7 @@ export default function CheckoutPageClient() {
                       setTermsAccepted(e.target.checked);
                       if (e.target.checked) setTermsError(false);
                     }}
-                    className="accent-[#F48121] flex-shrink-0"
+                    className="accent-[#800000] flex-shrink-0"
                     style={{ width: 16, height: 16, marginTop: 2 }}
                   />
                   <span style={{ fontSize: 13, color: "#555", lineHeight: 1.5 }}>
@@ -657,7 +657,7 @@ export default function CheckoutPageClient() {
                       href="/terms-of-use"
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color: "#F48121", textDecoration: "none" }}
+                      style={{ color: "#800000", textDecoration: "none" }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "underline"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "none"; }}
                     >
@@ -668,7 +668,7 @@ export default function CheckoutPageClient() {
                       href="/privacy-policy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color: "#F48121", textDecoration: "none" }}
+                      style={{ color: "#800000", textDecoration: "none" }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "underline"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "none"; }}
                     >
@@ -679,7 +679,7 @@ export default function CheckoutPageClient() {
                       href="/refund-policy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color: "#F48121", textDecoration: "none" }}
+                      style={{ color: "#800000", textDecoration: "none" }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "underline"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = "none"; }}
                     >
@@ -707,7 +707,7 @@ export default function CheckoutPageClient() {
                   className="w-full flex items-center justify-center gap-2 transition-colors"
                   style={{
                     height: 50,
-                    background: canPlaceOrder ? "#F48121" : "#ccc",
+                    background: canPlaceOrder ? "#800000" : "#ccc",
                     color: "white",
                     border: "none",
                     borderRadius: 8,

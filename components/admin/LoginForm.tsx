@@ -75,7 +75,7 @@ export default function LoginForm() {
             className={`w-full pl-10 pr-4 py-3 border rounded-xl text-sm outline-none transition-colors ${
               errors.email
                 ? "border-red-400 focus:border-red-500"
-                : "border-gray-200 focus:border-[#c8860a]"
+                : "border-gray-200 focus:border-[#800000]"
             }`}
           />
         </div>
@@ -101,7 +101,7 @@ export default function LoginForm() {
             className={`w-full pl-10 pr-10 py-3 border rounded-xl text-sm outline-none transition-colors ${
               errors.password
                 ? "border-red-400 focus:border-red-500"
-                : "border-gray-200 focus:border-[#c8860a]"
+                : "border-gray-200 focus:border-[#800000]"
             }`}
           />
           <button
@@ -123,7 +123,7 @@ export default function LoginForm() {
         whileTap={{ scale: 0.98 }}
         type="submit"
         disabled={isSubmitting}
-        className="w-full flex items-center justify-center gap-2 bg-[#c8860a] hover:bg-[#a06c07] disabled:opacity-70 text-white font-bold py-3.5 rounded-xl transition-colors"
+        className="w-full flex items-center justify-center gap-2 bg-[#800000] hover:bg-[#5C0000] disabled:opacity-70 text-white font-bold py-3.5 rounded-xl transition-colors"
       >
         {isSubmitting ? (
           <>

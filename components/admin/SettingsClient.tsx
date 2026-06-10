@@ -129,7 +129,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
               {logoUrl ? (
                 <Image src={getImageUrl(logoUrl)} alt="Logo" width={96} height={96} className="object-contain" />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#c8860a] flex items-center justify-center text-white font-bold text-lg">S</div>
+                <div className="w-12 h-12 rounded-full bg-[#800000] flex items-center justify-center text-white font-bold text-lg">S</div>
               )}
             </div>
             <div>
@@ -151,7 +151,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Site Name</label>
             <input
               {...register("siteName")}
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
             />
           </div>
 
@@ -160,7 +160,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
             <input
               {...register("footerCopyright")}
               placeholder="© 2024 Shilperhaat. All rights reserved."
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
             />
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
           <input
             {...register("whatsappNumber")}
             placeholder="01700000000"
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
           />
           <p className="text-xs text-gray-400 mt-1">Without country code. Used for WhatsApp button.</p>
         </div>
@@ -191,7 +191,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
             <input
               {...register("deliveryCharge")}
               type="number"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
             />
             {errors.deliveryCharge && (
               <p className="text-red-500 text-xs mt-1">{errors.deliveryCharge.message}</p>
@@ -206,7 +206,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
               {...register("freeDeliveryMin")}
               type="number"
               placeholder="e.g. 2000"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
             />
             <p className="text-xs text-gray-400 mt-1">Leave empty to disable free delivery</p>
           </div>
@@ -233,7 +233,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
               value={steadfastApiKey}
               onChange={(e) => setSteadfastApiKey(e.target.value)}
               placeholder="Your Steadfast API Key"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#c8860a] font-mono"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000] font-mono"
             />
           </div>
 
@@ -247,7 +247,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
                 value={steadfastSecretKey}
                 onChange={(e) => setSteadfastSecretKey(e.target.value)}
                 placeholder="Your Steadfast Secret Key"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-11 text-sm outline-none focus:border-[#c8860a] font-mono"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-11 text-sm outline-none focus:border-[#800000] font-mono"
               />
               <button
                 type="button"
@@ -329,7 +329,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
         className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-colors ${
           saved
             ? "bg-green-500 text-white"
-            : "bg-[#c8860a] hover:bg-[#a06c07] text-white disabled:opacity-70"
+            : "bg-[#800000] hover:bg-[#5C0000] text-white disabled:opacity-70"
         }`}
       >
         {isSubmitting ? (

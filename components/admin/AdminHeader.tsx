@@ -33,7 +33,7 @@ export default function AdminHeader({ title, adminName = "Admin" }: AdminHeaderP
             className="flex items-center gap-2 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
             aria-label="User menu"
           >
-            <div className="w-7 h-7 rounded-full bg-[#c8860a] flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-7 h-7 rounded-full bg-[#800000] flex items-center justify-center text-white text-xs font-bold">
               {adminName.charAt(0).toUpperCase()}
             </div>
             <span className="text-sm font-medium text-gray-700 hidden md:block">{adminName}</span>

@@ -60,7 +60,7 @@ function MoreDropdownItem({
         fontFamily: "'Open Sans', sans-serif",
         transition: "background-color 0.15s",
       }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#fff8f0"; (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#FFF0F0"; (e.currentTarget as HTMLAnchorElement).style.color = "#800000"; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = ""; (e.currentTarget as HTMLAnchorElement).style.color = "#333"; }}
     >
       {icon}
@@ -144,7 +144,7 @@ export default function Header() {
                 <div
                   style={{
                     width: 44, height: 44, borderRadius: "50%",
-                    backgroundColor: "#F48721",
+                    backgroundColor: "#800000",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     color: "white", fontWeight: 700, fontSize: 20,
                     flexShrink: 0,
@@ -168,7 +168,7 @@ export default function Header() {
                   backgroundColor: "#fff",
                   transition: "border-color 0.2s",
                 }}
-                onFocusCapture={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "#F48721"; }}
+                onFocusCapture={(e) => { (e.currentTarget as HTMLDivElement).style.borderColor = "#800000"; }}
                 onBlurCapture={(e)  => { (e.currentTarget as HTMLDivElement).style.borderColor = "#ddd"; }}
               >
                 <input
@@ -190,7 +190,7 @@ export default function Header() {
                   aria-label="Search"
                   style={{
                     flexShrink: 0, height: "100%", padding: "0 18px",
-                    backgroundColor: "#F48721",
+                    backgroundColor: "#800000",
                     border: "none", cursor: "pointer",
                     color: "#fff",
                     display: "flex", alignItems: "center", justifyContent: "center",
@@ -211,7 +211,7 @@ export default function Header() {
                 onClick={openCartDrawer}
                 aria-label="Open cart"
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: "#333", background: "none", border: "none", cursor: "pointer", padding: 0, flexShrink: 0 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#F48721"; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#800000"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#333"; }}
               >
                 <div style={{ position: "relative" }}>
@@ -221,7 +221,7 @@ export default function Header() {
                       suppressHydrationWarning
                       style={{
                         position: "absolute", top: -6, right: -8,
-                        backgroundColor: "#F48721", color: "#fff",
+                        backgroundColor: "#800000", color: "#fff",
                         fontSize: 10, fontWeight: 700,
                         width: 17, height: 17, borderRadius: "50%",
                         display: "flex", alignItems: "center", justifyContent: "center",
@@ -241,7 +241,7 @@ export default function Header() {
                   style={{
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
                     background: "none", border: "none", cursor: "pointer",
-                    color: moreOpen ? "#F48721" : "#333",
+                    color: moreOpen ? "#800000" : "#333",
                     padding: 0,
                   }}
                 >
@@ -345,7 +345,7 @@ export default function Header() {
               <div
                 style={{
                   width: 28, height: 28, borderRadius: "50%",
-                  backgroundColor: "#F48721",
+                  backgroundColor: "#800000",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   color: "white", fontWeight: 700, fontSize: 13,
                 }}
@@ -379,7 +379,7 @@ export default function Header() {
               type="submit"
               style={{
                 flexShrink: 0, padding: "0 10px",
-                backgroundColor: "#F48721",
+                backgroundColor: "#800000",
                 border: "none", cursor: "pointer", color: "#fff",
                 display: "flex", alignItems: "center",
               }}
@@ -400,7 +400,7 @@ export default function Header() {
                 suppressHydrationWarning
                 style={{
                   position: "absolute", top: 0, right: 0,
-                  backgroundColor: "#F48721", color: "#fff",
+                  backgroundColor: "#800000", color: "#fff",
                   fontSize: 9, fontWeight: 700,
                   width: 15, height: 15, borderRadius: "50%",
                   display: "flex", alignItems: "center", justifyContent: "center",
@@ -464,7 +464,7 @@ function HeaderIcon({
         display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
         color: "#333", textDecoration: "none", flexShrink: 0,
       }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#800000"; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#333"; }}
     >
       {icon}
@@ -497,7 +497,7 @@ function NavMenuItem({ item }: { item: NavItem }) {
           whiteSpace: "nowrap",
           transition: "color 0.15s",
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#800000"; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#FFFFFF"; }}
       >
         {item.label}
@@ -527,7 +527,7 @@ function NavMenuItem({ item }: { item: NavItem }) {
                   fontFamily: "'Open Sans',sans-serif",
                   transition: "background-color 0.15s, color 0.15s",
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#fff8f0"; (e.currentTarget as HTMLAnchorElement).style.color = "#F48721"; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#FFF0F0"; (e.currentTarget as HTMLAnchorElement).style.color = "#800000"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLAnchorElement).style.color = "#444"; }}
               >
                 {sub.label}

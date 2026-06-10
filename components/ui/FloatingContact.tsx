@@ -95,7 +95,7 @@ export default function FloatingContact() {
           {/* Header */}
           <div
             className="relative px-5 pt-5 pb-6"
-            style={{ background: "linear-gradient(135deg, #F48121 0%, #e06010 100%)" }}
+            style={{ background: "linear-gradient(135deg, #800000 0%, #5C0000 100%)" }}
           >
             <button
               onClick={() => setOpen(false)}
@@ -172,7 +172,7 @@ export default function FloatingContact() {
             className="absolute inset-0"
             style={{
               borderRadius: "50% 50% 50% 12px / 50% 50% 50% 12px",
-              background: "#F48121",
+              background: "#800000",
               animation: "contactPulse 2s ease-out infinite",
               opacity: 0,
             }}
@@ -183,10 +183,10 @@ export default function FloatingContact() {
         <span
           className="absolute inset-0 flex items-center justify-center"
           style={{
-            background: "linear-gradient(135deg, #F97316 0%, #F48121 100%)",
+            background: "linear-gradient(135deg, #800000 0%, #5C0000 100%)",
             borderRadius: open ? "50%" : "50% 50% 12px 50%",
             transition: "border-radius 0.25s ease",
-            boxShadow: "0 4px 18px rgba(244,129,33,0.55)",
+            boxShadow: "0 4px 18px rgba(128,0,0,0.55)",
           }}
         />
 
@@ -202,9 +202,9 @@ export default function FloatingContact() {
                 fill="white"
                 fillOpacity="0.95"
               />
-              <circle cx="9" cy="11" r="1.4" fill="#F48121" />
-              <circle cx="13" cy="11" r="1.4" fill="#F48121" />
-              <circle cx="17" cy="11" r="1.4" fill="#F48121" />
+              <circle cx="9" cy="11" r="1.4" fill="#800000" />
+              <circle cx="13" cy="11" r="1.4" fill="#800000" />
+              <circle cx="17" cy="11" r="1.4" fill="#800000" />
             </svg>
           )}
         </span>

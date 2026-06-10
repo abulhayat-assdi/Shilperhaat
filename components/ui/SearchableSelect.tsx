@@ -75,7 +75,7 @@ export default function SearchableSelect({
     return () => document.removeEventListener("keydown", handler);
   }, []);
 
-  const borderColor = hasError ? "#f87171" : open ? "#F48121" : "#e0e0e0";
+  const borderColor = hasError ? "#f87171" : open ? "#800000" : "#e0e0e0";
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%" }}>
@@ -109,7 +109,7 @@ export default function SearchableSelect({
           {value || placeholder}
         </span>
         {open ? (
-          <ChevronUp size={16} style={{ color: "#F48121", flexShrink: 0 }} />
+          <ChevronUp size={16} style={{ color: "#800000", flexShrink: 0 }} />
         ) : (
           <ChevronDown size={16} style={{ color: "#999", flexShrink: 0 }} />
         )}
@@ -198,7 +198,7 @@ export default function SearchableSelect({
                       textAlign: "left",
                       fontSize: 13,
                       color: active ? "#fff" : "#333",
-                      background: active ? "#F48121" : "white",
+                      background: active ? "#800000" : "white",
                       border: "none",
                       cursor: "pointer",
                       transition: "background 0.1s",

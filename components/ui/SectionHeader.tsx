@@ -14,9 +14,9 @@ export default function SectionHeader({ title, subtitle, className = "" }: Secti
         <p className="text-[#7a6045] text-sm md:text-base">{subtitle}</p>
       )}
       <div className="flex items-center justify-center gap-2 mt-3">
-        <div className="h-0.5 w-12 bg-[#c8860a] rounded" />
-        <div className="w-2 h-2 rounded-full bg-[#c8860a]" />
-        <div className="h-0.5 w-12 bg-[#c8860a] rounded" />
+        <div className="h-0.5 w-12 bg-[#800000] rounded" />
+        <div className="w-2 h-2 rounded-full bg-[#800000]" />
+        <div className="h-0.5 w-12 bg-[#800000] rounded" />
       </div>
     </div>
   );

@@ -14,9 +14,9 @@ export default function TrackOrderPage() {
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
           <div className="w-12 h-12 rounded-full bg-[#f0e8d8] flex items-center justify-center">
-            <Package size={24} className="text-[#c8860a]" />
+            <Package size={24} className="text-[#800000]" />
           </div>
-          <div className="w-8 h-8 border-4 border-[#c8860a] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[#800000] border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

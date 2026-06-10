@@ -27,7 +27,7 @@ export default function SearchBar({ defaultValue }: SearchBarProps) {
           backgroundColor: "#fff",
           fontFamily: "'Open Sans', sans-serif",
         }}
-        onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "#F48721"; }}
+        onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "#800000"; }}
         onBlur={(e)  => { (e.target as HTMLInputElement).style.borderColor = "#CCC"; }}
       />
     </form>

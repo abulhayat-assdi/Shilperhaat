@@ -177,11 +177,11 @@ export default function AddToCartSection({ product }: AddToCartSectionProps) {
           onClick={handleAddToCart}
           style={{
             ...btnBase,
-            backgroundColor: added ? "#34BE82" : "#F48721",
+            backgroundColor: added ? "#34BE82" : "#800000",
             color: "#FFFFFF",
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = added ? "#34BE82" : "#E07318"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = added ? "#34BE82" : "#F48721"; }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = added ? "#34BE82" : "#5C0000"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = added ? "#34BE82" : "#800000"; }}
         >
           <span style={{ display: "flex", alignItems: "center", gap: 8, transition: "opacity 0.2s" }}>
             {added ? <Check size={16} /> : <ShoppingCart size={16} />}
@@ -255,7 +255,7 @@ export function StickyCartBar({ product }: AddToCartSectionProps) {
         <p className="line-clamp-1" style={{ fontSize: 12, color: "#888" }}>
           {product.title}
         </p>
-        <p style={{ fontWeight: 700, color: "#F48721", fontSize: 15 }}>
+        <p style={{ fontWeight: 700, color: "#800000", fontSize: 15 }}>
           {formatPriceEn(Number(product.price))}
         </p>
       </div>
@@ -267,7 +267,7 @@ export function StickyCartBar({ product }: AddToCartSectionProps) {
           borderRadius: 4, fontWeight: 600, fontSize: 13,
           border: "none",
           cursor: product.stock === 0 ? "not-allowed" : "pointer",
-          backgroundColor: product.stock === 0 ? "#F5F5F5" : "#F48721",
+          backgroundColor: product.stock === 0 ? "#F5F5F5" : "#800000",
           color: product.stock === 0 ? "#aaa" : "#FFFFFF",
           flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
           transition: "background-color 0.15s",

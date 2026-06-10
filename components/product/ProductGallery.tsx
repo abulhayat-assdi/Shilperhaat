@@ -53,7 +53,7 @@ function ThumbnailButton({
         height: size,
         borderRadius: 6,
         overflow: "hidden",
-        border: isActive ? "2px solid #F48721" : "2px solid #eee",
+        border: isActive ? "2px solid #800000" : "2px solid #eee",
         cursor: "pointer",
         transition: "border-color 0.2s ease",
         backgroundColor: "#fff",
@@ -104,8 +104,8 @@ function ThumbnailButton({
             >
               <Play
                 size={size < 70 ? 9 : 13}
-                fill="#F48721"
-                style={{ color: "#F48721", marginLeft: 2 }}
+                fill="#800000"
+                style={{ color: "#800000", marginLeft: 2 }}
               />
             </div>
           </div>

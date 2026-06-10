@@ -34,7 +34,7 @@ export default function ProductsClient({ products: initialProducts }: ProductsCl
         </div>
         <Link
           href="/admin/products/new"
-          className="flex items-center gap-2 bg-[#c8860a] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#a06c07] transition-colors"
+          className="flex items-center gap-2 bg-[#800000] text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-[#5C0000] transition-colors"
         >
           <Plus size={16} />
           Add Product
@@ -88,7 +88,7 @@ export default function ProductsClient({ products: initialProducts }: ProductsCl
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`font-medium ${product.stock === 0 ? "text-red-600" : product.stock < 5 ? "text-orange-600" : "text-green-600"}`}>
+                    <span className={`font-medium ${product.stock === 0 ? "text-red-600" : product.stock < 5 ? "text-[#800000]" : "text-green-600"}`}>
                       {product.stock}
                     </span>
                   </td>

@@ -55,7 +55,7 @@ export default function ShopFilters({ categories }: ShopFiltersProps) {
                 type="radio" name="sort" value={opt.value}
                 checked={currentSort === opt.value}
                 onChange={() => updateFilter("sort", opt.value)}
-                className="accent-[#F48721]"
+                className="accent-[#800000]"
               />
               <span className="text-sm" style={{ color: "#4a2c0a" }}>{opt.label}</span>
             </label>
@@ -72,7 +72,7 @@ export default function ShopFilters({ categories }: ShopFiltersProps) {
               type="radio" name="category" value=""
               checked={!currentCategory}
               onChange={() => updateFilter("category", "")}
-              className="accent-[#F48721]"
+              className="accent-[#800000]"
             />
             <span className="text-sm" style={{ color: "#4a2c0a" }}>All Categories</span>
           </label>
@@ -82,7 +82,7 @@ export default function ShopFilters({ categories }: ShopFiltersProps) {
                 type="radio" name="category" value={cat.slug}
                 checked={currentCategory === cat.slug}
                 onChange={() => updateFilter("category", cat.slug)}
-                className="accent-[#F48721]"
+                className="accent-[#800000]"
               />
               <span className="text-sm" style={{ color: "#4a2c0a" }}>{cat.name}</span>
             </label>
@@ -97,13 +97,13 @@ export default function ShopFilters({ categories }: ShopFiltersProps) {
           <input
             type="number" placeholder="Min" value={currentMinPrice}
             onChange={(e) => updateFilter("minPrice", e.target.value)}
-            className="w-full border border-[#e0d0b0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#F48721]"
+            className="w-full border border-[#e0d0b0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#800000]"
           />
           <span className="text-sm flex-shrink-0" style={{ color: "#7a6045" }}>—</span>
           <input
             type="number" placeholder="Max" value={currentMaxPrice}
             onChange={(e) => updateFilter("maxPrice", e.target.value)}
-            className="w-full border border-[#e0d0b0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#F48721]"
+            className="w-full border border-[#e0d0b0] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#800000]"
           />
         </div>
       </div>
@@ -131,7 +131,7 @@ export default function ShopFilters({ categories }: ShopFiltersProps) {
       {/* ── Desktop sidebar ── */}
       <div className="hidden md:block bg-white rounded-xl border border-[#e0d0b0] p-5 sticky top-24">
         <div className="flex items-center gap-2 mb-4">
-          <SlidersHorizontal size={15} className="text-[#F48721]" />
+          <SlidersHorizontal size={15} className="text-[#800000]" />
           <h2 className="font-bold text-sm" style={{ color: "#1a1208" }}>Filters</h2>
         </div>
         <FilterPanel />
@@ -147,7 +147,7 @@ export default function ShopFilters({ categories }: ShopFiltersProps) {
           <Filter size={13} />
           Filters
           {hasActive && (
-            <span className="bg-[#F48721] text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">!</span>
+            <span className="bg-[#800000] text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">!</span>
           )}
         </button>
 
@@ -181,7 +181,7 @@ export default function ShopFilters({ categories }: ShopFiltersProps) {
             <button
               onClick={() => setDrawerOpen(false)}
               className="mt-6 w-full py-3 rounded-xl font-semibold text-white"
-              style={{ backgroundColor: "#F48721" }}
+              style={{ backgroundColor: "#800000" }}
             >
               View Results
             </button>

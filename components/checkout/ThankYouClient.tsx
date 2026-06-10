@@ -55,7 +55,7 @@ export default function ThankYouClient() {
         {(orderNumber || order?.orderNumber) && (
           <div className="mt-3 bg-[#fdf8f3] border border-[#e0d0b0] rounded-xl px-6 py-3">
             <p className="text-xs text-[#7a6045]">Order Number</p>
-            <p className="font-bold text-[#c8860a] text-lg">
+            <p className="font-bold text-[#800000] text-lg">
               {orderNumber || order?.orderNumber}
             </p>
           </div>
@@ -68,7 +68,7 @@ export default function ThankYouClient() {
           {/* Items */}
           <div className="bg-white rounded-xl border border-[#f0e8d8] p-5 shadow-sm">
             <h2 className="font-bold text-[#1a1208] mb-4 flex items-center gap-2">
-              <Package size={18} className="text-[#c8860a]" />
+              <Package size={18} className="text-[#800000]" />
               Ordered Items
             </h2>
             <div className="space-y-3">
@@ -118,7 +118,7 @@ export default function ThankYouClient() {
               </div>
               <div className="flex justify-between font-bold text-base text-[#1a1208]">
                 <span>Total</span>
-                <span className="text-[#c8860a]">{formatPriceEn(order.total)}</span>
+                <span className="text-[#800000]">{formatPriceEn(order.total)}</span>
               </div>
             </div>
           </div>
@@ -134,11 +134,11 @@ export default function ThankYouClient() {
                 <span className="text-[#1a1208] font-medium">{order.customerName}</span>
               </div>
               <div className="flex items-start gap-3">
-                <Phone size={16} className="text-[#c8860a] flex-shrink-0 mt-0.5" />
+                <Phone size={16} className="text-[#800000] flex-shrink-0 mt-0.5" />
                 <span className="text-[#4a2c0a]">{order.phone}</span>
               </div>
               <div className="flex items-start gap-3">
-                <MapPin size={16} className="text-[#c8860a] flex-shrink-0 mt-0.5" />
+                <MapPin size={16} className="text-[#800000] flex-shrink-0 mt-0.5" />
                 <span className="text-[#4a2c0a]">{order.address}</span>
               </div>
               <div className="flex items-start gap-3">
@@ -166,14 +166,14 @@ export default function ThankYouClient() {
       <div className="flex flex-col sm:flex-row gap-3 mt-8">
         <Link
           href="/"
-          className="flex items-center justify-center gap-2 flex-1 bg-[#c8860a] text-white font-bold py-3.5 rounded-xl hover:bg-[#a06c07] transition-colors"
+          className="flex items-center justify-center gap-2 flex-1 bg-[#800000] text-white font-bold py-3.5 rounded-xl hover:bg-[#5C0000] transition-colors"
         >
           <Home size={18} />
           Back to Home
         </Link>
         <Link
           href="/shop"
-          className="flex items-center justify-center gap-2 flex-1 border-2 border-[#c8860a] text-[#c8860a] font-bold py-3.5 rounded-xl hover:bg-[#c8860a] hover:text-white transition-colors"
+          className="flex items-center justify-center gap-2 flex-1 border-2 border-[#800000] text-[#800000] font-bold py-3.5 rounded-xl hover:bg-[#800000] hover:text-white transition-colors"
         >
           <ShoppingBag size={18} />
           Shop More

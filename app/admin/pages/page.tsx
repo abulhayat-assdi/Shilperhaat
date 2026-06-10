@@ -78,8 +78,8 @@ export default function AdminPagesManager() {
             <button
               key={page.slug}
               onClick={() => handleEdit(page)}
-              className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-orange-50 transition-colors ${
-                selectedPage?.slug === page.slug ? 'bg-orange-50 border-l-4 border-l-[#c8860a]' : ''
+              className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#FFF0F0] transition-colors ${
+                selectedPage?.slug === page.slug ? 'bg-[#FFF0F0] border-l-4 border-l-[#800000]' : ''
               }`}
             >
               <div className="flex items-center justify-between gap-2">
@@ -112,7 +112,7 @@ export default function AdminPagesManager() {
                       type="text"
                       value={selectedPage.title}
                       onChange={e => setSelectedPage({ ...selectedPage, title: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a]"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000]"
                     />
                   </div>
                   <div>
@@ -121,7 +121,7 @@ export default function AdminPagesManager() {
                       type="text"
                       value={selectedPage.subtitle}
                       onChange={e => setSelectedPage({ ...selectedPage, subtitle: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a]"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000]"
                     />
                   </div>
                   <div>
@@ -130,7 +130,7 @@ export default function AdminPagesManager() {
                       type="text"
                       value={selectedPage.metaTitle}
                       onChange={e => setSelectedPage({ ...selectedPage, metaTitle: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a]"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000]"
                     />
                   </div>
                   <div>
@@ -139,7 +139,7 @@ export default function AdminPagesManager() {
                       type="text"
                       value={selectedPage.metaDescription}
                       onChange={e => setSelectedPage({ ...selectedPage, metaDescription: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#c8860a]"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#800000]"
                     />
                   </div>
                 </div>
@@ -159,7 +159,7 @@ export default function AdminPagesManager() {
                     href={`/${selectedPage.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-[#c8860a] hover:underline"
+                    className="text-xs text-[#800000] hover:underline"
                   >
                     View Page →
                   </a>
@@ -175,7 +175,7 @@ export default function AdminPagesManager() {
                       key={mode}
                       onClick={() => setEditMode(mode)}
                       className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                        editMode === mode ? 'bg-white shadow text-[#c8860a]' : 'text-gray-500'
+                        editMode === mode ? 'bg-white shadow text-[#800000]' : 'text-gray-500'
                       }`}
                     >
                       {mode === 'richtext' ? 'Rich Text' : 'HTML'}
@@ -205,7 +205,7 @@ export default function AdminPagesManager() {
               <button
                 id="add-section-btn"
                 onClick={addSection}
-                className="w-full py-4 mb-6 border-2 border-dashed border-[#F48121] rounded-xl text-[#F48121] font-semibold text-sm text-center cursor-pointer hover:bg-orange-50 transition-colors"
+                className="w-full py-4 mb-6 border-2 border-dashed border-[#800000] rounded-xl text-[#800000] font-semibold text-sm text-center cursor-pointer hover:bg-[#FFF0F0] transition-colors"
               >
                 + Add New Section
               </button>
@@ -214,7 +214,7 @@ export default function AdminPagesManager() {
               <div className="flex items-center gap-4 pb-6">
                 <button
                   onClick={handleSave}
-                  className="bg-[#c8860a] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#a86e08] transition-colors shadow-sm"
+                  className="bg-[#800000] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#5C0000] transition-colors shadow-sm"
                 >
                   Save & Publish
                 </button>
@@ -293,12 +293,12 @@ function SectionCard({
             onChange={e => onTitleChange(e.target.value)}
             onBlur={() => setEditingTitle(false)}
             onKeyDown={e => { if (e.key === 'Enter') setEditingTitle(false) }}
-            className="flex-1 text-sm font-semibold text-gray-700 border border-gray-300 rounded px-2 py-0.5 focus:outline-none focus:border-[#c8860a]"
+            className="flex-1 text-sm font-semibold text-gray-700 border border-gray-300 rounded px-2 py-0.5 focus:outline-none focus:border-[#800000]"
           />
         ) : (
           <button
             onClick={() => setEditingTitle(true)}
-            className="flex-1 text-sm font-semibold text-gray-700 hover:text-[#c8860a] text-left truncate"
+            className="flex-1 text-sm font-semibold text-gray-700 hover:text-[#800000] text-left truncate"
             title="Click to rename"
           >
             {section.title}
@@ -399,7 +399,7 @@ function SectionContentEditor({
           dir="ltr"
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#c8860a] resize-y text-left"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#800000] resize-y text-left"
           style={{ minHeight: '300px', direction: 'ltr' }}
           placeholder="<h2>Section Title</h2><p>Your content here...</p>"
         />
@@ -413,7 +413,7 @@ function SectionContentEditor({
                   e.preventDefault()
                   document.execCommand(btn.cmd, false, btn.val)
                 }}
-                className={`px-2 py-1 text-xs border border-gray-300 rounded hover:bg-orange-50 hover:border-orange-300 ${btn.style}`}
+                className={`px-2 py-1 text-xs border border-gray-300 rounded hover:bg-[#FFF0F0] hover:border-[#800000] ${btn.style}`}
               >
                 {btn.label}
               </button>

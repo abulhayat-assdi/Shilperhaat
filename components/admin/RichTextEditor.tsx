@@ -85,7 +85,7 @@ export default function RichTextEditor({
     "px-2 py-1 rounded hover:bg-gray-200 text-gray-700 transition-colors text-sm leading-none select-none cursor-pointer";
 
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#F48121] transition-colors bg-white">
+    <div className="border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#800000] transition-colors bg-white">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 px-2 py-1.5 bg-gray-50 border-b border-gray-200">
         <button type="button" onMouseDown={(e) => { e.preventDefault(); exec("bold"); }} className={tbBtn} title="Bold">
@@ -186,7 +186,7 @@ export default function RichTextEditor({
         .rte-content h3 { font-size: 1.1em; font-weight: 600; margin: 0.5em 0; }
         .rte-content ul { list-style-type: disc; padding-left: 1.5em; margin: 0.4em 0; }
         .rte-content ol { list-style-type: decimal; padding-left: 1.5em; margin: 0.4em 0; }
-        .rte-content a { color: #F48721; text-decoration: underline; }
+        .rte-content a { color: #800000; text-decoration: underline; }
         .rte-content p { margin: 0.3em 0; }
       `}</style>
     </div>

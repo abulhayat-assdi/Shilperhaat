@@ -11,15 +11,15 @@
 
 /* ─── Raw CSS custom properties ──────────────────────────── */
 :root {
-  --color-primary: #F48721;
-  --color-primary-hover: #E07318;
-  --color-primary-light: #FFF1E5;
+  --color-primary: #800000;
+  --color-primary-hover: #5C0000;
+  --color-primary-light: #FFF0F0;
   --color-nav-bg: #041F1E;
   --color-nav-text: #FFFFFF;
-  --color-nav-hover: #F48721;
+  --color-nav-hover: #800000;
   --color-dark-text: #222831;
   --color-body-text: #666666;
-  --color-page-bg: #FBF9F5;
+  --color-page-bg: #FAF0E6;
   --color-white: #FFFFFF;
   --color-border: #CCCCCC;
   --color-save-badge: #34BE82;
@@ -36,13 +36,13 @@
 
 /* ─── Tailwind v4 theme tokens ────────────────────────────── */
 @theme inline {
-  --color-primary: #F48721;
-  --color-primary-hover: #E07318;
-  --color-primary-light: #FFF1E5;
+  --color-primary: #800000;
+  --color-primary-hover: #5C0000;
+  --color-primary-light: #FFF0F0;
   --color-nav-bg: #041F1E;
   --color-dark-text: #222831;
   --color-body-text: #666666;
-  --color-page-bg: #FBF9F5;
+  --color-page-bg: #FAF0E6;
   --color-save-badge: #34BE82;
   --color-whatsapp: #1DAA61;
   --color-buy-now: #041F1E;
@@ -78,14 +78,14 @@ body {
   font-size: 14px;
   font-weight: 400;
   color: #666666;
-  background-color: #FBF9F5;
+  background-color: #FAF0E6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
 main {
-  background-color: #FBF9F5;
+  background-color: #FAF0E6;
   min-height: 100vh;
 }
 
@@ -121,12 +121,12 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #F48721;
+  background: #800000;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #E07318;
+  background: #5C0000;
 }
 
 /* ─── Line clamp utilities ───────────────────────────────── */
@@ -193,13 +193,13 @@ img {
 
 /* ─── Focus ring ─────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid #F48721;
+  outline: 2px solid #800000;
   outline-offset: 2px;
 }
 
 /* ─── Selection highlight ────────────────────────────────── */
 ::selection {
-  background: #FFF1E5;
+  background: #FFF0F0;
   color: #222831;
 }
 
@@ -219,7 +219,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #F48721;
+  background: #800000;
   cursor: pointer;
 }
 
@@ -304,7 +304,7 @@ input[type="number"] {
 .prose-description li { margin: 0.2em 0; }
 .prose-description strong { font-weight: 700; color: #222; }
 .prose-description em { font-style: italic; }
-.prose-description a { color: #F48721; text-decoration: underline; }
+.prose-description a { color: #800000; text-decoration: underline; }
 .prose-description p { margin: 0.4em 0; }
 
 /* ─── Floating contact widget ────────────────────────────── */

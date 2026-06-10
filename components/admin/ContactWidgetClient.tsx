@@ -47,7 +47,7 @@ export default function ContactWidgetClient() {
         <button
           onClick={handleSave}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors ${
-            saved ? "bg-green-500 text-white" : "bg-[#F48121] hover:bg-[#d96c10] text-white"
+            saved ? "bg-green-500 text-white" : "bg-[#800000] hover:bg-[#5C0000] text-white"
           }`}
         >
           {saved ? (
@@ -74,7 +74,7 @@ export default function ContactWidgetClient() {
               <button
                 onClick={() => handleChange("widgetEnabled", !settings.widgetEnabled)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.widgetEnabled ? "bg-[#F48121]" : "bg-gray-200"
+                  settings.widgetEnabled ? "bg-[#800000]" : "bg-gray-200"
                 }`}
                 role="switch"
                 aria-checked={settings.widgetEnabled}
@@ -97,7 +97,7 @@ export default function ContactWidgetClient() {
                     onClick={() => handleChange("buttonPosition", pos)}
                     className={`flex-1 py-2 px-3 rounded-xl border text-sm font-medium transition-colors ${
                       settings.buttonPosition === pos
-                        ? "border-[#F48121] bg-orange-50 text-[#F48121]"
+                        ? "border-[#800000] bg-[#FFF0F0] text-[#800000]"
                         : "border-gray-200 text-gray-600 hover:border-gray-300"
                     }`}
                   >
@@ -114,7 +114,7 @@ export default function ContactWidgetClient() {
                 type="text"
                 value={settings.welcomeMessage}
                 onChange={(e) => handleChange("welcomeMessage", e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#F48121]"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
                 placeholder="আমাদের সাথে যোগাযোগ করুন"
               />
             </div>
@@ -136,7 +136,7 @@ export default function ContactWidgetClient() {
                   value={settings.whatsappUrl}
                   onChange={(e) => handleChange("whatsappUrl", e.target.value)}
                   placeholder="https://wa.me/8801700000000"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#F48121]"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
                 />
                 <p className="text-xs text-gray-400 mt-1">
                   Format: https://wa.me/ followed by country code and number. Example: https://wa.me/8801700000000
@@ -156,7 +156,7 @@ export default function ContactWidgetClient() {
                   value={settings.phoneNumber}
                   onChange={(e) => handleChange("phoneNumber", e.target.value)}
                   placeholder="01700000000"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#F48121]"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
                 />
                 <p className="text-xs text-gray-400 mt-1">Enter number without spaces or dashes</p>
               </div>
@@ -172,7 +172,7 @@ export default function ContactWidgetClient() {
                   value={settings.messengerUrl}
                   onChange={(e) => handleChange("messengerUrl", e.target.value)}
                   placeholder="https://m.me/yourpagename"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#F48121]"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
                 />
                 <p className="text-xs text-gray-400 mt-1">
                   Format: https://m.me/ followed by your Facebook page username
@@ -192,7 +192,7 @@ export default function ContactWidgetClient() {
                   value={settings.emailAddress}
                   onChange={(e) => handleChange("emailAddress", e.target.value)}
                   placeholder="info@shilperhaat.com"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#F48121]"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#800000]"
                 />
                 <p className="text-xs text-gray-400 mt-1">Customers will send email to this address</p>
               </div>
@@ -222,7 +222,7 @@ export default function ContactWidgetClient() {
                   {/* Header */}
                   <div
                     className="px-3 py-3"
-                    style={{ background: "linear-gradient(135deg, #F48121 0%, #e06010 100%)" }}
+                    style={{ background: "linear-gradient(135deg, #800000 0%, #5C0000 100%)" }}
                   >
                     <div className="font-bold text-white text-xs mb-0.5">Shilperhaat</div>
                     <div className="text-white/80 text-[10px] leading-tight">
@@ -255,7 +255,7 @@ export default function ContactWidgetClient() {
                 {/* Floating button */}
                 <div
                   className="absolute bottom-4 right-3 w-9 h-9 rounded-full flex items-center justify-center text-white shadow-lg text-base"
-                  style={{ background: settings.widgetEnabled ? "#F48121" : "#d1d5db" }}
+                  style={{ background: settings.widgetEnabled ? "#800000" : "#d1d5db" }}
                 >
                   💬
                 </div>

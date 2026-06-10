@@ -189,7 +189,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#c8860a]"
+          className="border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#800000]"
         >
           <option value="">All Statuses</option>
           {statusOptions.map((s) => (
@@ -230,7 +230,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                       (e.currentTarget.style.backgroundColor = "transparent")
                     }
                   >
-                    <td className="px-4 py-3 font-mono text-xs font-semibold text-[#c8860a]">
+                    <td className="px-4 py-3 font-mono text-xs font-semibold text-[#800000]">
                       {order.orderNumber}
                     </td>
                     <td className="px-4 py-3">
@@ -328,7 +328,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                 <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm mb-4">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Order #</span>
-                    <span className="font-mono font-semibold text-[#c8860a]">
+                    <span className="font-mono font-semibold text-[#800000]">
                       {courierDialog.orderNumber}
                     </span>
                   </div>
@@ -346,7 +346,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                   </div>
                   <div className="flex justify-between border-t border-gray-200 pt-2 font-bold">
                     <span>Total (COD)</span>
-                    <span className="text-[#c8860a]">
+                    <span className="text-[#800000]">
                       {formatPriceEn(courierDialog.total)}
                     </span>
                   </div>
@@ -414,7 +414,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h3 className="font-bold text-gray-800">Order Details</h3>
-                    <p className="font-mono text-[#c8860a] text-sm">
+                    <p className="font-mono text-[#800000] text-sm">
                       #{selectedOrder.orderNumber}
                     </p>
                   </div>
@@ -483,7 +483,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                   </div>
                   <div className="flex justify-between font-bold text-gray-800 border-t border-gray-200 pt-2">
                     <span>Total</span>
-                    <span className="text-[#c8860a]">
+                    <span className="text-[#800000]">
                       {formatPriceEn(selectedOrder.total)}
                     </span>
                   </div>
@@ -533,7 +533,7 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                   <select
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a]"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000]"
                   >
                     {statusOptions.map((s) => (
                       <option key={s} value={s}>
@@ -547,13 +547,13 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                     onChange={(e) => setAdminNote(e.target.value)}
                     placeholder="Internal admin note..."
                     rows={2}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#c8860a] resize-none"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#800000] resize-none"
                   />
 
                   <button
                     onClick={updateOrderStatus}
                     disabled={updatingStatus}
-                    className="w-full flex items-center justify-center gap-2 bg-[#c8860a] text-white py-3 rounded-xl font-semibold text-sm disabled:opacity-70"
+                    className="w-full flex items-center justify-center gap-2 bg-[#800000] text-white py-3 rounded-xl font-semibold text-sm disabled:opacity-70"
                   >
                     {updatingStatus ? (
                       <>
