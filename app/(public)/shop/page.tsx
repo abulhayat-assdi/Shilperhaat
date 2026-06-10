@@ -4,8 +4,10 @@ import ProductCard from "@/components/ui/ProductCard";
 import SearchBar from "@/components/shop/SearchBar";
 import ShopFilters from "@/components/shop/ShopFilters";
 import { ProductGridSkeleton } from "@/components/ui/ProductCardSkeleton";
-import { dummyCategories, dummyProducts } from "@/lib/dummy-data";
+import { prisma } from "@/lib/prisma";
 import type { Product } from "@/types";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "All Products — Shilperhaat",
@@ -37,33 +39,59 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
   const currentPage = Math.max(1, parseInt(page));
   const limit = 12;
+  const skip = (currentPage - 1) * limit;
 
   const decodedCategorySlug = categorySlug ? decodeURIComponent(categorySlug) : undefined;
 
-  let filtered: typeof dummyProducts = [...dummyProducts];
-  if (decodedCategorySlug) filtered = filtered.filter((p) => p.category?.slug === decodedCategorySlug);
-  if (minPrice)       filtered = filtered.filter((p) => Number(p.price) >= Number(minPrice));
-  if (maxPrice)       filtered = filtered.filter((p) => Number(p.price) <= Number(maxPrice));
+  // Build Prisma where clause
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = { status: "ACTIVE" };
+
+  if (decodedCategorySlug) {
+    where.category = { slug: decodedCategorySlug };
+  }
+  if (minPrice || maxPrice) {
+    where.price = {};
+    if (minPrice) where.price.gte = Number(minPrice);
+    if (maxPrice) where.price.lte = Number(maxPrice);
+  }
   if (search) {
-    const q = search.toLowerCase();
-    filtered = filtered.filter(
-      (p) => p.title.toLowerCase().includes(q) ||
-             p.description?.toLowerCase().includes(q) ||
-             p.tags.some((t) => t.toLowerCase().includes(q))
-    );
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+    ];
   }
 
-  switch (sort) {
-    case "price_asc":    filtered.sort((a, b) => Number(a.price) - Number(b.price)); break;
-    case "price_desc":   filtered.sort((a, b) => Number(b.price) - Number(a.price)); break;
-    case "best_selling": filtered.sort((a, b) => (b.isBestSelling ? 1 : 0) - (a.isBestSelling ? 1 : 0)); break;
-    default:             filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }
+  // Build orderBy
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let orderBy: any = { createdAt: "desc" };
+  if (sort === "price_asc") orderBy = { price: "asc" };
+  else if (sort === "price_desc") orderBy = { price: "desc" };
+  else if (sort === "best_selling") orderBy = [{ isBestSelling: "desc" }, { createdAt: "desc" }];
 
-  const total      = filtered.length;
+  const [rawProducts, total, categories] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        images: { orderBy: { sortOrder: "asc" } },
+      },
+      orderBy,
+      skip,
+      take: limit,
+    }),
+    prisma.product.count({ where }),
+    prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
+  ]);
+
+  const products = (rawProducts as any[]).map((p: any) => ({
+    ...p,
+    price: Number(p.price),
+    compareAtPrice: p.compareAtPrice ? Number(p.compareAtPrice) : null,
+  }));
+
   const totalPages = Math.ceil(total / limit);
-  const paginated  = filtered.slice((currentPage - 1) * limit, currentPage * limit);
-  const activeCategory = dummyCategories.find((c) => c.slug === decodedCategorySlug);
+  const activeCategory = (categories as any[]).find((c: any) => c.slug === decodedCategorySlug);
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-5 py-4 md:py-6">
@@ -85,32 +113,24 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         ┌─────────────────────────────────────┐
         │  Layout (flex-col on mobile,         │
         │  flex-row on desktop)                │
-        │                                     │
-        │  Mobile:                            │
-        │  [Filter bar - full width]          │  ← ShopFilters wrapper (w-full, md:hidden inner)
-        │  [Product grid - full width]        │  ← flex-1
-        │                                     │
-        │  Desktop:                           │
-        │  [Sidebar 224px] [Product grid]     │  ← md:w-56 + flex-1
         └─────────────────────────────────────┘
       */}
-      {/* flex-col on mobile (stacked), flex-row on desktop (sidebar + grid) */}
       <div className="flex flex-col md:flex-row gap-3 md:gap-6 mt-3 md:mt-5">
         {/* Filter sidebar / mobile filter bar */}
         <Suspense fallback={null}>
-          <ShopFilters categories={dummyCategories as any[]} />
+          <ShopFilters categories={categories as any[]} />
         </Suspense>
 
         {/* Product grid — takes full width on mobile, flex-1 on desktop */}
         <div className="flex-1 min-w-0">
           <Suspense fallback={<ProductGridSkeleton count={12} />}>
-            {paginated.length === 0 ? (
+            {products.length === 0 ? (
               <EmptyState search={search} category={activeCategory?.name} />
             ) : (
               <>
                 {/* 2 columns on mobile, grow on wider screens */}
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                  {paginated.map((product) => (
+                  {products.map((product: any) => (
                     <ProductCard key={product.id} product={product as any as Product} />
                   ))}
                 </div>

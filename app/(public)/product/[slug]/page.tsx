@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import ProductGallery from "@/components/product/ProductGallery";
 import AddToCartSection, { StickyCartBar } from "@/components/product/AddToCartSection";
 import ProductTabs from "@/components/product/ProductTabs";
 import ProductCard from "@/components/ui/ProductCard";
-import { dummyProducts } from "@/lib/dummy-data";
+import { prisma } from "@/lib/prisma";
 import { formatPriceEn, calculateDiscount } from "@/lib/utils";
 import type { Product } from "@/types";
 
@@ -14,14 +15,21 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return dummyProducts.map((p) => ({ slug: encodeURIComponent(p.slug) }));
-}
+// Deduplicate DB calls between generateMetadata and the page component
+const getProductBySlug = cache(async (slug: string) => {
+  return prisma.product.findUnique({
+    where: { slug },
+    include: {
+      category: { select: { id: true, name: true, slug: true } },
+      images: { orderBy: { sortOrder: "asc" } },
+    },
+  });
+});
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
-  const product  = dummyProducts.find((p) => p.slug === decodedSlug);
+  const product = await getProductBySlug(decodedSlug);
   if (!product) return { title: "Product not found" };
   return {
     title: `${product.title} — Shilperhaat`,
@@ -37,19 +45,45 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
-  const product  = dummyProducts.find((p) => p.slug === decodedSlug) as any as Product | undefined;
-  if (!product) notFound();
 
-  const discount   = product.compareAtPrice
+  const rawProduct = await getProductBySlug(decodedSlug);
+  if (!rawProduct) notFound();
+
+  const product = {
+    ...rawProduct,
+    price: Number(rawProduct.price),
+    compareAtPrice: rawProduct.compareAtPrice ? Number(rawProduct.compareAtPrice) : null,
+  } as any as Product;
+
+  const discount = product.compareAtPrice
     ? calculateDiscount(Number(product.price), Number(product.compareAtPrice))
     : 0;
   const saveAmount = product.compareAtPrice
     ? Number(product.compareAtPrice) - Number(product.price)
     : 0;
 
-  const related = dummyProducts
-    .filter((p) => p.categoryId === product.categoryId && p.id !== product.id)
-    .slice(0, 4) as any as Product[];
+  // Related products from the same category
+  const rawRelated = product.categoryId
+    ? await prisma.product.findMany({
+        where: {
+          categoryId: product.categoryId,
+          id: { not: product.id },
+          status: "ACTIVE",
+        },
+        include: {
+          category: { select: { id: true, name: true, slug: true } },
+          images: { orderBy: { sortOrder: "asc" } },
+        },
+        take: 4,
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
+
+  const related = (rawRelated as any[]).map((p: any) => ({
+    ...p,
+    price: Number(p.price),
+    compareAtPrice: p.compareAtPrice ? Number(p.compareAtPrice) : null,
+  })) as any as Product[];
 
   return (
     <>
@@ -99,11 +133,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Left: gallery */}
             <div>
               <ProductGallery
-              images={product.images}
-              title={product.title}
-              videoUrl={product.videoUrl}
-              youtubeVideoId={product.youtubeVideoId}
-            />
+                images={product.images}
+                title={product.title}
+                videoUrl={product.videoUrl}
+                youtubeVideoId={product.youtubeVideoId}
+              />
             </div>
 
             {/* Right: product info */}

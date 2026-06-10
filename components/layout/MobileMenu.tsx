@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { X, ChevronRight, MessageCircle, User } from "lucide-react";
-import { dummySiteSettings } from "@/lib/dummy-data";
+import { useSiteLayout } from "@/lib/site-layout-context";
 
 interface NavLink {
   href: string;
@@ -17,6 +17,8 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProps) {
+  const { data: siteLayout } = useSiteLayout();
+
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -147,7 +149,7 @@ export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProp
               GET IN TOUCH
             </p>
             <a
-              href={`https://wa.me/${dummySiteSettings.whatsappNumber}`}
+              href={`https://wa.me/${siteLayout.whatsappNumber}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{

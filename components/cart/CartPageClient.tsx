@@ -6,11 +6,10 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { formatPriceEn, getImageUrl } from "@/lib/utils";
-import { dummySiteSettings } from "@/lib/dummy-data";
 import { useState } from "react";
 
 export default function CartPageClient() {
-  const { items, subtotal, deliveryCharge, total, removeItem, updateQuantity } = useCart();
+  const { items, subtotal, deliveryCharge, total, removeItem, updateQuantity, freeDeliveryMin } = useCart();
   const { toast } = useToast();
   const [confirmItem, setConfirmItem] = useState<{ id: string; title: string } | null>(null);
 
@@ -193,9 +192,9 @@ export default function CartPageClient() {
                 </span>
               </div>
 
-              {deliveryCharge > 0 && dummySiteSettings.freeDeliveryMin && (
+              {deliveryCharge > 0 && freeDeliveryMin && (
                 <p className="text-xs text-[#7a6045] bg-[#fdf8f3] p-2 rounded-lg">
-                  Add {formatPriceEn(dummySiteSettings.freeDeliveryMin - subtotal)} more to get free delivery!
+                  Add {formatPriceEn(freeDeliveryMin - subtotal)} more to get free delivery!
                 </p>
               )}
 

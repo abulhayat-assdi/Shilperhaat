@@ -6,12 +6,9 @@ import TopSellingSection from "@/components/home/TopSellingSection";
 import CategorySection from "@/components/home/CategorySection";
 import ReviewCarousel from "@/components/home/ReviewCarousel";
 import { ProductGridSkeleton } from "@/components/ui/ProductCardSkeleton";
-import {
-  dummyBanners,
-  dummyCategories,
-  dummyProducts,
-  dummyReviews,
-} from "@/lib/dummy-data";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Shilperhaat — Bangladesh's Finest Handcraft Textiles",
@@ -20,14 +17,37 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const banners    = dummyBanners;
-  const categories = dummyCategories;
-  const products   = dummyProducts as any[];
-  const reviews    = dummyReviews;
+  const [banners, categories, rawProducts, reviews] = await Promise.all([
+    prisma.banner.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+    }),
+    prisma.category.findMany({
+      orderBy: { sortOrder: "asc" },
+    }),
+    prisma.product.findMany({
+      where: { status: "ACTIVE" },
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        images: { orderBy: { sortOrder: "asc" } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.review.findMany({
+      where: { isVisible: true },
+      orderBy: { sortOrder: "asc" },
+    }),
+  ]);
 
-  const categoryProducts = categories.map((cat) => ({
+  const products = (rawProducts as any[]).map((p: any) => ({
+    ...p,
+    price: Number(p.price),
+    compareAtPrice: p.compareAtPrice ? Number(p.compareAtPrice) : null,
+  }));
+
+  const categoryProducts = (categories as any[]).map((cat: any) => ({
     category: cat,
-    products: products.filter((p) => p.categoryId === cat.id),
+    products: products.filter((p: any) => p.categoryId === cat.id),
   }));
 
   return (
@@ -45,8 +65,8 @@ export default async function HomePage() {
 
       {/* 4. Per-Category Sections */}
       {categoryProducts
-        .filter((cp) => cp.products.length > 0)
-        .map((cp) => (
+        .filter((cp: any) => cp.products.length > 0)
+        .map((cp: any) => (
           <Suspense key={cp.category.id} fallback={<div style={{ padding: "40px 0", backgroundColor: "#FAF0E6" }}><div className="max-w-7xl mx-auto px-4 md:px-5"><ProductGridSkeleton count={4} /></div></div>}>
             <CategorySection
               category={cp.category as any}
@@ -62,4 +82,3 @@ export default async function HomePage() {
     </div>
   );
 }
-

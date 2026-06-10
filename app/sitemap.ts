@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
-import { dummyProducts, dummyCategories } from "@/lib/dummy-data";
+import { prisma } from "@/lib/prisma";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.APP_URL || "https://shilperhaat.com";
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -25,19 +25,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const categoryRoutes: MetadataRoute.Sitemap = dummyCategories.map((cat) => ({
-    url: `${baseUrl}/shop?category=${cat.slug}`,
-    lastModified: new Date(cat.updatedAt),
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  }));
+  try {
+    const [categories, products] = await Promise.all([
+      prisma.category.findMany({ select: { slug: true, updatedAt: true } }),
+      prisma.product.findMany({
+        where: { status: "ACTIVE" },
+        select: { slug: true, updatedAt: true },
+      }),
+    ]);
 
-  const productRoutes: MetadataRoute.Sitemap = dummyProducts.map((product) => ({
-    url: `${baseUrl}/product/${product.slug}`,
-    lastModified: new Date(product.updatedAt),
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }));
+    const categoryRoutes: MetadataRoute.Sitemap = (categories as any[]).map((cat: any) => ({
+      url: `${baseUrl}/shop?category=${cat.slug}`,
+      lastModified: new Date(cat.updatedAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }));
 
-  return [...staticRoutes, ...categoryRoutes, ...productRoutes];
+    const productRoutes: MetadataRoute.Sitemap = (products as any[]).map((product: any) => ({
+      url: `${baseUrl}/product/${product.slug}`,
+      lastModified: new Date(product.updatedAt),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
+
+    return [...staticRoutes, ...categoryRoutes, ...productRoutes];
+  } catch {
+    return staticRoutes;
+  }
 }

@@ -2,7 +2,11 @@
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from "react";
 import type { CartItem, Cart } from "@/types";
-import { dummySiteSettings } from "./dummy-data";
+
+interface DeliveryConfig {
+  deliveryCharge: number;
+  freeDeliveryMin: number | null;
+}
 
 interface CartContextType extends Cart {
   addItem: (item: Omit<CartItem, "quantity">) => void;
@@ -14,6 +18,7 @@ interface CartContextType extends Cart {
   cartDrawerOpen: boolean;
   openCartDrawer: () => void;
   closeCartDrawer: () => void;
+  freeDeliveryMin: number | null;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -61,13 +66,13 @@ function cartReducer(state: CartItem[], action: CartAction): CartItem[] {
   }
 }
 
-function computeCart(items: CartItem[]): Cart {
+function computeCart(items: CartItem[], config: DeliveryConfig): Cart {
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const deliveryCharge =
-    dummySiteSettings.freeDeliveryMin && subtotal >= dummySiteSettings.freeDeliveryMin
+    config.freeDeliveryMin !== null && subtotal >= config.freeDeliveryMin
       ? 0
       : items.length > 0
-      ? dummySiteSettings.deliveryCharge
+      ? config.deliveryCharge
       : 0;
   return {
     items,
@@ -81,11 +86,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, dispatch] = useReducer(cartReducer, []);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [deliveryConfig, setDeliveryConfig] = useState<DeliveryConfig>({
+    deliveryCharge: 80,
+    freeDeliveryMin: 2000,
+  });
 
   const openCartDrawer  = useCallback(() => setCartDrawerOpen(true), []);
   const closeCartDrawer = useCallback(() => setCartDrawerOpen(false), []);
 
-  // Load from localStorage on mount — set isHydrated after loading
+  // Load cart from localStorage on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem("sh_cart");
@@ -98,7 +107,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsHydrated(true);
   }, []);
 
-  // Persist to localStorage only after hydration to avoid overwriting saved cart on first mount
+  // Fetch delivery settings from DB
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        setDeliveryConfig({
+          deliveryCharge: data.deliveryCharge ?? 80,
+          freeDeliveryMin: data.freeDeliveryMin ?? null,
+        });
+      })
+      .catch(() => {
+        // keep defaults
+      });
+  }, []);
+
+  // Persist cart to localStorage after hydration
   useEffect(() => {
     if (!isHydrated) return;
     try {
@@ -124,12 +148,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "CLEAR_CART" });
   }, []);
 
-  const cart = computeCart(items);
+  const cart = computeCart(items, deliveryConfig);
   const itemCount = items.length;
 
   return (
     <CartContext.Provider
-      value={{ ...cart, addItem, removeItem, updateQuantity, clearCart, itemCount, isHydrated, cartDrawerOpen, openCartDrawer, closeCartDrawer }}
+      value={{
+        ...cart,
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
+        itemCount,
+        isHydrated,
+        cartDrawerOpen,
+        openCartDrawer,
+        closeCartDrawer,
+        freeDeliveryMin: deliveryConfig.freeDeliveryMin,
+      }}
     >
       {children}
     </CartContext.Provider>
