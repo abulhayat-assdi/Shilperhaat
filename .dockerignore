@@ -5,3 +5,4 @@ node_modules
 public/uploads
 npm-debug.log*
 *.tsbuildinfo
+docker-entrypoint.sh
