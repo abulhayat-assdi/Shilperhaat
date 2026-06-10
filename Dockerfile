@@ -41,15 +41,11 @@ COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
 COPY --from=builder /app/node_modules/@img ./node_modules/@img
 
-# Entrypoint script written inline to avoid Windows CRLF issues
-RUN printf '#!/bin/sh\nset -e\nmkdir -p /app/public/uploads\nchown -R nextjs:nodejs /app/public/uploads\nexec su-exec nextjs "$@"\n' \
-    > /usr/local/bin/docker-entrypoint.sh && \
-    chmod +x /usr/local/bin/docker-entrypoint.sh && \
-    mkdir -p public/uploads && chown -R nextjs:nodejs /app
+RUN mkdir -p public/uploads && chown -R nextjs:nodejs /app
 
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node server.js"]
+# Fix volume permissions (runs as root), drop to nextjs, then migrate + start
+CMD ["sh", "-c", "chown -R nextjs:nodejs /app/public/uploads; exec su-exec nextjs sh -c 'node_modules/.bin/prisma migrate deploy; node server.js'"]
