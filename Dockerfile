@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat openssl su-exec
 
 # ── Stage 1: install dependencies ──────────────────────────────────────────
 FROM base AS deps
@@ -41,14 +41,15 @@ COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
 COPY --from=builder /app/node_modules/@img ./node_modules/@img
 
-# Uploads folder (will be overridden by volume mount in production)
-RUN mkdir -p public/uploads && chown -R nextjs:nodejs /app
-
-USER nextjs
+# Entrypoint: fixes volume permissions then drops to nextjs user
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    mkdir -p public/uploads && chown -R nextjs:nodejs /app
 
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Run DB migration first, then start via standalone server
-CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy; node server.js"]
+ENTRYPOINT ["docker-entrypoint.sh"]
+# Entrypoint drops to nextjs user; run DB migration then start server
+CMD ["sh", "-c", "node_modules/.bin/prisma migrate deploy && node server.js"]
