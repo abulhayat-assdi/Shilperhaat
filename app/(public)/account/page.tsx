@@ -23,7 +23,7 @@ export default function AccountPage() {
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#800000]"
               />
             </div>
-            <button className="w-full text-white py-3 rounded-lg font-semibold transition-colors" style={{ backgroundColor: "#800000" }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#5C0000")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#800000")}>
+            <button className="w-full text-white py-3 rounded-lg font-semibold transition-colors bg-[#800000] hover:bg-[#5C0000]">
               Sign In
             </button>
             <p className="text-center text-sm text-gray-500">
