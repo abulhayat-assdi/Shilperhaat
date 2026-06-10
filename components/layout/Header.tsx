@@ -74,13 +74,29 @@ export default function Header() {
   const [searchQuery, setSearchQuery]       = useState("");
   const [navSticky, setNavSticky]           = useState(false);
   const [moreOpen, setMoreOpen]             = useState(false);
+  const [navItems, setNavItems]             = useState<NavItem[]>([]);
   const headerMiddleRef                     = useRef<HTMLDivElement>(null);
   const moreRef                             = useRef<HTMLDivElement>(null);
   const { itemCount, isHydrated, openCartDrawer } = useCart();
   const { data: layout } = useSiteLayout();
 
-  const navItems: NavItem[]  = layout.navItems;
-  const mobileNavLinks       = navItems.map((n) => ({ href: n.href, label: n.label }));
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then(({ categories }) => {
+        if (Array.isArray(categories) && categories.length > 0) {
+          setNavItems(
+            categories.map((c: { name: string; slug: string }) => ({
+              href: `/shop?category=${c.slug}`,
+              label: c.name,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const mobileNavLinks = navItems.map((n) => ({ href: n.href, label: n.label }));
 
   /* Sticky nav on scroll */
   useEffect(() => {
