@@ -130,8 +130,12 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
             className="bg-white rounded-2xl border border-gray-200 overflow-hidden"
           >
             {/* Image */}
-            <div className="relative aspect-square bg-[#f0e8d8]">
-              {cat.imageUrl ? (
+            <div className="relative aspect-square bg-[#f0e8d8] overflow-hidden">
+              {/* Emoji always rendered as fallback behind image */}
+              <div className="absolute inset-0 flex items-center justify-center text-4xl select-none">
+                🧵
+              </div>
+              {cat.imageUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={getImageUrl(cat.imageUrl)}
@@ -141,14 +145,9 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
                     (e.currentTarget as HTMLImageElement).style.display = "none";
                   }}
                 />
-              ) : null}
-              {!cat.imageUrl && (
-                <div className="absolute inset-0 flex items-center justify-center text-4xl">
-                  🧵
-                </div>
               )}
               {cat.isFeatured && (
-                <div className="absolute top-2 right-2 bg-[#800000] text-white rounded-full p-1">
+                <div className="absolute top-2 right-2 bg-[#800000] text-white rounded-full p-1 z-10">
                   <Star size={10} fill="currentColor" />
                 </div>
               )}
