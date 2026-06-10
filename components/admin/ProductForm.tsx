@@ -285,8 +285,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to save product");
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to save product");
       router.push("/admin/products");
     } catch (error) {
       console.error("Product save error:", error);
