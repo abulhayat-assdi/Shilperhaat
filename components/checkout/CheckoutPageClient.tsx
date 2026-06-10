@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
@@ -272,7 +272,7 @@ export default function CheckoutPageClient() {
                           className="object-cover"
                           sizes="60px"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                            (e.target as HTMLImageElement).src = "/placeholder-product.svg";
                           }}
                         />
                       </div>

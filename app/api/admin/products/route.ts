@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -56,6 +57,9 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ success: true, product });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ error: "এই slug দিয়ে আগেই একটি প্রোডাক্ট আছে। অন্য একটি title/slug ব্যবহার করুন।" }, { status: 409 });
+    }
     console.error("POST /api/admin/products error:", error);
     return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
   }

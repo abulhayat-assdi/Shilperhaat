@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -69,7 +69,7 @@ function ThumbnailButton({
           alt={item.image.altText || `Image ${index + 1}`}
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+            (e.target as HTMLImageElement).src = "/placeholder-product.svg";
           }}
         />
       ) : (
@@ -238,7 +238,7 @@ export default function ProductGallery({
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority={activeIndex === 0}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                    (e.target as HTMLImageElement).src = "/placeholder-product.svg";
                   }}
                 />
               </div>

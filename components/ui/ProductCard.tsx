@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -120,7 +120,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+              (e.target as HTMLImageElement).src = "/placeholder-product.svg";
             }}
           />
         </div>

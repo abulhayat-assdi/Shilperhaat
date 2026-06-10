@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -95,7 +95,7 @@ export default function CartPageClient() {
                       className="object-cover"
                       sizes="80px"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                        (e.target as HTMLImageElement).src = "/placeholder-product.svg";
                       }}
                     />
                   </div>

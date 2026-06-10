@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -110,7 +110,7 @@ export default function TopSellingCard({ product }: TopSellingCardProps) {
             className="object-contain group-hover:scale-105 transition-transform duration-300 w-full h-full"
             style={{ objectFit: "contain" }}
             onError={(e) => {
-              (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+              (e.target as HTMLImageElement).src = "/placeholder-product.svg";
             }}
           />
         </div>

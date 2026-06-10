@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -192,7 +192,7 @@ export default function CartDrawer() {
                         fill
                         className="object-cover"
                         sizes="64px"
-                        onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder-product.jpg"; }}
+                        onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder-product.svg"; }}
                       />
                     </div>
                   </Link>

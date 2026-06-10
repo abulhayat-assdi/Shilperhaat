@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -147,7 +147,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                   className="object-cover"
                   sizes="192px"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                    (e.target as HTMLImageElement).src = "/placeholder-product.svg";
                   }}
                 />
               </div>

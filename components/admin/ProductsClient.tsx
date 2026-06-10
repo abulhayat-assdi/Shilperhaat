@@ -6,6 +6,29 @@ import Image from "next/image";
 import { Plus, Pencil, Trash2, Eye, ImageIcon } from "lucide-react";
 import type { Product } from "@/types";
 
+function ProductThumb({ src, alt }: { src: string; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div className="w-12 h-12 rounded-[6px] bg-gray-100 border border-[#eee] flex items-center justify-center flex-shrink-0">
+        <ImageIcon size={20} className="text-gray-400" />
+      </div>
+    );
+  }
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={48}
+      height={48}
+      className="rounded-[6px] object-cover border border-[#eee] flex-shrink-0"
+      style={{ width: 48, height: 48 }}
+      sizes="48px"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 interface ProductsClientProps {
   products: Product[];
 }
@@ -63,15 +86,7 @@ export default function ProductsClient({ products: initialProducts }: ProductsCl
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {product.images[0]?.imageUrl ? (
-                        <Image
-                          src={product.images[0].imageUrl}
-                          alt={product.title}
-                          width={48}
-                          height={48}
-                          className="rounded-[6px] object-cover border border-[#eee] flex-shrink-0"
-                          style={{ width: 48, height: 48 }}
-                          sizes="48px"
-                        />
+                        <ProductThumb src={product.images[0].imageUrl} alt={product.title} />
                       ) : (
                         <div className="w-12 h-12 rounded-[6px] bg-gray-100 border border-[#eee] flex items-center justify-center flex-shrink-0">
                           <ImageIcon size={20} className="text-gray-400" />

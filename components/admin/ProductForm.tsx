@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -285,11 +285,12 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to save product");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to save product");
       router.push("/admin/products");
     } catch (error) {
       console.error("Product save error:", error);
-      alert("Failed to save product. Please try again.");
+      alert(error instanceof Error ? error.message : "Failed to save product. Please try again.");
     }
   };
 
@@ -439,7 +440,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                     className="object-cover pointer-events-none"
                     sizes="90px"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/placeholder-product.jpg";
+                      (e.target as HTMLImageElement).src = "/placeholder-product.svg";
                     }}
                   />
                   <button
