@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -24,6 +25,9 @@ export async function PUT(
     });
     return NextResponse.json({ category });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ error: "এই slug দিয়ে আগেই একটি ক্যাটাগরি আছে। অন্য একটি slug ব্যবহার করুন।" }, { status: 409 });
+    }
     console.error("PUT /api/admin/categories/[id] error:", error);
     return NextResponse.json({ error: "Failed to update category" }, { status: 500 });
   }

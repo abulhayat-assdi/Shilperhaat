@@ -58,10 +58,14 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
       fd.append("file", file);
       fd.append("folder", "categories");
       const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         setFormData((f) => ({ ...f, imageUrl: data.url }));
+      } else {
+        alert(data.error || "ছবি আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
       }
+    } catch {
+      alert("ছবি আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
     } finally {
       setIsUploading(false);
     }
@@ -78,16 +82,16 @@ export default function CategoriesClient({ categories: initialCategories }: Cate
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      if (!res.ok) throw new Error("Save failed");
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to save category. Please try again.");
       if (editingCategory) {
         setCategories((prev) => prev.map((c) => (c.id === editingCategory.id ? data.category : c)));
       } else {
         setCategories((prev) => [...prev, data.category]);
       }
       setModalOpen(false);
-    } catch {
-      alert("Failed to save category. Please try again.");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save category. Please try again.");
     } finally {
       setIsSaving(false);
     }

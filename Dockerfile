@@ -37,6 +37,9 @@ COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 # Prisma CLI is a devDep so standalone doesn't include it — copy it for migrate deploy
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+# sharp uses @img/* vendored binaries — nft tracer misses them, copy explicitly
+COPY --from=builder /app/node_modules/sharp ./node_modules/sharp
+COPY --from=builder /app/node_modules/@img ./node_modules/@img
 
 # Uploads folder (will be overridden by volume mount in production)
 RUN mkdir -p public/uploads && chown -R nextjs:nodejs /app
