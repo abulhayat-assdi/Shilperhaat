@@ -14,13 +14,20 @@ export default function AdminPagesManager() {
   const [editMode, setEditMode] = useState<'richtext' | 'html'>('richtext')
   const [saveMsg, setSaveMsg] = useState('')
   const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/admin/pages')
-      .then(res => res.json())
-      .then(data => setPages(data.pages || []))
-      .catch(() => setSaveMsg('Failed to load pages.'))
+      .then(async res => {
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
+        setPages(data.pages || [])
+        setLoadError(null)
+      })
+      .catch((err: Error) => setLoadError(err.message || 'Failed to load pages.'))
+      .finally(() => setLoading(false))
   }, [])
 
   const handleEdit = (page: PageContent) => {
@@ -101,8 +108,23 @@ export default function AdminPagesManager() {
         <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto flex-shrink-0">
           <div className="p-4 border-b border-gray-100">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">All Pages</p>
-            <p className="text-xs text-gray-400 mt-0.5">{pages.length} pages total</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {loading ? 'Loading…' : `${pages.length} pages total`}
+            </p>
           </div>
+          {loadError && (
+            <div className="m-3 p-3 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-xs font-semibold text-red-600 mb-1">Could not load pages</p>
+              <p className="text-xs text-red-500 break-words">{loadError}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-2 text-xs font-semibold text-white px-3 py-1.5 rounded-lg"
+                style={{ backgroundColor: '#800000' }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
           {pages.map(page => (
             <button
               key={page.slug}

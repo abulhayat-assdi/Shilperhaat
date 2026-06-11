@@ -13,6 +13,15 @@ export async function GET() {
     return NextResponse.json({ pages: pages.map(serializePage) });
   } catch (error) {
     console.error("GET /api/admin/pages error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "";
+    const tableMissing = message.includes("does not exist") || message.includes("P2021");
+    return NextResponse.json(
+      {
+        error: tableMissing
+          ? "Database table not found — the migration has not run yet. Redeploy the app so `prisma migrate deploy` creates the new tables."
+          : "Internal server error",
+      },
+      { status: 500 }
+    );
   }
 }
