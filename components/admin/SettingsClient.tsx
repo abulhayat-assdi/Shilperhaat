@@ -127,7 +127,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
               {logoUrl ? (
-                <Image src={getImageUrl(logoUrl)} alt="Logo" width={96} height={96} className="object-contain" />
+                <Image src={getImageUrl(logoUrl)} alt="Logo" width={96} height={96} unoptimized className="object-contain" />
               ) : (
                 <div className="w-12 h-12 rounded-full bg-[#800000] flex items-center justify-center text-white font-bold text-lg">S</div>
               )}

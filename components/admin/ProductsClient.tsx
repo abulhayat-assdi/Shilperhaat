@@ -21,6 +21,7 @@ function ProductThumb({ src, alt }: { src: string; alt: string }) {
       alt={alt}
       width={48}
       height={48}
+      unoptimized
       className="rounded-[6px] object-cover border border-[#eee] flex-shrink-0"
       style={{ width: 48, height: 48 }}
       sizes="48px"

@@ -4,6 +4,8 @@ import path from "path";
 import sharp from "sharp";
 import { getAdminSession } from "@/lib/auth";
 
+export const maxDuration = 60;
+
 const ALLOWED_IMAGE_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_IMAGE_EXT = ["jpg", "jpeg", "png", "webp", "gif"];
 const ALLOWED_VIDEO_MIME = ["video/mp4", "video/webm", "video/quicktime"];
@@ -75,6 +77,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Upload error:", error);
     const message = error instanceof Error ? error.message : "Upload failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const isPermissionError = message.includes("EACCES") || message.includes("permission denied");
+    return NextResponse.json(
+      { error: isPermissionError ? "সার্ভারে ফাইল লেখার অনুমতি নেই। Admin-কে জানান।" : message },
+      { status: 500 }
+    );
   }
 }

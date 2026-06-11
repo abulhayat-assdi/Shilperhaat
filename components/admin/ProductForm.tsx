@@ -437,6 +437,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                     src={url}
                     alt={`Image ${i + 1}`}
                     fill
+                    unoptimized
                     className="object-cover pointer-events-none"
                     sizes="90px"
                     onError={(e) => {

@@ -144,6 +144,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                   src={getImageUrl(banner.imageUrl)}
                   alt={banner.title || "Banner"}
                   fill
+                  unoptimized
                   className="object-cover"
                   sizes="192px"
                   onError={(e) => {
@@ -246,7 +247,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                   </label>
                   {formData.imageUrl ? (
                     <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100 mb-2">
-                      <Image src={getImageUrl(formData.imageUrl)} alt="Banner" fill className="object-cover" sizes="400px" />
+                      <Image src={getImageUrl(formData.imageUrl)} alt="Banner" fill unoptimized className="object-cover" sizes="400px" />
                     </div>
                   ) : null}
                   <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl p-4 cursor-pointer hover:border-[#800000] transition-colors">

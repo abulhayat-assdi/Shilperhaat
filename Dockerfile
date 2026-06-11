@@ -43,6 +43,9 @@ COPY --from=builder /app/node_modules/@img ./node_modules/@img
 
 RUN mkdir -p public/uploads && chown -R nextjs:nodejs /app
 
+# Ensure CMD always runs as root so chown on the volume mount works
+USER root
+
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
