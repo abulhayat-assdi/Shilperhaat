@@ -50,7 +50,7 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
         src={banner.imageUrl}
         alt={banner.title || "Shilperhaat banner"}
         fill
-        priority
+        preload
         className="object-cover object-center"
         sizes="100vw"
         onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}

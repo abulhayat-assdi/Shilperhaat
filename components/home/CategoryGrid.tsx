@@ -162,7 +162,6 @@ function CategoryCard({ category }: { category: Category }) {
           src={imgSrc}
           alt={category.name}
           fill
-          unoptimized
           className="object-cover"
           sizes="80px"
           onError={() => {

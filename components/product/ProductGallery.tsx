@@ -63,11 +63,12 @@ function ThumbnailButton({
       }}
     >
       {item.type === "image" ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={getImageUrl(item.image.imageUrl)}
           alt={item.image.altText || `Image ${index + 1}`}
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          fill
+          sizes="80px"
+          className="object-cover"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "/placeholder-product.svg";
           }}
@@ -236,7 +237,7 @@ export default function ProductGallery({
                   fill
                   className="object-contain transition-transform duration-300 hover:scale-[1.03]"
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  priority={activeIndex === 0}
+                  preload={activeIndex === 0}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/placeholder-product.svg";
                   }}

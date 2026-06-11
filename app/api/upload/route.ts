@@ -60,9 +60,12 @@ export async function POST(req: NextRequest) {
     await mkdir(uploadDir, { recursive: true });
 
     if (isImage) {
-      // Convert all images to WebP and compress
+      // Convert all images to WebP, cap dimensions, and compress.
+      // rotate() bakes in EXIF orientation, which WebP conversion would otherwise drop.
       const filename = `${uniqueSuffix}.webp`;
       const optimized = await sharp(buffer)
+        .rotate()
+        .resize(1600, 1600, { fit: "inside", withoutEnlargement: true })
         .webp({ quality: 82 })
         .toBuffer();
 
