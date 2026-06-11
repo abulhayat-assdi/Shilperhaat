@@ -1,9 +1,15 @@
 import StaticPage from '@/components/layout/StaticPage'
-import { getPage } from '@/lib/pages-data'
+import { getPublishedPage, getPageMetadata } from '@/lib/pages'
+import { notFound } from 'next/navigation'
 
-export const metadata = { title: 'About Us - Shilperhaat' }
+export const revalidate = 300
 
-export default function AboutPage() {
-  const page = getPage('about')!
+export async function generateMetadata() {
+  return getPageMetadata('about')
+}
+
+export default async function AboutPage() {
+  const page = await getPublishedPage('about')
+  if (!page) notFound()
   return <StaticPage title={page.title} subtitle={page.subtitle} sections={page.sections} />
 }

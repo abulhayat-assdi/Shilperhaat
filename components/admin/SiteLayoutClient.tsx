@@ -402,7 +402,7 @@ export default function SiteLayoutClient() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
@@ -410,16 +410,29 @@ export default function SiteLayoutClient() {
       e.target.value = "";
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      update({ logoUrl: ev.target?.result as string });
-    };
-    reader.readAsDataURL(file);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "site");
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        update({ logoUrl: data.url });
+      } else {
+        alert("Logo upload failed. Please try again.");
+      }
+    } catch {
+      alert("Logo upload failed. Please try again.");
+    }
     e.target.value = "";
   };
 
-  const handleSave = () => {
-    save();
+  const handleSave = async () => {
+    const ok = await save();
+    if (!ok) {
+      alert("Failed to save. Please try again.");
+      return;
+    }
     setSaveStatus("saved");
     setTimeout(() => setSaveStatus("idle"), 2500);
   };

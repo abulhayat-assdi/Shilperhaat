@@ -1,9 +1,15 @@
 import StaticPage from '@/components/layout/StaticPage'
-import { getPage } from '@/lib/pages-data'
+import { getPublishedPage, getPageMetadata } from '@/lib/pages'
+import { notFound } from 'next/navigation'
 
-export const metadata = { title: 'Delivery Policy - Shilperhaat' }
+export const revalidate = 300
 
-export default function DeliveryPolicyPage() {
-  const page = getPage('delivery-policy')!
+export async function generateMetadata() {
+  return getPageMetadata('delivery-policy')
+}
+
+export default async function DeliveryPolicyPage() {
+  const page = await getPublishedPage('delivery-policy')
+  if (!page) notFound()
   return <StaticPage title={page.title} subtitle={page.subtitle} sections={page.sections} />
 }

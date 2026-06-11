@@ -1,9 +1,15 @@
 import StaticPage from '@/components/layout/StaticPage'
-import { getPage } from '@/lib/pages-data'
+import { getPublishedPage, getPageMetadata } from '@/lib/pages'
+import { notFound } from 'next/navigation'
 
-export const metadata = { title: 'Privacy Policy - Shilperhaat' }
+export const revalidate = 300
 
-export default function PrivacyPolicyPage() {
-  const page = getPage('privacy-policy')!
+export async function generateMetadata() {
+  return getPageMetadata('privacy-policy')
+}
+
+export default async function PrivacyPolicyPage() {
+  const page = await getPublishedPage('privacy-policy')
+  if (!page) notFound()
   return <StaticPage title={page.title} subtitle={page.subtitle} sections={page.sections} />
 }

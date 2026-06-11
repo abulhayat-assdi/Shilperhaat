@@ -117,6 +117,8 @@ model Order {
   courierTrackingCode   String?
   courierSentAt         DateTime?
   courierStatus         String?
+  couponCode            String?
+  discount              Decimal     @db.Decimal(10, 2) @default(0)
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
   items                 OrderItem[]
@@ -168,6 +170,69 @@ model SiteSetting {
   updatedAt       DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+model Coupon {
+  id             String       @id @default(cuid())
+  code           String       @unique
+  type           DiscountType @default(FIXED)
+  value          Decimal      @db.Decimal(10, 2)
+  minOrderAmount Decimal      @db.Decimal(10, 2) @default(0)
+  maxUses        Int?
+  usedCount      Int          @default(0)
+  isActive       Boolean      @default(true)
+  expiresAt      DateTime?
+  description    String       @default("")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("coupons")
+}
+
+model Page {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  subtitle        String   @default("")
+  sections        Json
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  isPublished     Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+
+  @@map("pages")
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String   @default("") @db.Text
+  content     String   @db.Text
+  coverImage  String   @default("")
+  author      String   @default("")
+  category    String   @default("")
+  tags        String[]
+  isPublished Boolean  @default(true)
+  readTime    Int      @default(3)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blog_posts")
+}
+
+model SiteContent {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("site_content")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
 }
 
 enum ProductStatus {

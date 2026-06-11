@@ -26,7 +26,9 @@ function s(slug: string, ...parts: [string, string][]): PageSection[] {
   }))
 }
 
-export const pagesData: PageContent[] = [
+// Default content used only to seed the database the first time.
+// After seeding, all reads/writes go through the `pages` DB table.
+export const DEFAULT_PAGES: PageContent[] = [
   {
     id: '1', slug: 'about', title: 'About Us',
     subtitle: 'Our story and mission',
@@ -176,17 +178,3 @@ export const pagesData: PageContent[] = [
   }
 ]
 
-export function getPage(slug: string): PageContent | null {
-  return pagesData.find(p => p.slug === slug) || null
-}
-
-export function getAllPages(): PageContent[] {
-  return pagesData
-}
-
-export function updatePage(slug: string, data: Partial<PageContent>): boolean {
-  const index = pagesData.findIndex(p => p.slug === slug)
-  if (index === -1) return false
-  pagesData[index] = { ...pagesData[index], ...data, updatedAt: new Date().toISOString() }
-  return true
-}

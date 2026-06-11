@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { loadBlogPosts, BlogPost } from '@/lib/blog-data'
+import { BlogPost } from '@/lib/blog-data'
 
 function formatDate(iso: string): string {
   const d = new Date(iso)
@@ -93,9 +93,11 @@ export default function BlogPage() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const loaded = loadBlogPosts().filter(p => p.isPublished)
-    setPosts(loaded)
-    setMounted(true)
+    fetch('/api/blog')
+      .then(res => res.json())
+      .then(data => setPosts(data.posts || []))
+      .catch(() => setPosts([]))
+      .finally(() => setMounted(true))
   }, [])
 
   const categories = ['All', ...Array.from(new Set(posts.map(p => p.category)))]

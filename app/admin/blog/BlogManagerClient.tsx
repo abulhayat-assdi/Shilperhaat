@@ -5,12 +5,8 @@ import AdminLayout from '@/components/admin/AdminLayout'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import {
   BlogPost,
-  loadBlogPosts,
-  saveBlogPosts,
-  generateId,
   generateSlug,
   estimateReadTime,
-  ensureUniqueSlug,
 } from '@/lib/blog-data'
 
 function formatDateShort(iso: string): string {
@@ -22,7 +18,7 @@ function formatDateShort(iso: string): string {
 
 function emptyPost(): BlogPost {
   return {
-    id: generateId(),
+    id: '',
     slug: '',
     title: '',
     excerpt: '',
@@ -50,8 +46,11 @@ export default function BlogManagerClient() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    setPosts(loadBlogPosts())
-    setMounted(true)
+    fetch('/api/admin/blog')
+      .then(res => res.json())
+      .then(data => setPosts(data.posts || []))
+      .catch(() => setSaveMsg({ type: 'error', text: 'Failed to load posts.' }))
+      .finally(() => setMounted(true))
   }, [])
 
   const showMsg = (type: 'success' | 'error', text: string) => {
@@ -122,7 +121,7 @@ export default function BlogManagerClient() {
     }
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selected) return
     if (!selected.title.trim()) {
       showMsg('error', 'Title is required.')
@@ -134,42 +133,67 @@ export default function BlogManagerClient() {
       .map(t => t.trim())
       .filter(Boolean)
 
-    const now = new Date().toISOString()
-    const baseSlug = selected.slug || generateSlug(selected.title)
-    const uniqueSlug = isNew
-      ? ensureUniqueSlug(baseSlug, posts)
-      : ensureUniqueSlug(baseSlug, posts, selected.id)
-
-    const toSave: BlogPost = {
-      ...selected,
+    const payload = {
+      title: selected.title,
+      slug: selected.slug || generateSlug(selected.title),
+      excerpt: selected.excerpt,
+      content: selected.content,
+      coverImage: selected.coverImage,
+      author: selected.author,
+      category: selected.category,
       tags: tagsArray,
-      updatedAt: now,
-      publishedAt: isNew ? now : selected.publishedAt,
-      slug: uniqueSlug,
+      isPublished: selected.isPublished,
+      readTime: selected.readTime,
     }
 
-    let updated: BlogPost[]
-    if (isNew) {
-      updated = [toSave, ...posts]
-    } else {
-      updated = posts.map(p => p.id === toSave.id ? toSave : p)
+    try {
+      const res = await fetch(
+        isNew ? '/api/admin/blog' : `/api/admin/blog/${selected.id}`,
+        {
+          method: isNew ? 'POST' : 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to save post.')
+        return
+      }
+      if (isNew) {
+        setPosts([data.post, ...posts])
+      } else {
+        setPosts(posts.map(p => (p.id === data.post.id ? data.post : p)))
+      }
+      setSelected(data.post)
+      setTagsInput(data.post.tags.join(', '))
+      setIsNew(false)
+      showMsg('success', 'Post saved successfully!')
+    } catch {
+      showMsg('error', 'Failed to save post.')
     }
-
-    setPosts(updated)
-    saveBlogPosts(updated)
-    setSelected(toSave)
-    setIsNew(false)
-    showMsg('success', 'Post saved successfully!')
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selected) return
-    const updated = posts.filter(p => p.id !== selected.id)
-    setPosts(updated)
-    saveBlogPosts(updated)
-    setSelected(null)
-    setDeleteConfirm(false)
-    setSaveMsg(null)
+    if (isNew || !selected.id) {
+      setSelected(null)
+      setDeleteConfirm(false)
+      return
+    }
+    try {
+      const res = await fetch(`/api/admin/blog/${selected.id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        showMsg('error', 'Failed to delete post.')
+        return
+      }
+      setPosts(posts.filter(p => p.id !== selected.id))
+      setSelected(null)
+      setDeleteConfirm(false)
+      setSaveMsg(null)
+    } catch {
+      showMsg('error', 'Failed to delete post.')
+    }
   }
 
   if (!mounted) {

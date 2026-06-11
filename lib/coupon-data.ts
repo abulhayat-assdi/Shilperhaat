@@ -1,5 +1,7 @@
 export type DiscountType = 'PERCENTAGE' | 'FIXED'
 
+// Plain-JSON shape used by the admin UI and API responses
+// (Prisma Decimal fields are serialized to numbers, dates to ISO strings)
 export interface Coupon {
   id: string
   code: string
@@ -15,80 +17,47 @@ export interface Coupon {
   updatedAt: string
 }
 
-export const COUPON_STORAGE_KEY = 'sh_coupons'
-
-export const INITIAL_COUPONS: Coupon[] = [
-  {
-    id: 'cpn-1',
-    code: 'WELCOME10',
-    type: 'PERCENTAGE',
-    value: 10,
-    minOrderAmount: 500,
-    maxUses: 100,
-    usedCount: 23,
-    isActive: true,
-    expiresAt: null,
-    description: '10% off for new customers',
-    createdAt: new Date('2024-01-01').toISOString(),
-    updatedAt: new Date('2024-01-01').toISOString(),
-  },
-  {
-    id: 'cpn-2',
-    code: 'EID2025',
-    type: 'FIXED',
-    value: 200,
-    minOrderAmount: 1500,
-    maxUses: 50,
-    usedCount: 50,
-    isActive: false,
-    expiresAt: '2025-04-10T23:59:59.000Z',
-    description: 'Eid special ৳200 off',
-    createdAt: new Date('2025-03-20').toISOString(),
-    updatedAt: new Date('2025-03-20').toISOString(),
-  },
-  {
-    id: 'cpn-3',
-    code: 'FLAT100',
-    type: 'FIXED',
-    value: 100,
-    minOrderAmount: 800,
-    maxUses: null,
-    usedCount: 7,
-    isActive: true,
-    expiresAt: null,
-    description: 'Flat ৳100 off on all orders',
-    createdAt: new Date('2024-06-01').toISOString(),
-    updatedAt: new Date('2024-06-01').toISOString(),
-  },
-]
-
-export function loadCoupons(): Coupon[] {
-  if (typeof window === 'undefined') return INITIAL_COUPONS
-  try {
-    const raw = localStorage.getItem(COUPON_STORAGE_KEY)
-    if (!raw) return INITIAL_COUPONS
-    const parsed = JSON.parse(raw) as Coupon[]
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_COUPONS
-  } catch {
-    return INITIAL_COUPONS
+// Serialize a Prisma Coupon row (Decimal/Date fields) to the plain-JSON shape
+export function serializeCoupon(c: {
+  id: string
+  code: string
+  type: DiscountType
+  value: unknown
+  minOrderAmount: unknown
+  maxUses: number | null
+  usedCount: number
+  isActive: boolean
+  expiresAt: Date | null
+  description: string
+  createdAt: Date
+  updatedAt: Date
+}): Coupon {
+  return {
+    id: c.id,
+    code: c.code,
+    type: c.type,
+    value: Number(c.value),
+    minOrderAmount: Number(c.minOrderAmount),
+    maxUses: c.maxUses,
+    usedCount: c.usedCount,
+    isActive: c.isActive,
+    expiresAt: c.expiresAt ? c.expiresAt.toISOString() : null,
+    description: c.description,
+    createdAt: c.createdAt.toISOString(),
+    updatedAt: c.updatedAt.toISOString(),
   }
-}
-
-export function saveCoupons(coupons: Coupon[]): void {
-  if (typeof window === 'undefined') return
-  try {
-    localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupons))
-  } catch {
-    // ignore
-  }
-}
-
-export function generateCouponId(): string {
-  return 'cpn-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6)
 }
 
 export function validateCoupon(
-  coupon: Coupon,
+  coupon: {
+    isActive: boolean
+    expiresAt: Date | string | null
+    maxUses: number | null
+    usedCount: number
+    minOrderAmount: number
+    type: DiscountType
+    value: number
+  },
   orderTotal: number
 ): { valid: boolean; discount: number; message: string } {
   if (!coupon.isActive) return { valid: false, discount: 0, message: 'This coupon is not active.' }
@@ -114,5 +83,5 @@ export function validateCoupon(
       ? Math.round((orderTotal * coupon.value) / 100)
       : coupon.value
 
-  return { valid: true, discount, message: '' }
+  return { valid: true, discount: Math.min(discount, orderTotal), message: '' }
 }

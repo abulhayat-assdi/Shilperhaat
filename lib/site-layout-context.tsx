@@ -141,13 +141,13 @@ const DEFAULT_DATA: SiteLayoutData = {
   },
 };
 
-const STORAGE_KEY = "shilperhaat_site_layout_v2";
+const CONTENT_KEY = "site-layout";
 
 interface SiteLayoutContextValue {
   data: SiteLayoutData;
   update: (patch: Partial<SiteLayoutData>) => void;
-  save: () => void;
-  reset: () => void;
+  save: () => Promise<boolean>;
+  reset: () => Promise<void>;
   isDirty: boolean;
 }
 
@@ -161,36 +161,44 @@ export function SiteLayoutProvider({ children }: { children: React.ReactNode }) 
   dataRef.current = data;
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = { ...DEFAULT_DATA, ...(JSON.parse(stored) as Partial<SiteLayoutData>) };
-        setData(parsed);
-        setSaved(parsed);
-      }
-    } catch {
-      // ignore
-    }
-    setHydrated(true);
+    fetch(`/api/site-content/${CONTENT_KEY}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.value) {
+          const parsed = { ...DEFAULT_DATA, ...(json.value as Partial<SiteLayoutData>) };
+          setData(parsed);
+          setSaved(parsed);
+        }
+      })
+      .catch(() => {
+        // keep defaults if the fetch fails
+      })
+      .finally(() => setHydrated(true));
   }, []);
 
   const update = useCallback((patch: Partial<SiteLayoutData>) => {
     setData((prev) => ({ ...prev, ...patch }));
   }, []);
 
-  const save = useCallback(() => {
+  const save = useCallback(async (): Promise<boolean> => {
     const current = dataRef.current;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+      const res = await fetch(`/api/admin/site-content/${CONTENT_KEY}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value: current }),
+      });
+      if (!res.ok) return false;
+      setSaved(current);
+      return true;
     } catch {
-      // ignore
+      return false;
     }
-    setSaved(current);
   }, []);
 
-  const reset = useCallback(() => {
+  const reset = useCallback(async () => {
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      await fetch(`/api/admin/site-content/${CONTENT_KEY}`, { method: "DELETE" });
     } catch {
       // ignore
     }

@@ -1,9 +1,15 @@
 import StaticPage from '@/components/layout/StaticPage'
-import { getPage } from '@/lib/pages-data'
+import { getPublishedPage, getPageMetadata } from '@/lib/pages'
+import { notFound } from 'next/navigation'
 
-export const metadata = { title: 'Terms of Use - Shilperhaat' }
+export const revalidate = 300
 
-export default function TermsOfUsePage() {
-  const page = getPage('terms-of-use')!
+export async function generateMetadata() {
+  return getPageMetadata('terms-of-use')
+}
+
+export default async function TermsOfUsePage() {
+  const page = await getPublishedPage('terms-of-use')
+  if (!page) notFound()
   return <StaticPage title={page.title} subtitle={page.subtitle} sections={page.sections} />
 }

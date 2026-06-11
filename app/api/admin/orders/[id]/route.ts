@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 export async function PUT(
   req: NextRequest,
@@ -21,10 +22,26 @@ export async function PUT(
     if (body.courierStatus !== undefined) updateData.courierStatus = body.courierStatus;
     if (body.courierSentAt !== undefined) updateData.courierSentAt = body.courierSentAt ? new Date(body.courierSentAt) : null;
 
-    const order = await prisma.order.update({
-      where: { id },
-      data: updateData,
-      include: { items: true },
+    const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // Restore stock when an order is cancelled (once)
+      if (body.status === "CANCELLED") {
+        const existing = await tx.order.findUnique({ where: { id }, include: { items: true } });
+        if (existing && existing.status !== "CANCELLED") {
+          for (const item of existing.items) {
+            if (item.productId) {
+              await tx.product.update({
+                where: { id: item.productId },
+                data: { stock: { increment: item.quantity } },
+              });
+            }
+          }
+        }
+      }
+      return tx.order.update({
+        where: { id },
+        data: updateData,
+        include: { items: true },
+      });
     });
     return NextResponse.json({ order });
   } catch (error) {

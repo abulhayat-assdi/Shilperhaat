@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -68,6 +68,9 @@ export default function CheckoutPageClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [couponOpen, setCouponOpen] = useState(false);
   const [couponCode, setCouponCode] = useState("");
+  const [couponApplying, setCouponApplying] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponMsg, setCouponMsg] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(true);
   const [termsError, setTermsError] = useState(false);
 
@@ -91,7 +94,40 @@ export default function CheckoutPageClient() {
     () => getDeliveryCharge(watchedDistrict),
     [watchedDistrict]
   );
-  const total = subtotal + deliveryCharge;
+  const discount = appliedCoupon ? Math.min(appliedCoupon.discount, subtotal) : 0;
+  const total = subtotal + deliveryCharge - discount;
+
+  const applyCoupon = async (code: string) => {
+    if (!code.trim()) return;
+    setCouponApplying(true);
+    setCouponMsg(null);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim(), subtotal }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setAppliedCoupon({ code: data.code, discount: data.discount });
+        setCouponMsg(null);
+      } else {
+        setAppliedCoupon(null);
+        setCouponMsg(data.message || "Invalid coupon code.");
+      }
+    } catch {
+      setAppliedCoupon(null);
+      setCouponMsg("Could not verify coupon. Please try again.");
+    } finally {
+      setCouponApplying(false);
+    }
+  };
+
+  // Re-validate the applied coupon when the cart total changes
+  useEffect(() => {
+    if (appliedCoupon && subtotal > 0) applyCoupon(appliedCoupon.code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal]);
 
   const fmtAmt = (n: number) =>
     n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -145,6 +181,7 @@ export default function CheckoutPageClient() {
         subtotal,
         deliveryCharge,
         total,
+        couponCode: appliedCoupon?.code || null,
         paymentMethod: "COD",
         items: orderItems,
       };
@@ -155,9 +192,11 @@ export default function CheckoutPageClient() {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error("Order failed");
-
       const result = await response.json();
+      if (!response.ok) {
+        toast.error(result.error || "Something went wrong. Please try again.");
+        return;
+      }
       try {
         localStorage.setItem(
           "sh_last_order",
@@ -570,36 +609,76 @@ export default function CheckoutPageClient() {
                   {couponOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 {couponOpen && (
-                  <div
-                    className="flex gap-2"
-                    style={{ padding: "12px 16px 16px", borderTop: "1px solid #f0f0f0" }}
-                  >
-                    <input
-                      type="text"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                      placeholder="Enter coupon code"
-                      className={`flex-1 ${inputBase}`}
-                      style={{ ...inputStyle, borderColor: "#e0e0e0" }}
-                    />
-                    <button
-                      type="button"
-                      className="transition-colors"
-                      style={{
-                        background: "#800000",
-                        color: "white",
-                        border: "none",
-                        padding: "0 16px",
-                        height: 42,
-                        borderRadius: 6,
-                        fontSize: 13,
-                        fontWeight: 500,
-                        cursor: "pointer",
-                        flexShrink: 0,
-                      }}
-                    >
-                      Apply
-                    </button>
+                  <div style={{ padding: "12px 16px 16px", borderTop: "1px solid #f0f0f0" }}>
+                    {appliedCoupon ? (
+                      <div
+                        className="flex items-center justify-between"
+                        style={{
+                          background: "#f0faf0",
+                          border: "1px solid #c6e8c6",
+                          borderRadius: 6,
+                          padding: "10px 14px",
+                        }}
+                      >
+                        <span style={{ fontSize: 13, color: "#2e7d32", fontWeight: 600 }}>
+                          ✓ {appliedCoupon.code} applied — ৳{fmtAmt(discount)} off
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAppliedCoupon(null);
+                            setCouponCode("");
+                            setCouponMsg(null);
+                          }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#c62828",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                            placeholder="Enter coupon code"
+                            className={`flex-1 ${inputBase}`}
+                            style={{ ...inputStyle, borderColor: "#e0e0e0" }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => applyCoupon(couponCode)}
+                            disabled={couponApplying || !couponCode.trim()}
+                            className="transition-colors"
+                            style={{
+                              background: couponApplying || !couponCode.trim() ? "#b08080" : "#800000",
+                              color: "white",
+                              border: "none",
+                              padding: "0 16px",
+                              height: 42,
+                              borderRadius: 6,
+                              fontSize: 13,
+                              fontWeight: 500,
+                              cursor: couponApplying || !couponCode.trim() ? "not-allowed" : "pointer",
+                              flexShrink: 0,
+                            }}
+                          >
+                            {couponApplying ? "Checking..." : "Apply"}
+                          </button>
+                        </div>
+                        {couponMsg && (
+                          <p style={{ fontSize: 12, color: "#c62828", marginTop: 8 }}>{couponMsg}</p>
+                        )}
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -619,6 +698,12 @@ export default function CheckoutPageClient() {
                       <em style={{ color: "#aaa", fontSize: 13, fontStyle: "italic" }}>Select district</em>
                     )}
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between" style={{ padding: "8px 0", fontSize: 14, color: "#2e7d32" }}>
+                      <span>Coupon discount ({appliedCoupon?.code})</span>
+                      <span>−৳{fmtAmt(discount)} BDT</span>
+                    </div>
+                  )}
                   <div
                     className="flex justify-between"
                     style={{

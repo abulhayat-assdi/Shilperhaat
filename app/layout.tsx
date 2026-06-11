@@ -71,11 +71,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${openSans.variable} ${hindSiliguri.variable}`}>
-      <head>
-        {/* Resource hints for external image CDN */}
-        <link rel="dns-prefetch" href="https://picsum.photos" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-      </head>
       <body className="antialiased overflow-x-hidden">{children}</body>
     </html>
   );

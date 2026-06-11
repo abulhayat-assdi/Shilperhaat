@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { getAllPages, PageContent, PageSection } from '@/lib/pages-data'
+import { PageContent, PageSection } from '@/lib/pages-data'
 import AdminLayout from '@/components/admin/AdminLayout'
 
 function genId() {
@@ -9,11 +9,19 @@ function genId() {
 }
 
 export default function AdminPagesManager() {
-  const [pages, setPages] = useState<PageContent[]>(getAllPages())
+  const [pages, setPages] = useState<PageContent[]>([])
   const [selectedPage, setSelectedPage] = useState<PageContent | null>(null)
   const [editMode, setEditMode] = useState<'richtext' | 'html'>('richtext')
   const [saveMsg, setSaveMsg] = useState('')
+  const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/admin/pages')
+      .then(res => res.json())
+      .then(data => setPages(data.pages || []))
+      .catch(() => setSaveMsg('Failed to load pages.'))
+  }, [])
 
   const handleEdit = (page: PageContent) => {
     setSelectedPage({ ...page, sections: page.sections.map(s => ({ ...s })) })
@@ -21,14 +29,35 @@ export default function AdminPagesManager() {
     setDeleteConfirm(null)
   }
 
-  const handleSave = () => {
-    if (!selectedPage) return
-    setPages(prev => prev.map(p => p.slug === selectedPage.slug ? {
-      ...selectedPage,
-      updatedAt: new Date().toISOString()
-    } : p))
-    setSaveMsg('Saved successfully!')
-    setTimeout(() => setSaveMsg(''), 3000)
+  const handleSave = async () => {
+    if (!selectedPage || saving) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/admin/pages/${selectedPage.slug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: selectedPage.title,
+          subtitle: selectedPage.subtitle,
+          sections: selectedPage.sections,
+          metaTitle: selectedPage.metaTitle,
+          metaDescription: selectedPage.metaDescription,
+          isPublished: selectedPage.isPublished,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setSaveMsg(data.error || 'Failed to save.')
+      } else {
+        setPages(prev => prev.map(p => (p.slug === data.page.slug ? data.page : p)))
+        setSaveMsg('Saved successfully!')
+      }
+    } catch {
+      setSaveMsg('Failed to save.')
+    } finally {
+      setSaving(false)
+      setTimeout(() => setSaveMsg(''), 3000)
+    }
   }
 
   const updateSection = (id: string, updates: Partial<PageSection>) => {

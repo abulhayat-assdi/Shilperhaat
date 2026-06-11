@@ -8,6 +8,8 @@ export interface ContactSettings {
   buttonPosition: "bottom-right" | "bottom-left";
 }
 
+// Used as fallback until the admin saves real values (stored in the
+// site_content DB table under the "contact-widget" key).
 export const DEFAULT_CONTACT_SETTINGS: ContactSettings = {
   whatsappUrl: "https://wa.me/8801700000000",
   phoneNumber: "01700000000",
@@ -18,26 +20,28 @@ export const DEFAULT_CONTACT_SETTINGS: ContactSettings = {
   buttonPosition: "bottom-right",
 };
 
-const STORAGE_KEY = "shilperhaat_contact_settings_v1";
-
-export function loadContactSettings(): ContactSettings {
-  if (typeof window === "undefined") return DEFAULT_CONTACT_SETTINGS;
+export async function fetchContactSettings(): Promise<ContactSettings> {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return { ...DEFAULT_CONTACT_SETTINGS, ...(JSON.parse(stored) as Partial<ContactSettings>) };
+    const res = await fetch("/api/site-content/contact-widget");
+    const json = await res.json();
+    if (json.value) {
+      return { ...DEFAULT_CONTACT_SETTINGS, ...(json.value as Partial<ContactSettings>) };
     }
   } catch {
-    // ignore
+    // fall through to defaults
   }
   return DEFAULT_CONTACT_SETTINGS;
 }
 
-export function saveContactSettings(settings: ContactSettings): void {
-  if (typeof window === "undefined") return;
+export async function saveContactSettings(settings: ContactSettings): Promise<boolean> {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    const res = await fetch("/api/admin/site-content/contact-widget", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value: settings }),
+    });
+    return res.ok;
   } catch {
-    // ignore
+    return false;
   }
 }

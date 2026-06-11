@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
-import {
-  Coupon,
-  DiscountType,
-  loadCoupons,
-  saveCoupons,
-  generateCouponId,
-} from '@/lib/coupon-data'
+import { Coupon, DiscountType } from '@/lib/coupon-data'
 import { Ticket, Plus, Pencil, Trash2, X, Check, Copy } from 'lucide-react'
 
 function formatDate(iso: string | null): string {
@@ -52,8 +46,11 @@ export default function CouponsClient() {
   const [expiresEnabled, setExpiresEnabled] = useState(false)
 
   useEffect(() => {
-    setCoupons(loadCoupons())
-    setMounted(true)
+    fetch('/api/admin/coupons')
+      .then(res => res.json())
+      .then(data => setCoupons(data.coupons || []))
+      .catch(() => setSaveMsg({ type: 'error', text: 'Failed to load coupons.' }))
+      .finally(() => setMounted(true))
   }, [])
 
   const showMsg = (type: 'success' | 'error', text: string) => {
@@ -94,7 +91,7 @@ export default function CouponsClient() {
     setSaveMsg(null)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const code = form.code.trim().toUpperCase()
     if (!code) return showMsg('error', 'Coupon code is required.')
     if (!/^[A-Z0-9_-]{2,20}$/.test(code))
@@ -103,61 +100,65 @@ export default function CouponsClient() {
     if (form.type === 'PERCENTAGE' && form.value > 100)
       return showMsg('error', 'Percentage cannot exceed 100.')
 
-    const duplicate = coupons.find(c => c.code === code && c.id !== editing?.id)
-    if (duplicate) return showMsg('error', 'This code already exists.')
-
-    const now = new Date().toISOString()
-
-    if (editing) {
-      const updated = coupons.map(c =>
-        c.id === editing.id
-          ? {
-              ...c,
-              ...form,
-              code,
-              maxUses: maxUsesEnabled ? (form.maxUses ?? 1) : null,
-              expiresAt: expiresEnabled ? form.expiresAt : null,
-              updatedAt: now,
-            }
-          : c
-      )
-      setCoupons(updated)
-      saveCoupons(updated)
-      showMsg('success', 'Coupon updated successfully!')
-    } else {
-      const newCoupon: Coupon = {
-        id: generateCouponId(),
-        ...form,
-        code,
-        maxUses: maxUsesEnabled ? (form.maxUses ?? 1) : null,
-        expiresAt: expiresEnabled ? form.expiresAt : null,
-        usedCount: 0,
-        createdAt: now,
-        updatedAt: now,
-      }
-      const updated = [newCoupon, ...coupons]
-      setCoupons(updated)
-      saveCoupons(updated)
-      showMsg('success', 'New coupon added!')
+    const payload = {
+      ...form,
+      code,
+      maxUses: maxUsesEnabled ? (form.maxUses ?? 1) : null,
+      expiresAt: expiresEnabled ? form.expiresAt : null,
     }
 
-    setTimeout(() => closeForm(), 1200)
+    try {
+      const res = await fetch(
+        editing ? `/api/admin/coupons/${editing.id}` : '/api/admin/coupons',
+        {
+          method: editing ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) return showMsg('error', data.error || 'Failed to save coupon.')
+
+      if (editing) {
+        setCoupons(coupons.map(c => (c.id === editing.id ? data.coupon : c)))
+        showMsg('success', 'Coupon updated successfully!')
+      } else {
+        setCoupons([data.coupon, ...coupons])
+        showMsg('success', 'New coupon added!')
+      }
+      setTimeout(() => closeForm(), 1200)
+    } catch {
+      showMsg('error', 'Failed to save coupon.')
+    }
   }
 
-  const handleDelete = (id: string) => {
-    const updated = coupons.filter(c => c.id !== id)
-    setCoupons(updated)
-    saveCoupons(updated)
-    setDeleteId(null)
-    showMsg('success', 'Coupon deleted.')
+  const handleDelete = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/coupons/${id}`, { method: 'DELETE' })
+      if (!res.ok) return showMsg('error', 'Failed to delete coupon.')
+      setCoupons(coupons.filter(c => c.id !== id))
+      setDeleteId(null)
+      showMsg('success', 'Coupon deleted.')
+    } catch {
+      showMsg('error', 'Failed to delete coupon.')
+    }
   }
 
-  const toggleActive = (id: string) => {
-    const updated = coupons.map(c =>
-      c.id === id ? { ...c, isActive: !c.isActive, updatedAt: new Date().toISOString() } : c
-    )
-    setCoupons(updated)
-    saveCoupons(updated)
+  const toggleActive = async (id: string) => {
+    const coupon = coupons.find(c => c.id === id)
+    if (!coupon) return
+    try {
+      const res = await fetch(`/api/admin/coupons/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive: !coupon.isActive }),
+      })
+      const data = await res.json()
+      if (!res.ok) return showMsg('error', data.error || 'Failed to update status.')
+      setCoupons(coupons.map(c => (c.id === id ? data.coupon : c)))
+    } catch {
+      showMsg('error', 'Failed to update status.')
+    }
   }
 
   const copyCode = (id: string, code: string) => {

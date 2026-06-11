@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from 'react'
 import Link from 'next/link'
 import DOMPurify from 'dompurify'
-import { loadBlogPosts, BlogPost } from '@/lib/blog-data'
+import { BlogPost } from '@/lib/blog-data'
 
 function formatDate(iso: string): string {
   const d = new Date(iso)
@@ -23,9 +23,10 @@ export default function BlogPostPage({
   const [post, setPost] = useState<BlogPost | null | undefined>(undefined)
 
   useEffect(() => {
-    const all = loadBlogPosts()
-    const found = all.find(p => p.slug === slug && p.isPublished) ?? null
-    setPost(found)
+    fetch(`/api/blog/${encodeURIComponent(slug)}`)
+      .then(res => res.json())
+      .then(data => setPost(data.post ?? null))
+      .catch(() => setPost(null))
   }, [slug])
 
   // Still loading

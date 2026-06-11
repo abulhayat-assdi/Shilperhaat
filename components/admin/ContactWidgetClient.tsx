@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Save, ChevronRight, Phone, Mail } from "lucide-react";
 import {
-  loadContactSettings,
+  fetchContactSettings,
   saveContactSettings,
   DEFAULT_CONTACT_SETTINGS,
   type ContactSettings,
@@ -14,15 +14,19 @@ export default function ContactWidgetClient() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setSettings(loadContactSettings());
+    fetchContactSettings().then(setSettings);
   }, []);
 
   function handleChange<K extends keyof ContactSettings>(key: K, value: ContactSettings[K]) {
     setSettings((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSave() {
-    saveContactSettings(settings);
+  async function handleSave() {
+    const ok = await saveContactSettings(settings);
+    if (!ok) {
+      alert("Failed to save. Please try again.");
+      return;
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }

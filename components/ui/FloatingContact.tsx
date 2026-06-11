@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { X, Phone, Mail, ChevronRight } from "lucide-react";
-import { loadContactSettings, type ContactSettings } from "@/lib/contact-settings";
+import { fetchContactSettings, type ContactSettings } from "@/lib/contact-settings";
 import { useSiteLayout } from "@/lib/site-layout-context";
 import { useContactPopup } from "@/lib/contact-popup-context";
 
@@ -13,7 +13,7 @@ export default function FloatingContact() {
   const { data: layout } = useSiteLayout();
 
   useEffect(() => {
-    setSettings(loadContactSettings());
+    fetchContactSettings().then(setSettings);
   }, []);
 
   useEffect(() => {
