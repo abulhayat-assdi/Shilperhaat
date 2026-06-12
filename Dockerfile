@@ -16,6 +16,13 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Meta Pixel ID must be present AT BUILD TIME: .env* is dockerignored, and
+# statically prerendered pages (checkout, thank-you, ISR pages) bake the root
+# layout HTML during `next build`. The ID is public (it ships in page HTML
+# anyway), so a default here is safe; override with --build-arg if it changes.
+ARG META_PIXEL_ID=1513565403804596
+ENV META_PIXEL_ID=$META_PIXEL_ID
+
 # Generate Prisma client + build Next.js (no DB connection needed here)
 RUN npx prisma generate && npx next build
 
@@ -24,6 +31,10 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Runtime fallback for the pixel id (compose env_file overrides this).
+# META_CAPI_ACCESS_TOKEN is a secret — it must come from .env.local, never here.
+ARG META_PIXEL_ID=1513565403804596
+ENV META_PIXEL_ID=$META_PIXEL_ID
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs

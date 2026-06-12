@@ -73,7 +73,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${openSans.variable} ${hindSiliguri.variable}`}>
       <body className="antialiased overflow-x-hidden">
-        <MetaPixel />
+        <MetaPixel
+          pixelId={process.env.META_PIXEL_ID || process.env.NEXT_PUBLIC_FB_PIXEL_ID}
+        />
         {children}
       </body>
     </html>

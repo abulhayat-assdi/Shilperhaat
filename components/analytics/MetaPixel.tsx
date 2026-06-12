@@ -4,12 +4,21 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-const PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID;
-
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
   }
+}
+
+interface MetaPixelProps {
+  /**
+   * Pixel ID resolved server-side at request time (from META_PIXEL_ID) and
+   * passed down as a prop. Deliberately NOT read from NEXT_PUBLIC_* here:
+   * those are inlined at build time, and the Docker build runs without
+   * .env.local (it's dockerignored), which left the production bundle with
+   * no pixel at all. A runtime prop works with compose's env_file.
+   */
+  pixelId: string | null | undefined;
 }
 
 /**
@@ -20,21 +29,21 @@ declare global {
  * without a full reload, we additionally fire a PageView whenever the pathname
  * changes so SPA navigations are tracked too.
  */
-export default function MetaPixel() {
+export default function MetaPixel({ pixelId }: MetaPixelProps) {
   const pathname = usePathname();
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
-    if (!PIXEL_ID) return;
+    if (!pixelId) return;
     // The base snippet already tracks the first PageView; skip the duplicate.
     if (isFirstLoad.current) {
       isFirstLoad.current = false;
       return;
     }
     window.fbq?.("track", "PageView");
-  }, [pathname]);
+  }, [pathname, pixelId]);
 
-  if (!PIXEL_ID) return null;
+  if (!pixelId) return null;
 
   return (
     <>
@@ -47,7 +56,7 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${PIXEL_ID}');
+fbq('init', '${pixelId}');
 fbq('track', 'PageView');`}
       </Script>
       <noscript>
@@ -57,7 +66,7 @@ fbq('track', 'PageView');`}
           width="1"
           style={{ display: "none" }}
           alt=""
-          src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`}
+          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
         />
       </noscript>
     </>
