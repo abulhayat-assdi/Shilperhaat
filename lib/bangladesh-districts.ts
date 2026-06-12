@@ -431,7 +431,7 @@ export const BANGLADESH_DISTRICTS: District[] = [
 
 export function getDeliveryCharge(district: string): number {
   if (!district) return 0;
-  return district.toLowerCase() === "dhaka" ? 70 : 130;
+  return district.toLowerCase() === "dhaka" ? 100 : 150;
 }
 
 export function getThanas(district: string): string[] {

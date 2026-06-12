@@ -89,7 +89,7 @@ export default function CheckoutPageClient() {
   const watchedThana    = watch("thana") || "";
   const watchedNotes    = watch("notes") || "";
 
-  // Delivery charge: Dhaka district = ৳70, any other district = ৳130, none = ৳0
+  // Delivery charge: Dhaka district = ৳100, any other district = ৳150, none = ৳0
   const deliveryCharge = useMemo(
     () => getDeliveryCharge(watchedDistrict),
     [watchedDistrict]
