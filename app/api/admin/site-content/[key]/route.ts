@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { dbErrorResponse } from "@/lib/api-errors";
 import type { Prisma } from "@prisma/client";
 
 const ALLOWED_KEYS = ["site-layout", "contact-widget"];
@@ -29,8 +30,7 @@ export async function PUT(
     });
     return NextResponse.json({ value: row.value });
   } catch (error) {
-    console.error("PUT /api/admin/site-content/[key] error:", error);
-    return NextResponse.json({ error: "Failed to save" }, { status: 500 });
+    return dbErrorResponse("PUT /api/admin/site-content/[key]", error);
   }
 }
 
@@ -49,7 +49,6 @@ export async function DELETE(
     await prisma.siteContent.deleteMany({ where: { key } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("DELETE /api/admin/site-content/[key] error:", error);
-    return NextResponse.json({ error: "Failed to reset" }, { status: 500 });
+    return dbErrorResponse("DELETE /api/admin/site-content/[key]", error);
   }
 }

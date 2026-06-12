@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { serializeCoupon } from "@/lib/coupon-data";
+import { dbErrorResponse } from "@/lib/api-errors";
 
 const CODE_RE = /^[A-Z0-9_-]{2,20}$/;
 
@@ -13,8 +14,7 @@ export async function GET() {
     const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: "desc" } });
     return NextResponse.json({ coupons: coupons.map(serializeCoupon) });
   } catch (error) {
-    console.error("GET /api/admin/coupons error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return dbErrorResponse("GET /api/admin/coupons", error);
   }
 }
 
@@ -55,7 +55,6 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ coupon: serializeCoupon(coupon) });
   } catch (error) {
-    console.error("POST /api/admin/coupons error:", error);
-    return NextResponse.json({ error: "Failed to create coupon" }, { status: 500 });
+    return dbErrorResponse("POST /api/admin/coupons", error);
   }
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { serializeCoupon } from "@/lib/coupon-data";
+import { dbErrorResponse } from "@/lib/api-errors";
 
 const CODE_RE = /^[A-Z0-9_-]{2,20}$/;
 
@@ -46,8 +47,7 @@ export async function PUT(
     const coupon = await prisma.coupon.update({ where: { id }, data });
     return NextResponse.json({ coupon: serializeCoupon(coupon) });
   } catch (error) {
-    console.error("PUT /api/admin/coupons/[id] error:", error);
-    return NextResponse.json({ error: "Failed to update coupon" }, { status: 500 });
+    return dbErrorResponse("PUT /api/admin/coupons/[id]", error);
   }
 }
 
@@ -63,7 +63,6 @@ export async function DELETE(
     await prisma.coupon.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("DELETE /api/admin/coupons/[id] error:", error);
-    return NextResponse.json({ error: "Failed to delete coupon" }, { status: 500 });
+    return dbErrorResponse("DELETE /api/admin/coupons/[id]", error);
   }
 }

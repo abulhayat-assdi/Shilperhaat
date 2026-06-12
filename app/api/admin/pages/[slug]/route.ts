@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { serializePage } from "@/lib/pages";
+import { dbErrorResponse } from "@/lib/api-errors";
 import type { Prisma } from "@prisma/client";
 
 export async function PUT(
@@ -36,7 +37,6 @@ export async function PUT(
 
     return NextResponse.json({ page: serializePage(page) });
   } catch (error) {
-    console.error("PUT /api/admin/pages/[slug] error:", error);
-    return NextResponse.json({ error: "Failed to update page" }, { status: 500 });
+    return dbErrorResponse("PUT /api/admin/pages/[slug]", error);
   }
 }

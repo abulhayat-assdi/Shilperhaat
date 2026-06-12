@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { serializeBlogPost, estimateReadTime } from "@/lib/blog-data";
+import { dbErrorResponse } from "@/lib/api-errors";
 import type { Prisma } from "@prisma/client";
 
 export async function PUT(
@@ -42,8 +43,7 @@ export async function PUT(
     const post = await prisma.blogPost.update({ where: { id }, data });
     return NextResponse.json({ post: serializeBlogPost(post) });
   } catch (error) {
-    console.error("PUT /api/admin/blog/[id] error:", error);
-    return NextResponse.json({ error: "Failed to update post" }, { status: 500 });
+    return dbErrorResponse("PUT /api/admin/blog/[id]", error);
   }
 }
 
@@ -59,7 +59,6 @@ export async function DELETE(
     await prisma.blogPost.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("DELETE /api/admin/blog/[id] error:", error);
-    return NextResponse.json({ error: "Failed to delete post" }, { status: 500 });
+    return dbErrorResponse("DELETE /api/admin/blog/[id]", error);
   }
 }

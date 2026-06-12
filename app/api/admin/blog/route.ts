@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { serializeBlogPost, generateSlug, estimateReadTime } from "@/lib/blog-data";
+import { dbErrorResponse } from "@/lib/api-errors";
 
 export async function GET() {
   const session = await getAdminSession();
@@ -11,8 +12,7 @@ export async function GET() {
     const posts = await prisma.blogPost.findMany({ orderBy: { publishedAt: "desc" } });
     return NextResponse.json({ posts: posts.map(serializeBlogPost) });
   } catch (error) {
-    console.error("GET /api/admin/blog error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return dbErrorResponse("GET /api/admin/blog", error);
   }
 }
 
@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ post: serializeBlogPost(post) });
   } catch (error) {
-    console.error("POST /api/admin/blog error:", error);
-    return NextResponse.json({ error: "Failed to create post" }, { status: 500 });
+    return dbErrorResponse("POST /api/admin/blog", error);
   }
 }
