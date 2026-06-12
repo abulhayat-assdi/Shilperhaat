@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Loader2, Truck, CheckCircle2 } from "lucide-react";
+import { X, Loader2, Truck, CheckCircle2, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Order } from "@/types";
 import {
@@ -53,6 +53,11 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
   const [courierError, setCourierError] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
 
+  // Delete state
+  const [deleteDialog, setDeleteDialog] = useState<Order | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   const filtered = filterStatus
     ? orders.filter((o) => o.status === filterStatus)
     : orders;
@@ -80,6 +85,34 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
       alert("Failed to update order status.");
     } finally {
       setUpdatingStatus(false);
+    }
+  };
+
+  const openDeleteDialog = (e: React.MouseEvent, order: Order) => {
+    e.stopPropagation();
+    setDeleteError(null);
+    setDeleteDialog(order);
+  };
+
+  const deleteOrder = async (order: Order) => {
+    setDeletingId(order.id);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setDeleteError(data.error || "Failed to delete order.");
+        return;
+      }
+      setOrders((prev) => prev.filter((o) => o.id !== order.id));
+      if (selectedOrder?.id === order.id) setSelectedOrder(null);
+      setDeleteDialog(null);
+      setSuccessToast(`✓ Order ${order.orderNumber} deleted.`);
+      setTimeout(() => setSuccessToast(null), 4000);
+    } catch {
+      setDeleteError("Failed to delete order.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -253,38 +286,48 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                       </span>
                     </td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                      {courier ? (
-                        <div className="text-xs space-y-0.5">
-                          <p className="text-green-600 font-semibold flex items-center gap-1">
-                            <CheckCircle2 size={12} />
-                            Sent
-                          </p>
-                          <p className="text-gray-500 font-mono text-[11px] leading-tight">
-                            {courier.consignmentId}
-                          </p>
+                      <div className="flex items-center gap-2">
+                        {courier ? (
+                          <div className="text-xs space-y-0.5">
+                            <p className="text-green-600 font-semibold flex items-center gap-1">
+                              <CheckCircle2 size={12} />
+                              Sent
+                            </p>
+                            <p className="text-gray-500 font-mono text-[11px] leading-tight">
+                              {courier.consignmentId}
+                            </p>
+                            <button
+                              onClick={(e) => openCourierDialog(e, order)}
+                              className="text-gray-400 underline text-[11px] hover:text-gray-600 transition-colors"
+                            >
+                              Resend
+                            </button>
+                          </div>
+                        ) : (
                           <button
                             onClick={(e) => openCourierDialog(e, order)}
-                            className="text-gray-400 underline text-[11px] hover:text-gray-600 transition-colors"
+                            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-white text-xs font-semibold transition-colors whitespace-nowrap"
+                            style={{ backgroundColor: "#1a3a6b" }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor = "#142d54")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor = "#1a3a6b")
+                            }
                           >
-                            Resend
+                            <Truck size={12} />
+                            Send to Courier
                           </button>
-                        </div>
-                      ) : (
+                        )}
                         <button
-                          onClick={(e) => openCourierDialog(e, order)}
-                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-white text-xs font-semibold transition-colors whitespace-nowrap"
-                          style={{ backgroundColor: "#1a3a6b" }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.backgroundColor = "#142d54")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.backgroundColor = "#1a3a6b")
-                          }
+                          onClick={(e) => openDeleteDialog(e, order)}
+                          title="Delete order"
+                          aria-label={`Delete order ${order.orderNumber}`}
+                          className="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors flex-shrink-0"
                         >
-                          <Truck size={12} />
-                          Send to Courier
+                          <Trash2 size={15} />
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -382,6 +425,76 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                       </>
                     ) : (
                       "Confirm & Send"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Dialog */}
+      <AnimatePresence>
+        {deleteDialog && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-[70]"
+              onClick={() => !deletingId && setDeleteDialog(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed inset-0 z-[80] flex items-center justify-center p-4 pointer-events-none"
+            >
+              <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm pointer-events-auto">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-full bg-red-50 text-red-600 flex-shrink-0">
+                    <Trash2 size={18} />
+                  </span>
+                  <h3 className="font-bold text-gray-800 text-base">Delete this order?</h3>
+                </div>
+                <p className="text-sm text-gray-500 mb-4">
+                  Order{" "}
+                  <span className="font-mono font-semibold text-[#800000]">
+                    {deleteDialog.orderNumber}
+                  </span>{" "}
+                  ({deleteDialog.customerName}) will be permanently deleted. This cannot be undone.
+                </p>
+
+                {deleteError && (
+                  <div className="text-red-600 text-xs mb-3 bg-red-50 border border-red-200 p-3 rounded-lg">
+                    {deleteError}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setDeleteDialog(null);
+                      setDeleteError(null);
+                    }}
+                    disabled={!!deletingId}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => deleteOrder(deleteDialog)}
+                    disabled={!!deletingId}
+                    className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors hover:bg-red-700 disabled:opacity-70"
+                  >
+                    {deletingId === deleteDialog.id ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      "Delete Order"
                     )}
                   </button>
                 </div>
@@ -563,6 +676,14 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                     ) : (
                       "Update Order"
                     )}
+                  </button>
+
+                  <button
+                    onClick={(e) => openDeleteDialog(e, selectedOrder)}
+                    className="w-full flex items-center justify-center gap-2 border border-red-200 text-red-600 py-3 rounded-xl font-semibold text-sm hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 size={14} />
+                    Delete Order
                   </button>
                 </div>
               </div>
