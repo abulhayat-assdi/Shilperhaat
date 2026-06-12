@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Loader2, Truck, CheckCircle2, Trash2 } from "lucide-react";
+import { X, Loader2, Truck, CheckCircle2, Trash2, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Order } from "@/types";
 import {
@@ -41,8 +41,9 @@ const statusOptions = [
 export default function OrdersClient({ orders: initialOrders }: OrdersClientProps) {
   const [orders, setOrders] = useState(initialOrders);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterStatus, setFilterStatus] = useState("PENDING");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState("");
   const [adminNote, setAdminNote] = useState("");
 
@@ -85,6 +86,29 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
       alert("Failed to update order status.");
     } finally {
       setUpdatingStatus(false);
+    }
+  };
+
+  // Inline status update straight from the table row
+  const updateStatusInline = async (order: Order, status: string) => {
+    setStatusUpdatingId(order.id);
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Update failed");
+      const updated = status as Order["status"];
+      setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, status: updated } : o)));
+      if (selectedOrder?.id === order.id) {
+        setSelectedOrder((prev) => (prev ? { ...prev, status: updated } : null));
+        setNewStatus(updated);
+      }
+    } catch {
+      alert("Failed to update order status.");
+    } finally {
+      setStatusUpdatingId(null);
     }
   };
 
@@ -167,18 +191,34 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
 
       setCourierMap((prev) => ({ ...prev, [order.id]: info }));
 
-      // Auto-update order status to PROCESSING
+      // Persist status → SHIPPED and the courier tracking info to the DB
+      try {
+        await fetch(`/api/admin/orders/${order.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: "SHIPPED",
+            courierConsignmentId: String(info.consignmentId ?? ""),
+            courierTrackingCode: String(info.trackingCode ?? ""),
+            courierSentAt: info.sentAt,
+          }),
+        });
+      } catch {
+        // Courier order was created; status persistence is best-effort
+      }
+
       setOrders((prev) =>
         prev.map((o) =>
           o.id === order.id
-            ? { ...o, status: "PROCESSING" as Order["status"] }
+            ? { ...o, status: "SHIPPED" as Order["status"] }
             : o
         )
       );
       if (selectedOrder?.id === order.id) {
         setSelectedOrder((prev) =>
-          prev ? { ...prev, status: "PROCESSING" as Order["status"] } : null
+          prev ? { ...prev, status: "SHIPPED" as Order["status"] } : null
         );
+        setNewStatus("SHIPPED");
       }
 
       setSuccessToast(
@@ -327,6 +367,35 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
                         >
                           <Trash2 size={15} />
                         </button>
+
+                        {/* Quick status update */}
+                        <div className="relative flex items-center">
+                          <select
+                            value={order.status}
+                            onChange={(e) => updateStatusInline(order, e.target.value)}
+                            disabled={statusUpdatingId === order.id}
+                            title="Update status"
+                            aria-label={`Update status for order ${order.orderNumber}`}
+                            className="border border-gray-200 rounded-md pl-2.5 pr-7 py-1.5 text-xs font-medium text-gray-700 outline-none focus:border-[#800000] cursor-pointer bg-white appearance-none disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {statusOptions.map((s) => (
+                              <option key={s} value={s}>
+                                {ORDER_STATUS_EN[s]}
+                              </option>
+                            ))}
+                          </select>
+                          {statusUpdatingId === order.id ? (
+                            <Loader2
+                              size={13}
+                              className="animate-spin text-gray-400 absolute right-2 pointer-events-none"
+                            />
+                          ) : (
+                            <ChevronDown
+                              size={13}
+                              className="text-gray-400 absolute right-2 pointer-events-none"
+                            />
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>
