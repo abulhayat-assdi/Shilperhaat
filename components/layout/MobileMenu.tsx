@@ -115,7 +115,7 @@ export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProp
 
         {/* ── Nav Links ── */}
         <nav style={{ flex: 1, overflowY: "auto" }}>
-          {navLinks.map((link) => (
+          {[...navLinks, { href: "/blog", label: "Blog" }].map((link) => (
             <Link
               key={link.href}
               href={link.href}

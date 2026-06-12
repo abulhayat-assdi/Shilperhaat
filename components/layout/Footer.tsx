@@ -87,6 +87,15 @@ export default function Footer() {
     ? categories.map((c) => ({ href: `/shop?category=${c.slug}`, label: c.name }))
     : footerLinks.shop;
 
+  // Always offer the blog in the Information column, unless the admin
+  // already added a blog link somewhere in the footer.
+  const hasBlogLink = Object.values(footerLinks).some((group) =>
+    group.some((l) => l.href === "/blog" || l.href.startsWith("/blog?"))
+  );
+  const informationLinks = hasBlogLink
+    ? footerLinks.information
+    : [...footerLinks.information, { href: "/blog", label: "Blog" }];
+
   return (
     <footer style={{ backgroundColor: "#f9f9f9", borderTop: "1px solid #eee" }}>
 
@@ -201,7 +210,7 @@ export default function Footer() {
           <div>
             <h3 style={headingStyle}>Information</h3>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              {footerLinks.information.map((link) => (
+              {informationLinks.map((link) => (
                 <FooterLink key={link.href + link.label} href={link.href} label={link.label} />
               ))}
             </ul>

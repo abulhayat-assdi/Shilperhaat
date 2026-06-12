@@ -8,7 +8,10 @@ export default async function ReviewsPage() {
 
   let reviews: any[] = [];
   try {
-    reviews = await prisma.review.findMany({ orderBy: { sortOrder: "asc" } });
+    reviews = await prisma.review.findMany({
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      include: { product: { select: { title: true, slug: true } } },
+    });
   } catch {
     // DB unavailable
   }

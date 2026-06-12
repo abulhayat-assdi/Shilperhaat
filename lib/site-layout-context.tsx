@@ -112,6 +112,7 @@ const DEFAULT_DATA: SiteLayoutData = {
       { href: "/about", label: "About Us" },
       { href: "/contact", label: "Contact Us" },
       { href: "/about", label: "Company Information" },
+      { href: "/blog", label: "Blog" },
       { href: "/terms-of-use", label: "Terms & Conditions" },
       { href: "/privacy-policy", label: "Privacy Policy" },
       { href: "/careers", label: "Careers" },

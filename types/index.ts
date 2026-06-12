@@ -61,6 +61,8 @@ export interface Review {
   role: string | null;
   isVisible: boolean;
   sortOrder: number;
+  productId?: string | null;
+  product?: { title: string; slug: string } | null;
   createdAt: Date;
   updatedAt: Date;
 }

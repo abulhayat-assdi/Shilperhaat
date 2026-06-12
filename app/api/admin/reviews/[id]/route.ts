@@ -24,6 +24,7 @@ export async function PUT(
         isVisible: body.isVisible,
         sortOrder: body.sortOrder,
       },
+      include: { product: { select: { title: true, slug: true } } },
     });
     return NextResponse.json({ review });
   } catch (error) {

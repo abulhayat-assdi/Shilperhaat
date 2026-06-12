@@ -63,6 +63,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
     ? Number(product.compareAtPrice) - Number(product.price)
     : 0;
 
+  // Approved reviews for this product
+  const reviews: { id: string; name: string; rating: number; content: string; createdAt: Date }[] =
+    await prisma.review.findMany({
+      where: { productId: product.id, isVisible: true },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, name: true, rating: true, content: true, createdAt: true },
+    });
+
   // Related products from the same category
   const rawRelated = product.categoryId
     ? await prisma.product.findMany({
@@ -237,7 +245,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <ProductTabs
             description={product.description || undefined}
             tags={product.tags}
-            reviewCount={0}
+            productId={product.id}
+            reviews={reviews.map((r) => ({
+              id: r.id,
+              name: r.name,
+              rating: r.rating,
+              content: r.content,
+              createdAt: r.createdAt.toISOString(),
+            }))}
           />
 
           {/* Related products */}

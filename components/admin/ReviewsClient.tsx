@@ -118,6 +118,17 @@ export default function ReviewsClient({ reviews: initialReviews }: ReviewsClient
                   <div>
                     <p className="font-medium text-gray-800">{review.name}</p>
                     {review.role && <p className="text-xs text-gray-400">{review.role}</p>}
+                    {review.product && (
+                      <a
+                        href={`/product/${review.product.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block mt-0.5 text-xs text-[#800000] bg-[#FFF0F0] px-2 py-0.5 rounded-full hover:underline max-w-[180px] truncate"
+                        title={review.product.title}
+                      >
+                        📦 {review.product.title}
+                      </a>
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3">
