@@ -7,12 +7,15 @@
 // migration's SQL using `pg` — which the app already bundles for its DB
 // connection — and ignores "already exists" errors so it is safe to run on
 // every boot, whether the database is empty or already partially migrated.
+//
+// CommonJS (.cjs) + require("pg") on purpose: the standalone build only traces
+// pg's CommonJS entry (./lib), so an ESM `import "pg"` resolves to the missing
+// ./esm/index.mjs and crashes. require() resolves to ./lib/index.js, exactly
+// like lib/prisma.ts does at runtime.
 
-import fs from "node:fs";
-import path from "node:path";
-import pg from "pg";
-
-const { Pool } = pg;
+const fs = require("node:fs");
+const path = require("node:path");
+const { Pool } = require("pg");
 
 // Postgres "object already exists" SQLSTATEs — safe to ignore so re-running
 // over an already-applied migration is a no-op.

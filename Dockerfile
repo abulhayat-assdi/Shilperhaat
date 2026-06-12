@@ -52,4 +52,4 @@ ENV HOSTNAME="0.0.0.0"
 # Fix volume permissions (runs as root), drop to nextjs, sync the DB schema
 # (idempotent — safe on every boot), then start the server. The bootstrap never
 # exits non-zero, so the site stays up even if the DB is briefly unreachable.
-CMD ["sh", "-c", "chown -R nextjs:nodejs /app/public/uploads; exec su-exec nextjs sh -c 'node scripts/db-bootstrap.mjs; node server.js'"]
+CMD ["sh", "-c", "chown -R nextjs:nodejs /app/public/uploads; exec su-exec nextjs sh -c 'node scripts/db-bootstrap.cjs; node server.js'"]
