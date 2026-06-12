@@ -29,10 +29,10 @@ interface OrdersClientProps {
   orders: Order[];
 }
 
+// Statuses the admin can choose from. CONFIRMED/PROCESSING still exist in the
+// DB enum and ORDER_STATUS_EN for display, but are no longer selectable.
 const statusOptions = [
   "PENDING",
-  "CONFIRMED",
-  "PROCESSING",
   "SHIPPED",
   "DELIVERED",
   "CANCELLED",
