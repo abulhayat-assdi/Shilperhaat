@@ -6,6 +6,7 @@ import Image from "next/image";
 import { CheckCircle, Package, Phone, MapPin, ShoppingBag, Home } from "lucide-react";
 import { formatPriceEn, getImageUrl } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { trackPurchasePixel, FB_CURRENCY } from "@/lib/fbpixel";
 
 interface OrderData {
   orderNumber: string;
@@ -17,6 +18,7 @@ interface OrderData {
   total: number;
   paymentMethod: string;
   items: Array<{
+    productId?: string;
     productTitle: string;
     productImage: string | null;
     price: number;
@@ -33,8 +35,27 @@ export default function ThankYouClient() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem("sh_last_order");
-      if (saved) {
-        setOrder(JSON.parse(saved));
+      if (!saved) return;
+      const parsed: OrderData = JSON.parse(saved);
+      setOrder(parsed);
+
+      // Fire Meta Purchase once per order. The deterministic event_id
+      // (purchase_<orderNumber>) deduplicates against the server CAPI event and
+      // against a page refresh; the localStorage guard avoids a redundant call.
+      const guardKey = `sh_purchase_tracked_${parsed.orderNumber}`;
+      if (parsed.orderNumber && !localStorage.getItem(guardKey)) {
+        trackPurchasePixel(parsed.orderNumber, {
+          content_type: "product",
+          content_ids: parsed.items.map((i) => i.productId).filter(Boolean) as string[],
+          contents: parsed.items
+            .filter((i) => i.productId)
+            .map((i) => ({ id: i.productId as string, quantity: i.quantity, item_price: i.price })),
+          num_items: parsed.items.reduce((n, i) => n + i.quantity, 0),
+          value: parsed.total,
+          currency: FB_CURRENCY,
+          order_id: parsed.orderNumber,
+        });
+        localStorage.setItem(guardKey, "1");
       }
     } catch {}
   }, []);

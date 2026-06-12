@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
 import { generateOrderNumber, getImageUrl } from "@/lib/utils";
 import { BANGLADESH_DISTRICTS, getDeliveryCharge, getThanas } from "@/lib/bangladesh-districts";
 import SearchableSelect from "@/components/ui/SearchableSelect";
+import { trackEvent, FB_CURRENCY } from "@/lib/fbpixel";
 
 
 function SectionTitle({ children, extra }: { children: React.ReactNode; extra?: React.ReactNode }) {
@@ -129,6 +130,22 @@ export default function CheckoutPageClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subtotal]);
 
+  // Fire Meta InitiateCheckout once when the checkout page loads with items
+  const initiateCheckoutFired = useRef(false);
+  useEffect(() => {
+    if (initiateCheckoutFired.current || items.length === 0) return;
+    initiateCheckoutFired.current = true;
+    trackEvent("InitiateCheckout", {
+      content_type: "product",
+      content_ids: items.map((i) => i.productId),
+      contents: items.map((i) => ({ id: i.productId, quantity: i.quantity, item_price: i.price })),
+      num_items: items.reduce((n, i) => n + i.quantity, 0),
+      value: subtotal,
+      currency: FB_CURRENCY,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
   const fmtAmt = (n: number) =>
     n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -184,6 +201,7 @@ export default function CheckoutPageClient() {
         couponCode: appliedCoupon?.code || null,
         paymentMethod: "COD",
         items: orderItems,
+        eventSourceUrl: typeof window !== "undefined" ? window.location.href : undefined,
       };
 
       const response = await fetch("/api/orders", {

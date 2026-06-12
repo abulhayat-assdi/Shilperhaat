@@ -7,6 +7,19 @@ import { useToast } from "@/lib/toast-context";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types";
 import { formatPriceEn } from "@/lib/utils";
+import { trackEvent, FB_CURRENCY } from "@/lib/fbpixel";
+
+function trackAddToCart(product: Product, quantity: number) {
+  const price = Number(product.price);
+  trackEvent("AddToCart", {
+    content_type: "product",
+    content_ids: [product.id],
+    content_name: product.title,
+    contents: [{ id: product.id, quantity, item_price: price }],
+    value: price * quantity,
+    currency: FB_CURRENCY,
+  });
+}
 
 interface AddToCartSectionProps {
   product: Product;
@@ -82,6 +95,7 @@ export default function AddToCartSection({ product }: AddToCartSectionProps) {
     } else {
       updateQuantity(product.id, currentCartQty + quantity);
     }
+    trackAddToCart(product, quantity);
     setAdded(true);
     toast.success(`${quantity}× "${product.title}" added to cart`);
     setTimeout(() => setAdded(false), 2000);
@@ -237,6 +251,7 @@ export function StickyCartBar({ product }: AddToCartSectionProps) {
       image: product.images?.[0]?.imageUrl || null,
       stock: product.stock, slug: product.slug,
     });
+    trackAddToCart(product, 1);
     toast.success(`"${product.title}" added to cart`);
   };
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import ProductGallery from "@/components/product/ProductGallery";
 import AddToCartSection, { StickyCartBar } from "@/components/product/AddToCartSection";
+import ProductViewTracker from "@/components/product/ProductViewTracker";
 import ProductTabs from "@/components/product/ProductTabs";
 import ProductCard from "@/components/ui/ProductCard";
 import { prisma } from "@/lib/prisma";
@@ -87,6 +88,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <>
+      <ProductViewTracker
+        productId={product.id}
+        title={product.title}
+        price={Number(product.price)}
+      />
       <div style={{ backgroundColor: "#f9f9f9", padding: "24px 0 60px" }}>
         <div className="max-w-7xl mx-auto px-5">
 

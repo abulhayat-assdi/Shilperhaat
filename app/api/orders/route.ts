@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateCoupon } from "@/lib/coupon-data";
+import { sendMetaEvent, userDataFromRequest } from "@/lib/meta-capi";
 import type { Prisma, Product } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
@@ -137,6 +138,32 @@ export async function POST(req: NextRequest) {
           items: { create: orderItems },
         },
       });
+    });
+
+    // Meta Conversions API — authoritative server-side Purchase. The event_id
+    // matches the browser Pixel fired on the thank-you page so Meta deduplicates.
+    await sendMetaEvent({
+      eventName: "Purchase",
+      eventId: `purchase_${order.orderNumber}`,
+      eventSourceUrl:
+        (typeof body.eventSourceUrl === "string" ? body.eventSourceUrl : null) ||
+        req.headers.get("referer"),
+      userData: userDataFromRequest(req, {
+        phone: typeof body.phone === "string" ? body.phone : null,
+        firstName:
+          typeof body.customerName === "string" ? body.customerName.split(" ")[0] : null,
+      }),
+      customData: {
+        value: total,
+        currency: "BDT",
+        content_type: "product",
+        content_ids: orderItems.map((i) => i.productId).filter(Boolean) as string[],
+        contents: orderItems
+          .filter((i) => i.productId)
+          .map((i) => ({ id: i.productId as string, quantity: i.quantity, item_price: i.price })),
+        num_items: orderItems.reduce((n, i) => n + i.quantity, 0),
+        order_id: order.orderNumber,
+      },
     });
 
     return NextResponse.json({ success: true, orderId: order.id, orderNumber: order.orderNumber });
