@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { useSiteLayout } from "@/lib/site-layout-context";
@@ -65,6 +66,26 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const { data: layout } = useSiteLayout();
   const footerLinks = layout.footerLinks;
+
+  // "Shop By" is built automatically from the store's categories;
+  // the manually configured links are only a fallback while loading.
+  const [categories, setCategories] = useState<{ name: string; slug: string }[] | null>(null);
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((json) => {
+        if (Array.isArray(json.categories) && json.categories.length > 0) {
+          setCategories(json.categories);
+        }
+      })
+      .catch(() => {
+        // keep the fallback links if the fetch fails
+      });
+  }, []);
+
+  const shopLinks = categories
+    ? categories.map((c) => ({ href: `/shop?category=${c.slug}`, label: c.name }))
+    : footerLinks.shop;
 
   return (
     <footer style={{ backgroundColor: "#f9f9f9", borderTop: "1px solid #eee" }}>
@@ -190,7 +211,7 @@ export default function Footer() {
           <div>
             <h3 style={headingStyle}>Shop By</h3>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              {footerLinks.shop.map((link) => (
+              {shopLinks.map((link) => (
                 <FooterLink key={link.href} href={link.href} label={link.label} />
               ))}
             </ul>

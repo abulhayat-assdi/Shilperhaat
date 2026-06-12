@@ -754,6 +754,10 @@ export default function SiteLayoutClient() {
           </SectionCard>
 
           <SectionCard title="Information Links">
+            <p style={{ fontSize: 12, color: "#6B7280", marginBottom: 12, lineHeight: 1.6 }}>
+              Tip: add a link with a new path (e.g. <code>/our-story</code>) and an editable page is
+              created automatically in the <strong>Pages</strong> manager when you save — no 404s.
+            </p>
             <LinkListEditor
               items={data.footerLinks.information}
               onChange={(information) =>
@@ -763,12 +767,20 @@ export default function SiteLayoutClient() {
           </SectionCard>
 
           <SectionCard title="Shop By Links">
-            <LinkListEditor
-              items={data.footerLinks.shop}
-              onChange={(shop) =>
-                update({ footerLinks: { ...data.footerLinks, shop } })
-              }
-            />
+            <div
+              style={{
+                display: "flex", alignItems: "flex-start", gap: 10,
+                padding: "12px 14px", backgroundColor: "#F0FDF4",
+                border: "1px solid #BBF7D0", borderRadius: 8,
+              }}
+            >
+              <CheckCircle2 size={16} style={{ color: "#16A34A", flexShrink: 0, marginTop: 1 }} />
+              <p style={{ fontSize: 13, color: "#374151", margin: 0, lineHeight: 1.6 }}>
+                Shop By links are generated automatically from your <strong>Categories</strong>.
+                Every category you add appears here and links to its product listing — no manual
+                setup needed. Manage them from the <strong>Categories</strong> page.
+              </p>
+            </div>
           </SectionCard>
 
           <SectionCard title="Support Links">
