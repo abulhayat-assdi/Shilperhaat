@@ -226,8 +226,9 @@ export default function OrdersClient({ orders: initialOrders }: OrdersClientProp
       );
       setTimeout(() => setSuccessToast(null), 5000);
       setCourierDialog(null);
-    } catch {
-      setCourierError("Failed to connect to Steadfast API");
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      setCourierError(`Failed to connect to Steadfast API: ${detail}`);
     } finally {
       setSendingCourierId(null);
     }

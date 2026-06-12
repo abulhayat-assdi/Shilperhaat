@@ -1,63 +1,103 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+const STEADFAST_BASE = "https://portal.steadfast.com.bd/api/v1";
+
+// Steadfast wants a clean 11-digit local mobile number (e.g. 01XXXXXXXXX).
+// Strip spaces/dashes and a leading +88 / 88 country code if present.
+function normalizePhone(raw: string): string {
+  let phone = String(raw || "").replace(/[^\d]/g, "");
+  if (phone.startsWith("88") && phone.length === 13) phone = phone.slice(2);
+  return phone;
+}
+
+// Read the response body once and try to parse it as JSON. If the upstream
+// returns HTML / an empty body (gateway errors, Cloudflare, etc.) we still get
+// a useful message instead of a thrown "Unexpected token" that hides the cause.
+async function readBody(res: Response): Promise<{ json: any; text: string }> {
+  const text = await res.text();
   try {
-    const orderData = await req.json();
+    return { json: JSON.parse(text), text };
+  } catch {
+    return { json: null, text };
+  }
+}
 
-    // Env vars take priority; fall back to credentials passed from admin UI (stored in localStorage)
-    const apiKey = process.env.STEADFAST_API_KEY || orderData.apiKey;
-    const secretKey = process.env.STEADFAST_SECRET_KEY || orderData.secretKey;
+export async function POST(req: NextRequest) {
+  let orderData: any;
+  try {
+    orderData = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
-    if (!apiKey || !secretKey) {
-      return NextResponse.json(
-        {
-          error:
-            "Steadfast API credentials not configured. Please add them in Settings.",
-        },
-        { status: 400 }
-      );
-    }
+  // Env vars take priority; fall back to credentials passed from admin UI (stored in localStorage)
+  const apiKey = (process.env.STEADFAST_API_KEY || orderData.apiKey || "").trim();
+  const secretKey = (process.env.STEADFAST_SECRET_KEY || orderData.secretKey || "").trim();
 
-    const response = await fetch(
-      "https://portal.steadfast.com.bd/api/v1/create_order",
+  if (!apiKey || !secretKey) {
+    return NextResponse.json(
       {
-        method: "POST",
-        headers: {
-          "Api-Key": apiKey,
-          "Secret-Key": secretKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          invoice: orderData.orderId,
-          recipient_name: orderData.customerName,
-          recipient_phone: orderData.customerPhone,
-          recipient_address: orderData.address,
-          cod_amount: orderData.total,
-          note: orderData.specialNotes || "",
-        }),
-      }
+        error:
+          "Steadfast API credentials not configured. Set STEADFAST_API_KEY and STEADFAST_SECRET_KEY in the server environment (or add them in Settings).",
+      },
+      { status: 400 }
     );
+  }
 
-    const result = await response.json();
+  try {
+    const response = await fetch(`${STEADFAST_BASE}/create_order`, {
+      method: "POST",
+      headers: {
+        "Api-Key": apiKey,
+        "Secret-Key": secretKey,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        invoice: orderData.orderId,
+        recipient_name: orderData.customerName,
+        recipient_phone: normalizePhone(orderData.customerPhone),
+        recipient_address: orderData.address,
+        cod_amount: orderData.total,
+        note: orderData.specialNotes || "",
+      }),
+    });
+
+    const { json: result, text } = await readBody(response);
 
     if (!response.ok) {
+      // Surface validation errors (e.g. { errors: { recipient_phone: [...] } })
+      let message = result?.message || result?.error;
+      if (!message && result?.errors) {
+        message = Object.values(result.errors).flat().join(" ");
+      }
+      if (!message) {
+        message =
+          text?.slice(0, 200) ||
+          `Steadfast returned HTTP ${response.status}`;
+      }
+      return NextResponse.json({ error: message }, { status: response.status });
+    }
+
+    if (!result) {
       return NextResponse.json(
-        { error: result.message || "Failed to create Steadfast order" },
-        { status: response.status }
+        { error: "Steadfast returned an unexpected response. Please try again." },
+        { status: 502 }
       );
     }
 
     return NextResponse.json({
       success: true,
       consignmentId: result.consignment?.id || result.consignment_id,
-      trackingCode:
-        result.consignment?.tracking_code || result.tracking_code,
+      trackingCode: result.consignment?.tracking_code || result.tracking_code,
       status: result.status,
     });
-  } catch {
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error("Steadfast create_order failed:", detail);
     return NextResponse.json(
-      { error: "Failed to connect to Steadfast API" },
-      { status: 500 }
+      { error: `Could not reach Steadfast API: ${detail}` },
+      { status: 502 }
     );
   }
 }
@@ -65,12 +105,16 @@ export async function POST(req: NextRequest) {
 // Test connectivity with provided credentials
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const apiKey =
-    process.env.STEADFAST_API_KEY || searchParams.get("apiKey") || "";
-  const secretKey =
+  const apiKey = (
+    process.env.STEADFAST_API_KEY ||
+    searchParams.get("apiKey") ||
+    ""
+  ).trim();
+  const secretKey = (
     process.env.STEADFAST_SECRET_KEY ||
     searchParams.get("secretKey") ||
-    "";
+    ""
+  ).trim();
 
   if (!apiKey || !secretKey) {
     return NextResponse.json(
@@ -81,31 +125,32 @@ export async function GET(req: NextRequest) {
 
   try {
     // Use the balance/account endpoint to verify credentials
-    const response = await fetch(
-      "https://portal.steadfast.com.bd/api/v1/get_balance",
-      {
-        headers: {
-          "Api-Key": apiKey,
-          "Secret-Key": secretKey,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${STEADFAST_BASE}/get_balance`, {
+      headers: {
+        "Api-Key": apiKey,
+        "Secret-Key": secretKey,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
 
-    const result = await response.json();
+    const { json: result, text } = await readBody(response);
 
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: result.message || "Invalid credentials" },
-        { status: 401 }
-      );
+    if (!response.ok || !result) {
+      const message =
+        result?.message ||
+        text?.slice(0, 200) ||
+        "Invalid credentials";
+      return NextResponse.json({ error: message }, { status: response.status || 401 });
     }
 
     return NextResponse.json({ success: true, balance: result.current_balance });
-  } catch {
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error("Steadfast get_balance failed:", detail);
     return NextResponse.json(
-      { error: "Failed to connect to Steadfast API" },
-      { status: 500 }
+      { error: `Could not reach Steadfast API: ${detail}` },
+      { status: 502 }
     );
   }
 }
