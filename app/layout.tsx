@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Open_Sans, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import { prisma } from "@/lib/prisma";
+import MetaPixel from "@/components/analytics/MetaPixel";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -71,7 +72,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${openSans.variable} ${hindSiliguri.variable}`}>
-      <body className="antialiased overflow-x-hidden">{children}</body>
+      <body className="antialiased overflow-x-hidden">
+        <MetaPixel />
+        {children}
+      </body>
     </html>
   );
 }
