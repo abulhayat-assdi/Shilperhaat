@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { PanelLeftOpen, X } from 'lucide-react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import {
@@ -43,6 +44,8 @@ export default function BlogManagerClient() {
   const [tagsInput, setTagsInput] = useState('')
   const [mounted, setMounted] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  // Mobile-only drawer for the post list (hidden column on small screens)
+  const [listOpen, setListOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -64,6 +67,7 @@ export default function BlogManagerClient() {
     setIsNew(false)
     setDeleteConfirm(false)
     setSaveMsg(null)
+    setListOpen(false)
   }
 
   const handleNewPost = () => {
@@ -73,6 +77,7 @@ export default function BlogManagerClient() {
     setIsNew(true)
     setDeleteConfirm(false)
     setSaveMsg(null)
+    setListOpen(false)
   }
 
   const handleTitleChange = useCallback((title: string) => {
@@ -204,69 +209,100 @@ export default function BlogManagerClient() {
     )
   }
 
+  const postListBody = (
+    <>
+      {/* Header + New Post */}
+      <div className="p-4 border-b border-gray-100 flex-shrink-0">
+        <button
+          onClick={handleNewPost}
+          className="w-full py-2.5 rounded-lg text-white text-sm font-semibold transition-colors"
+          style={{ backgroundColor: '#800000' }}
+        >
+          + New Post
+        </button>
+        <p className="text-xs text-gray-400 mt-2">{posts.length} posts total</p>
+      </div>
+
+      {/* Post List */}
+      <div className="flex-1 overflow-y-auto">
+        {posts.length === 0 ? (
+          <div className="p-4 text-center text-gray-400 text-sm">
+            No posts yet. Create your first post!
+          </div>
+        ) : (
+          posts.map(post => (
+            <button
+              key={post.id}
+              onClick={() => handleSelect(post)}
+              className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#FFF0F0] transition-colors ${
+                selected?.id === post.id
+                  ? 'bg-[#FFF0F0] border-l-4 border-l-[#800000]'
+                  : ''
+              }`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-800 truncate leading-tight">
+                    {post.title || '(Untitled)'}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5 truncate">{post.category || 'No category'}</p>
+                  <p className="text-xs text-gray-300 mt-0.5">{formatDateShort(post.publishedAt)}</p>
+                </div>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 ${
+                    post.isPublished
+                      ? 'bg-green-100 text-green-600'
+                      : 'bg-gray-100 text-gray-400'
+                  }`}
+                >
+                  {post.isPublished ? 'Live' : 'Draft'}
+                </span>
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    </>
+  )
+
   return (
     <AdminLayout title="Blog Manager">
       <div className="flex h-[calc(100vh-112px)] -m-4 md:-m-6 bg-gray-50">
 
-        {/* LEFT: Post List */}
-        <div className="w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 overflow-hidden">
-          {/* Header + New Post */}
-          <div className="p-4 border-b border-gray-100 flex-shrink-0">
-            <button
-              onClick={handleNewPost}
-              className="w-full py-2.5 rounded-lg text-white text-sm font-semibold transition-colors"
-              style={{ backgroundColor: '#800000' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#800000' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#800000' }}
-            >
-              + New Post
-            </button>
-            <p className="text-xs text-gray-400 mt-2">{posts.length} posts total</p>
-          </div>
-
-          {/* Post List */}
-          <div className="flex-1 overflow-y-auto">
-            {posts.length === 0 ? (
-              <div className="p-4 text-center text-gray-400 text-sm">
-                No posts yet. Create your first post!
-              </div>
-            ) : (
-              posts.map(post => (
-                <button
-                  key={post.id}
-                  onClick={() => handleSelect(post)}
-                  className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#FFF0F0] transition-colors ${
-                    selected?.id === post.id
-                      ? 'bg-[#FFF0F0] border-l-4 border-l-[#800000]'
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-800 truncate leading-tight">
-                        {post.title || '(Untitled)'}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-0.5 truncate">{post.category || 'No category'}</p>
-                      <p className="text-xs text-gray-300 mt-0.5">{formatDateShort(post.publishedAt)}</p>
-                    </div>
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5 ${
-                        post.isPublished
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-gray-100 text-gray-400'
-                      }`}
-                    >
-                      {post.isPublished ? 'Live' : 'Draft'}
-                    </span>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
+        {/* LEFT: Post List — fixed column on desktop, hidden on mobile */}
+        <div className="hidden md:flex w-72 bg-white border-r border-gray-200 flex-col flex-shrink-0 overflow-hidden">
+          {postListBody}
         </div>
 
+        {/* Mobile: Post List drawer */}
+        {listOpen && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              onClick={() => setListOpen(false)}
+            />
+            <div className="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-white flex flex-col md:hidden shadow-xl">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">All Posts</p>
+                <button onClick={() => setListOpen(false)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100" aria-label="Close post list">
+                  <X size={18} />
+                </button>
+              </div>
+              {postListBody}
+            </div>
+          </>
+        )}
+
         {/* RIGHT: Editor */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
+          {/* Mobile: open the post list */}
+          <button
+            onClick={() => setListOpen(true)}
+            className="md:hidden mb-4 flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 shadow-sm"
+          >
+            <PanelLeftOpen size={16} className="text-[#800000]" />
+            All Posts ({posts.length})
+          </button>
           {selected ? (
             <div className="max-w-4xl mx-auto">
 
