@@ -1,6 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
+import dns from "node:dns";
+
+// Force this route onto the Node.js runtime (the Edge runtime has no raw
+// outbound TCP/DNS and is a common cause of "fetch failed" to 3rd-party APIs).
+export const runtime = "nodejs";
+
+// Many VPS hosts advertise an IPv6 record they can't actually route. Node 18+
+// resolves AAAA first by default, so the connection silently dies with the
+// opaque "fetch failed". Preferring IPv4 avoids that.
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch {
+  /* older Node without this API — ignore */
+}
 
 const STEADFAST_BASE = "https://portal.steadfast.com.bd/api/v1";
+const FETCH_TIMEOUT_MS = 20_000;
+
+// fetch with an explicit timeout + a human-readable failure reason. Undici's
+// "fetch failed" hides the real cause on .cause — we dig it out here.
+async function steadfastFetch(
+  path: string,
+  init: RequestInit
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    return await fetch(`${STEADFAST_BASE}${path}`, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function describeError(err: unknown): string {
+  if (err instanceof DOMException && err.name === "AbortError") {
+    return `request timed out after ${FETCH_TIMEOUT_MS / 1000}s (server could not reach Steadfast)`;
+  }
+  if (err instanceof Error) {
+    const cause = (err as { cause?: { code?: string; message?: string } }).cause;
+    const code = cause?.code ? ` [${cause.code}]` : "";
+    const causeMsg = cause?.message ? `: ${cause.message}` : "";
+    return `${err.message}${code}${causeMsg}`;
+  }
+  return String(err);
+}
 
 // Steadfast wants a clean 11-digit local mobile number (e.g. 01XXXXXXXXX).
 // Strip spaces/dashes and a leading +88 / 88 country code if present.
@@ -45,7 +91,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${STEADFAST_BASE}/create_order`, {
+    const response = await steadfastFetch(`/create_order`, {
       method: "POST",
       headers: {
         "Api-Key": apiKey,
@@ -93,7 +139,7 @@ export async function POST(req: NextRequest) {
       status: result.status,
     });
   } catch (err) {
-    const detail = err instanceof Error ? err.message : String(err);
+    const detail = describeError(err);
     console.error("Steadfast create_order failed:", detail);
     return NextResponse.json(
       { error: `Could not reach Steadfast API: ${detail}` },
@@ -125,7 +171,8 @@ export async function GET(req: NextRequest) {
 
   try {
     // Use the balance/account endpoint to verify credentials
-    const response = await fetch(`${STEADFAST_BASE}/get_balance`, {
+    const response = await steadfastFetch(`/get_balance`, {
+      method: "GET",
       headers: {
         "Api-Key": apiKey,
         "Secret-Key": secretKey,
@@ -146,7 +193,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ success: true, balance: result.current_balance });
   } catch (err) {
-    const detail = err instanceof Error ? err.message : String(err);
+    const detail = describeError(err);
     console.error("Steadfast get_balance failed:", detail);
     return NextResponse.json(
       { error: `Could not reach Steadfast API: ${detail}` },
