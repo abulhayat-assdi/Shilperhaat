@@ -6,7 +6,10 @@ import https from "node:https";
 // itself cause "fetch failed" against a 3rd-party API.
 export const runtime = "nodejs";
 
-const STEADFAST_HOST = "portal.steadfast.com.bd";
+// Steadfast's API is served from portal.packzy.com (per their official docs).
+// portal.steadfast.com.bd no longer exists in DNS (NXDOMAIN globally), which
+// surfaced as getaddrinfo ENOTFOUND.
+const STEADFAST_HOST = "portal.packzy.com";
 const STEADFAST_BASE = `https://${STEADFAST_HOST}/api/v1`;
 const REQUEST_TIMEOUT_MS = 20_000;
 

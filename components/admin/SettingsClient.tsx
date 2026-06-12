@@ -262,7 +262,7 @@ export default function SettingsClient({ settings }: SettingsClientProps) {
           <p className="text-xs text-gray-400">
             Get your API credentials from{" "}
             <span className="font-medium text-gray-600">
-              portal.steadfast.com.bd → Profile → API Credentials
+              portal.packzy.com → Profile → API Credentials
             </span>
           </p>
 
