@@ -31,11 +31,16 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
   if (active.length === 0) return <FallbackBanner />;
 
   const banner = active[currentIndex];
+  const hasMobileImage = !!banner.mobileImageUrl;
 
   return (
     <section
-      className="relative w-full overflow-hidden bg-[#041F1E]"
-      style={{ height: "clamp(280px, 52vw, 520px)" }}
+      className={`relative w-full overflow-hidden bg-[#041F1E] ${
+        hasMobileImage
+          ? "aspect-[768/400] md:aspect-[1920/600] max-h-[520px]"
+          : ""
+      }`}
+      style={hasMobileImage ? undefined : { height: "clamp(280px, 52vw, 520px)" }}
     >
       {/* Entire banner is a link to /shop */}
       <Link
@@ -45,16 +50,29 @@ export default function HeroBanner({ banners }: HeroBannerProps) {
         style={{ display: "block" }}
       />
 
-      {/* Full-bleed background image */}
+      {/* Desktop Banner Image */}
       <Image
         src={banner.imageUrl}
         alt={banner.title || "Shilperhaat banner"}
         fill
-        preload
-        className="object-cover object-center"
+        priority={currentIndex === 0}
+        className={hasMobileImage ? "hidden md:block object-cover object-center" : "block object-cover object-center"}
         sizes="100vw"
         onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
       />
+
+      {/* Mobile Banner Image */}
+      {hasMobileImage && (
+        <Image
+          src={banner.mobileImageUrl!}
+          alt={banner.title || "Shilperhaat banner"}
+          fill
+          priority={currentIndex === 0}
+          className="block md:hidden object-cover object-center"
+          sizes="100vw"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+        />
+      )}
 
       {/* Prev / Next arrows — z-20 so they sit above the link layer */}
       {active.length > 1 && (

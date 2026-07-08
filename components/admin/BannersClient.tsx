@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -19,7 +19,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
     isActive: true,
     sortOrder: 0,
   });
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingType, setUploadingType] = useState<"desktop" | "mobile" | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const openAdd = () => {
@@ -40,7 +40,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setIsUploading(true);
+    setUploadingType(type);
     try {
       const fd = new FormData();
       fd.append("file", file);
@@ -55,7 +55,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
         }
       }
     } finally {
-      setIsUploading(false);
+      setUploadingType(null);
     }
   };
 
@@ -171,6 +171,11 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {banner.mobileImageUrl && (
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                        Has Mobile Version
+                      </span>
+                    )}
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                       banner.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
                     }`}>
@@ -243,27 +248,45 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
                 {/* Desktop image */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Desktop Image <span className="text-red-500">*</span>
+                    Desktop Image <span className="text-red-500">*</span> (পিসির ব্যানার)
                   </label>
                   {formData.imageUrl ? (
-                    <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100 mb-2">
+                    <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100 mb-2 border border-gray-200">
                       <Image src={getImageUrl(formData.imageUrl)} alt="Banner" fill unoptimized className="object-cover" sizes="400px" />
                     </div>
                   ) : null}
                   <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl p-4 cursor-pointer hover:border-[#800000] transition-colors">
-                    {isUploading ? <Loader2 size={16} className="animate-spin text-gray-400" /> : <Plus size={16} className="text-gray-400" />}
-                    <span className="text-sm text-gray-500">Upload Desktop Image (recommended: 1920×600)</span>
-                    <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, "desktop")} />
+                    {uploadingType === "desktop" ? <Loader2 size={16} className="animate-spin text-gray-400" /> : <Plus size={16} className="text-gray-400" />}
+                    <span className="text-sm text-gray-500 font-medium">Upload Desktop Image (Recommended: 1920×600 px | ১৯২০×৬০০ পিক্সেল)</span>
+                    <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, "desktop")} disabled={!!uploadingType} />
                   </label>
                 </div>
 
                 {/* Mobile image */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Mobile Image (optional)</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Mobile Image (optional) | মোবাইলের ব্যানার (ঐচ্ছিক)
+                    </label>
+                    {formData.mobileImageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData((f) => ({ ...f, mobileImageUrl: null }))}
+                        className="text-xs text-red-500 hover:text-red-700 font-semibold"
+                      >
+                        Remove Mobile Image | ছবি সরান
+                      </button>
+                    )}
+                  </div>
+                  {formData.mobileImageUrl ? (
+                    <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100 mb-2 border border-gray-200">
+                      <Image src={getImageUrl(formData.mobileImageUrl)} alt="Mobile Banner" fill unoptimized className="object-cover" sizes="400px" />
+                    </div>
+                  ) : null}
                   <label className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 rounded-xl p-3 cursor-pointer hover:border-[#800000] transition-colors">
-                    <Plus size={14} className="text-gray-400" />
-                    <span className="text-sm text-gray-500">Upload Mobile Image (recommended: 768×400)</span>
-                    <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, "mobile")} />
+                    {uploadingType === "mobile" ? <Loader2 size={16} className="animate-spin text-gray-400" /> : <Plus size={14} className="text-gray-400" />}
+                    <span className="text-sm text-gray-500 font-medium">Upload Mobile Image (Recommended: 768×400 px | ৭৬৮×৪০০ পিক্সেল)</span>
+                    <input type="file" accept="image/*" className="sr-only" onChange={(e) => handleImageUpload(e, "mobile")} disabled={!!uploadingType} />
                   </label>
                 </div>
 
@@ -320,7 +343,7 @@ export default function BannersClient({ banners: initialBanners }: BannersClient
 
                 <button
                   onClick={handleSave}
-                  disabled={isSaving || !formData.imageUrl}
+                  disabled={isSaving || !!uploadingType || !formData.imageUrl}
                   className="w-full flex items-center justify-center gap-2 bg-[#800000] text-white py-3 rounded-xl font-semibold disabled:opacity-70"
                 >
                   {isSaving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : "Save Banner"}
