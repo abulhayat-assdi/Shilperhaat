@@ -1,16 +1,26 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.APP_URL || "https://shilperhaat.com";
-
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/admin/"],
+        // Keep private, transactional and non-content routes out of the index.
+        disallow: [
+          "/admin",
+          "/api/",
+          "/account",
+          "/cart",
+          "/checkout",
+          "/thank-you",
+          "/track-order",
+          "/*?*add-to-cart=", // any add-to-cart action links
+        ],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

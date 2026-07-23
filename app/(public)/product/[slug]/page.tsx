@@ -10,6 +10,8 @@ import ProductTabs from "@/components/product/ProductTabs";
 import ProductCard from "@/components/ui/ProductCard";
 import { prisma } from "@/lib/prisma";
 import { formatPriceEn, calculateDiscount } from "@/lib/utils";
+import JsonLd from "@/components/seo/JsonLd";
+import { SITE_URL, absoluteUrl } from "@/lib/seo";
 import type { Product } from "@/types";
 
 interface ProductPageProps {
@@ -32,13 +34,17 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const decodedSlug = decodeURIComponent(slug);
   const product = await getProductBySlug(decodedSlug);
   if (!product) return { title: "Product not found" };
+  const image = absoluteUrl(product.images[0]?.imageUrl);
   return {
     title: `${product.title} — Shilperhaat`,
     description: product.description?.slice(0, 160) || product.title,
+    alternates: { canonical: `/product/${product.slug}` },
     openGraph: {
+      type: "website",
       title: product.title,
       description: product.description?.slice(0, 160) || "",
-      images: product.images[0]?.imageUrl ? [product.images[0].imageUrl] : [],
+      url: `${SITE_URL}/product/${product.slug}`,
+      images: image ? [image] : [],
     },
   };
 }
@@ -94,8 +100,73 @@ export default async function ProductPage({ params }: ProductPageProps) {
     compareAtPrice: p.compareAtPrice ? Number(p.compareAtPrice) : null,
   })) as any as Product[];
 
+  const productUrl = `${SITE_URL}/product/${product.slug}`;
+  const images = (product.images || [])
+    .map((img: any) => absoluteUrl(img.imageUrl))
+    .filter(Boolean) as string[];
+  const ratingCount = reviews.length;
+  const ratingValue = ratingCount
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / ratingCount
+    : 0;
+
+  const productJsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    ...(product.description ? { description: product.description } : {}),
+    ...(images.length ? { image: images } : {}),
+    ...((rawProduct as any).sku ? { sku: (rawProduct as any).sku } : {}),
+    ...(product.category ? { category: product.category.name } : {}),
+    brand: { "@type": "Brand", name: "Shilperhaat" },
+    offers: {
+      "@type": "Offer",
+      url: productUrl,
+      priceCurrency: "BDT",
+      price: Number(product.price).toFixed(2),
+      availability:
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+    },
+    ...(ratingCount
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: ratingValue.toFixed(1),
+            reviewCount: ratingCount,
+          },
+        }
+      : {}),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Products", item: `${SITE_URL}/shop` },
+      ...(product.category
+        ? [
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: product.category.name,
+              item: `${SITE_URL}/shop?category=${product.category.slug}`,
+            },
+          ]
+        : []),
+      {
+        "@type": "ListItem",
+        position: product.category ? 4 : 3,
+        name: product.title,
+        item: productUrl,
+      },
+    ],
+  };
+
   return (
     <>
+      <JsonLd data={[productJsonLd, breadcrumbJsonLd]} />
       <ProductViewTracker
         productId={product.id}
         title={product.title}

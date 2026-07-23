@@ -3,6 +3,8 @@ import { Open_Sans, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import { prisma } from "@/lib/prisma";
 import MetaPixel from "@/components/analytics/MetaPixel";
+import JsonLd from "@/components/seo/JsonLd";
+import { SITE_URL, absoluteUrl } from "@/lib/seo";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -35,12 +37,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const logoUrl = settings?.logoUrl;
 
   return {
+    metadataBase: new URL(SITE_URL),
     title: {
       default: `${siteName} — Bangladesh's Finest Handcraft Textiles`,
       template: `%s | ${siteName}`,
     },
     description:
       "Shop Bangladesh's best handcraft textiles — Katha, Chadar, Blankets, Nakshi Katha and much more at Shilperhaat.",
+    alternates: { canonical: "/" },
     keywords: [
       "katha",
       "nakshi katha",
@@ -65,14 +69,48 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getSiteSettings();
+  const siteName = settings?.siteName || "Shilperhaat";
+  const logo = absoluteUrl(settings?.logoUrl);
+  const social = (settings?.socialLinks as Record<string, string> | null) || null;
+  const sameAs = social ? Object.values(social).filter(Boolean) : [];
+
+  // Site-wide structured data: identifies the brand (Organization) and enables
+  // the Google sitelinks search box (WebSite + SearchAction).
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: siteName,
+      url: SITE_URL,
+      ...(logo ? { logo } : {}),
+      ...(sameAs.length ? { sameAs } : {}),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: siteName,
+      url: SITE_URL,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${SITE_URL}/shop?search={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ];
+
   return (
     <html lang="en" className={`${openSans.variable} ${hindSiliguri.variable}`}>
       <body className="antialiased overflow-x-hidden">
+        <JsonLd data={structuredData} />
         <MetaPixel
           pixelId={process.env.META_PIXEL_ID || process.env.NEXT_PUBLIC_FB_PIXEL_ID}
         />

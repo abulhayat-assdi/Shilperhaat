@@ -1,73 +1,105 @@
-'use client'
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { cache } from "react";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import JsonLd from "@/components/seo/JsonLd";
+import { SITE_URL, absoluteUrl } from "@/lib/seo";
 
-import { use, useState, useEffect } from 'react'
-import Link from 'next/link'
-import DOMPurify from 'dompurify'
-import { BlogPost } from '@/lib/blog-data'
-
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ]
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
+interface BlogPageProps {
+  params: Promise<{ slug: string }>;
 }
 
-export default function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
-  const { slug } = use(params)
-  const [post, setPost] = useState<BlogPost | null | undefined>(undefined)
+// Deduplicate the DB call between generateMetadata and the page render.
+const getPost = cache(async (slug: string) => {
+  const post = await prisma.blogPost.findUnique({ where: { slug } });
+  if (!post || !post.isPublished) return null;
+  return post;
+});
 
-  useEffect(() => {
-    fetch(`/api/blog/${encodeURIComponent(slug)}`)
-      .then(res => res.json())
-      .then(data => setPost(data.post ?? null))
-      .catch(() => setPost(null))
-  }, [slug])
+function formatDate(iso: string | Date): string {
+  const d = new Date(iso);
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
 
-  // Still loading
-  if (post === undefined) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div
-            className="inline-block w-10 h-10 border-4 border-t-transparent rounded-full animate-spin mb-4"
-            style={{ borderColor: '#800000', borderTopColor: 'transparent' }}
-          />
-          <p className="text-gray-400 text-sm">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+export async function generateMetadata({ params }: BlogPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPost(decodeURIComponent(slug));
+  if (!post) return { title: "Post not found" };
 
-  // 404 state
-  if (post === null) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <div className="text-7xl mb-4">📄</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">পোস্টটি পাওয়া যায়নি</h1>
-          <p className="text-gray-500 mb-6">
-            এই ব্লগ পোস্টটি মুছে দেওয়া হয়েছে বা প্রকাশিত হয়নি।
-          </p>
-          <Link
-            href="/blog"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-semibold transition-colors"
-            style={{ backgroundColor: '#800000' }}
-          >
-            ← Blog-এ ফিরে যান
-          </Link>
-        </div>
-      </div>
-    )
-  }
+  const description = post.excerpt?.slice(0, 160) || post.title;
+  const image = absoluteUrl(post.coverImage);
+
+  return {
+    title: post.title,
+    description,
+    keywords: post.tags,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description,
+      url: `${SITE_URL}/blog/${post.slug}`,
+      publishedTime: post.publishedAt.toISOString(),
+      modifiedTime: post.updatedAt.toISOString(),
+      authors: post.author ? [post.author] : undefined,
+      tags: post.tags,
+      images: image ? [image] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: image ? [image] : [],
+    },
+  };
+}
+
+export default async function BlogPostPage({ params }: BlogPageProps) {
+  const { slug } = await params;
+  const post = await getPost(decodeURIComponent(slug));
+  if (!post) notFound();
+
+  const image = absoluteUrl(post.coverImage);
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    ...(post.excerpt ? { description: post.excerpt } : {}),
+    ...(image ? { image: [image] } : {}),
+    datePublished: post.publishedAt.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    ...(post.author ? { author: { "@type": "Person", name: post.author } } : {}),
+    publisher: {
+      "@type": "Organization",
+      name: "Shilperhaat",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/blog/${post.slug}`,
+    },
+    keywords: post.tags.join(", "),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/blog` },
+      { "@type": "ListItem", position: 3, name: post.title, item: `${SITE_URL}/blog/${post.slug}` },
+    ],
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <JsonLd data={[articleJsonLd, breadcrumbJsonLd]} />
+
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2 text-sm text-gray-500">
@@ -80,26 +112,30 @@ export default function BlogPostPage({
       </div>
 
       {/* Cover Image */}
-      <div className="w-full overflow-hidden" style={{ maxHeight: 480 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={post.coverImage}
-          alt={post.title}
-          className="w-full object-cover"
-          style={{ maxHeight: 480 }}
-        />
-      </div>
+      {post.coverImage && (
+        <div className="w-full overflow-hidden" style={{ maxHeight: 480 }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={post.coverImage}
+            alt={post.title}
+            className="w-full object-cover"
+            style={{ maxHeight: 480 }}
+          />
+        </div>
+      )}
 
       {/* Article */}
       <div className="max-w-4xl mx-auto px-4 py-10">
         <article className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
           {/* Category badge */}
-          <span
-            className="inline-block text-xs font-semibold px-3 py-1 rounded-full text-white mb-4"
-            style={{ backgroundColor: '#800000' }}
-          >
-            {post.category}
-          </span>
+          {post.category && (
+            <span
+              className="inline-block text-xs font-semibold px-3 py-1 rounded-full text-white mb-4"
+              style={{ backgroundColor: "#800000" }}
+            >
+              {post.category}
+            </span>
+          )}
 
           {/* Title */}
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight mb-5">
@@ -108,14 +144,18 @@ export default function BlogPostPage({
 
           {/* Meta row */}
           <div className="flex flex-wrap items-center gap-3 pb-6 border-b border-gray-100 mb-8">
-            <span
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full text-white font-bold text-sm flex-shrink-0"
-              style={{ backgroundColor: '#800000' }}
-            >
-              {post.author.charAt(0)}
-            </span>
-            <span className="text-sm font-semibold text-gray-700">{post.author}</span>
-            <span className="text-gray-300">|</span>
+            {post.author && (
+              <>
+                <span
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-full text-white font-bold text-sm flex-shrink-0"
+                  style={{ backgroundColor: "#800000" }}
+                >
+                  {post.author.charAt(0)}
+                </span>
+                <span className="text-sm font-semibold text-gray-700">{post.author}</span>
+                <span className="text-gray-300">|</span>
+              </>
+            )}
             <span className="text-sm text-gray-500">{formatDate(post.publishedAt)}</span>
             <span className="text-gray-300">|</span>
             <span className="text-sm text-gray-500">{post.readTime} min read</span>
@@ -124,7 +164,7 @@ export default function BlogPostPage({
           {/* Tags */}
           {post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-6">
-              {post.tags.map(tag => (
+              {post.tags.map((tag: string) => (
                 <span
                   key={tag}
                   className="text-xs px-3 py-1 rounded-full bg-[#FFF0F0] text-[#800000] border border-[#f5d0d0]"
@@ -135,28 +175,18 @@ export default function BlogPostPage({
             </div>
           )}
 
-          {/* Content */}
+          {/* Content — trusted HTML authored in the admin panel, rendered on the
+              server so search engines can index the full article. */}
           <div
             className="blog-content text-gray-700 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+            dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
           {/* Back button */}
           <div className="mt-10 pt-6 border-t border-gray-100">
             <Link
               href="/blog"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 font-semibold text-sm transition-all hover:text-white"
-              style={{ borderColor: '#800000', color: '#800000' }}
-              onMouseEnter={e => {
-                const el = e.currentTarget as HTMLAnchorElement
-                el.style.backgroundColor = '#800000'
-                el.style.color = '#fff'
-              }}
-              onMouseLeave={e => {
-                const el = e.currentTarget as HTMLAnchorElement
-                el.style.backgroundColor = 'transparent'
-                el.style.color = '#800000'
-              }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-2 font-semibold text-sm transition-all border-[#800000] text-[#800000] hover:bg-[#800000] hover:text-white"
             >
               ← Back to Blog
             </Link>
@@ -209,5 +239,5 @@ export default function BlogPostPage({
         }
       `}</style>
     </div>
-  )
+  );
 }
