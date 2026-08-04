@@ -33,7 +33,7 @@ async function getSiteSettings() {
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   const siteName = settings?.siteName || "Shilperhaat";
-  const faviconUrl = settings?.faviconUrl || "/favicon.ico";
+  const faviconUrl = settings?.faviconUrl || null;
   const logoUrl = settings?.logoUrl;
 
   return {
@@ -55,9 +55,18 @@ export async function generateMetadata(): Promise<Metadata> {
       "shilperhaat",
       "textile",
     ],
+    // `app/favicon.ico` is picked up by Next automatically and always comes
+    // first in the list, so it is not repeated here. These entries add the
+    // high-resolution brand PNGs that Google Search and mobile home screens
+    // prefer over a 48px .ico. An admin-uploaded favicon overrides them.
     icons: {
-      icon: faviconUrl,
-      apple: faviconUrl,
+      icon: faviconUrl
+        ? [{ url: faviconUrl }]
+        : [
+            { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+            { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+          ],
+      apple: faviconUrl || "/apple-touch-icon.png",
     },
     openGraph: {
       type: "website",

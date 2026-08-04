@@ -55,9 +55,11 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Not immutable: /favicon.ico is a fixed URL that Google and browsers
+        // fetch directly, so a year-long cache would pin an outdated icon.
         source: "/(.*)\\.ico",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "Cache-Control", value: "public, max-age=86400, must-revalidate" },
         ],
       },
     ];
