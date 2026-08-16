@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useSiteLayout } from "@/lib/site-layout-context";
+import { formatWhatsAppUrl, formatPhoneUrl } from "@/lib/contact-settings";
 
 const CartDrawer = dynamic(() => import("@/components/cart/CartDrawer"), { ssr: false });
 const MobileMenu = dynamic(() => import("./MobileMenu"), { ssr: false });
@@ -281,9 +282,9 @@ export default function Header() {
                     <MoreDropdownItem href="/about"    label="About Us"  icon={<Info size={16} />} onClose={() => setMoreOpen(false)} />
                     <MoreDropdownItem href="/blog"     label="Blog"      icon={<BookOpen size={16} />} onClose={() => setMoreOpen(false)} />
                     <MoreDropdownItem href="/faq"      label="FAQs"      icon={<HelpCircle size={16} />} onClose={() => setMoreOpen(false)} />
-                    <MoreDropdownItem href={`tel:${layout.phone}`} label="Call Us" icon={<Phone size={16} />} onClose={() => setMoreOpen(false)} />
+                    <MoreDropdownItem href={formatPhoneUrl(layout.phone)} label="Call Us" icon={<Phone size={16} />} onClose={() => setMoreOpen(false)} />
                     <MoreDropdownItem
-                      href={`https://wa.me/${layout.whatsappNumber}`}
+                      href={formatWhatsAppUrl(layout.whatsappNumber)}
                       label="WhatsApp"
                       icon={<MessageCircle size={16} style={{ color: "#25D366" }} />}
                       onClose={() => setMoreOpen(false)}

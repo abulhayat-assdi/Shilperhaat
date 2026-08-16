@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart, Minus, Plus, Check, Phone } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
@@ -8,6 +8,14 @@ import { useRouter } from "next/navigation";
 import type { Product } from "@/types";
 import { formatPriceEn } from "@/lib/utils";
 import { trackEvent, FB_CURRENCY } from "@/lib/fbpixel";
+import { useSiteLayout } from "@/lib/site-layout-context";
+import {
+  fetchContactSettings,
+  DEFAULT_CONTACT_SETTINGS,
+  formatWhatsAppUrl,
+  formatPhoneUrl,
+  type ContactSettings,
+} from "@/lib/contact-settings";
 
 function trackAddToCart(product: Product, quantity: number) {
   const price = Number(product.price);
@@ -69,9 +77,15 @@ function TapButton({
 export default function AddToCartSection({ product }: AddToCartSectionProps) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded]       = useState(false);
+  const [contactSettings, setContactSettings] = useState<ContactSettings | null>(null);
   const { addItem, updateQuantity, items } = useCart();
   const { toast }  = useToast();
   const router     = useRouter();
+  const { data: siteLayout } = useSiteLayout();
+
+  useEffect(() => {
+    fetchContactSettings().then(setContactSettings);
+  }, []);
 
   const cartItem       = items.find((i) => i.productId === product.id);
   const currentCartQty = cartItem?.quantity || 0;
@@ -107,13 +121,44 @@ export default function AddToCartSection({ product }: AddToCartSectionProps) {
   };
 
   const handleWhatsApp = () => {
-    const message = encodeURIComponent(
-      `Hi! I want to order: ${product.title}\nPrice: ${formatPriceEn(Number(product.price))}\nQty: ${quantity}\nLink: ${typeof window !== "undefined" ? window.location.href : ""}`
-    );
-    window.open(`https://wa.me/8801XXXXXXXXX?text=${message}`, "_blank");
+    let target = "";
+    const csWa = contactSettings?.whatsappUrl;
+    const slWa = siteLayout?.whatsappNumber;
+
+    if (csWa && !csWa.includes("XXXXXXXX") && csWa !== DEFAULT_CONTACT_SETTINGS.whatsappUrl) {
+      target = csWa;
+    } else if (slWa && slWa !== "01700000000") {
+      target = slWa;
+    } else if (csWa && !csWa.includes("XXXXXXXX")) {
+      target = csWa;
+    } else if (slWa) {
+      target = slWa;
+    }
+
+    const message = `Hi! I want to order: ${product.title}\nPrice: ${formatPriceEn(Number(product.price))}\nQty: ${quantity}\nLink: ${typeof window !== "undefined" ? window.location.href : ""}`;
+    const url = formatWhatsAppUrl(target, message);
+    window.open(url, "_blank");
   };
 
-  const handleCall = () => window.open("tel:+8801XXXXXXXXX");
+  const handleCall = () => {
+    let target = "";
+    const csPhone = contactSettings?.phoneNumber;
+    const slPhone = siteLayout?.phone;
+
+    if (csPhone && !csPhone.includes("XXXXXXXX") && csPhone !== DEFAULT_CONTACT_SETTINGS.phoneNumber) {
+      target = csPhone;
+    } else if (slPhone && slPhone !== "01700000000") {
+      target = slPhone;
+    } else if (csPhone && !csPhone.includes("XXXXXXXX")) {
+      target = csPhone;
+    } else if (slPhone) {
+      target = slPhone;
+    }
+
+    const url = formatPhoneUrl(target);
+    window.location.href = url;
+  };
+
 
   if (isOutOfStock) {
     return (

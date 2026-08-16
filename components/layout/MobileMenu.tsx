@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { X, ChevronRight, MessageCircle, User } from "lucide-react";
 import { useSiteLayout } from "@/lib/site-layout-context";
+import { formatWhatsAppUrl } from "@/lib/contact-settings";
 
 interface NavLink {
   href: string;
@@ -149,7 +150,7 @@ export default function MobileMenu({ isOpen, onClose, navLinks }: MobileMenuProp
               GET IN TOUCH
             </p>
             <a
-              href={`https://wa.me/${siteLayout.whatsappNumber}`}
+              href={formatWhatsAppUrl(siteLayout.whatsappNumber)}
               target="_blank"
               rel="noopener noreferrer"
               style={{

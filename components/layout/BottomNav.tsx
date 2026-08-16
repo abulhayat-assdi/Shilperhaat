@@ -6,13 +6,14 @@ import { Home, ShoppingCart, Menu, MessageCircle, MessageSquare } from "lucide-r
 import { useCart } from "@/lib/cart-context";
 import { useContactPopup } from "@/lib/contact-popup-context";
 import { useSiteLayout } from "@/lib/site-layout-context";
+import { formatWhatsAppUrl } from "@/lib/contact-settings";
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { itemCount, isHydrated, openCartDrawer } = useCart();
   const { setOpen: openContactPopup } = useContactPopup();
   const { data: siteLayout } = useSiteLayout();
-  const whatsappUrl = `https://wa.me/${siteLayout.whatsappNumber}`;
+  const whatsappUrl = formatWhatsAppUrl(siteLayout.whatsappNumber);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
