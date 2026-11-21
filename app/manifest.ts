@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 import { getSiteSettings } from "@/lib/site-cache";
 
-// Built without a DB (Docker), so refresh hourly; admin settings changes
-// flush it immediately via revalidateSite().
-export const revalidate = 3600;
+// Built without a DB (Docker), so refresh every minute; admin settings
+// changes flush it immediately via revalidateSite().
+export const revalidate = 60;
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const settings = await getSiteSettings();

@@ -60,7 +60,7 @@ export async function revalidateProductPages(
 const getCachedSiteSettings = unstable_cache(
   async () => prisma.siteSetting.findFirst(),
   ["site-settings"],
-  { tags: [CACHE_TAGS.siteSettings], revalidate: 3600 }
+  { tags: [CACHE_TAGS.siteSettings], revalidate: 60 }
 );
 
 export async function getSiteSettings() {

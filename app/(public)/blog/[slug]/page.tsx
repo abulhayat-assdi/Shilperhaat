@@ -8,7 +8,7 @@ import { SITE_URL, absoluteUrl } from "@/lib/seo";
 
 // ISR on first visit (nothing is rendered at build, which has no DB).
 // Admin blog edits flush it via revalidateSite().
-export const revalidate = 300;
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   return [];

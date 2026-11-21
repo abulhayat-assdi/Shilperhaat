@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 // Called once by scripts/warm-cache.cjs right after the container starts.
 // The Docker build has no database, so every prerendered page (home, CMS
-// pages, cart/checkout shells, sitemap) holds fallback data until it is
+// pages, blog shell, sitemap) holds fallback data until it is
 // re-rendered. This flushes them so the first visitors get real content.
 //
 // CACHE_WARM_TOKEN is generated at container start and never leaves the

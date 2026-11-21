@@ -2,7 +2,7 @@ import StaticPage from '@/components/layout/StaticPage'
 import { getPublishedPage, getPageMetadata } from '@/lib/pages'
 import { notFound } from 'next/navigation'
 
-export const revalidate = 300
+export const revalidate = 60
 
 export async function generateMetadata() {
   return getPageMetadata('press')

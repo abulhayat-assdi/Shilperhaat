@@ -3,6 +3,10 @@ import { Suspense } from "react";
 import TrackOrderClient from "@/components/checkout/TrackOrderClient";
 import { Package } from "lucide-react";
 
+// Never cached (origin or CDN): cart, checkout and order pages must always
+// be served fresh. Responses carry Cache-Control: no-store.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Track Your Order — Shilperhaat",
   description: "Track your order status with real-time updates on your shipment progress.",

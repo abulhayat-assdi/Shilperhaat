@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 import { rethrowAtRuntime } from "@/lib/site-cache";
 
 // ISR: admin mutations flush this immediately via revalidateSite().
-export const revalidate = 300;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Shilperhaat — Bangladesh's Finest Handcraft Textiles",

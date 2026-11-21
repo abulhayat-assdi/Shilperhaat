@@ -1,3 +1,7 @@
+// Never cached (origin or CDN): cart, checkout and order pages must always
+// be served fresh. Responses carry Cache-Control: no-store.
+export const dynamic = "force-dynamic";
+
 export const metadata = { title: 'My Account - Shilperhaat' }
 
 export default function AccountPage() {

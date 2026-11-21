@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import ThankYouClient from "@/components/checkout/ThankYouClient";
 
+// Never cached (origin or CDN): cart, checkout and order pages must always
+// be served fresh. Responses carry Cache-Control: no-store.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Order Placed Successfully — Shilperhaat",
   description: "Your order has been placed successfully",

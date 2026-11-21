@@ -2,7 +2,7 @@
 // scripts/start.sh; it must never block or fail container startup.
 //
 // Why: `next build` runs in Docker without a database, so prerendered pages
-// (home, CMS pages, cart/checkout shells, sitemap) are built with fallback
+// (home, CMS pages, blog shell, sitemap) are built with fallback
 // data. Once the server is up this script:
 //   1. waits for the port,
 //   2. POSTs /api/internal/warm-cache (token-protected) -> revalidateSite(),
@@ -28,8 +28,6 @@ const PAGES = [
   "/faq",
   "/how-to-order",
   "/support",
-  "/cart",
-  "/checkout",
   "/blog",
   "/sitemap.xml",
 ];
