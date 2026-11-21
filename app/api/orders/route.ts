@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { validateCoupon } from "@/lib/coupon-data";
 import { sendMetaEvent, userDataFromRequest } from "@/lib/meta-capi";
@@ -139,6 +140,13 @@ export async function POST(req: NextRequest) {
         },
       });
     });
+
+    // Stock changed: refresh only these product pages (public route, so no
+    // site-wide flush). Slugs come from the products loaded above.
+    for (const item of orderItems) {
+      const slug = item.productId ? productMap.get(item.productId)?.slug : undefined;
+      if (slug) revalidatePath(`/product/${slug}`);
+    }
 
     // Meta Conversions API — authoritative server-side Purchase. The event_id
     // matches the browser Pixel fired on the thank-you page so Meta deduplicates.

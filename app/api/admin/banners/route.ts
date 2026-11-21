@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/site-cache";
 
 export async function GET() {
   const session = await getAdminSession();
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
         isActive: body.isActive ?? true,
       },
     });
+    revalidateSite();
     return NextResponse.json({ banner });
   } catch (error) {
     console.error("POST /api/admin/banners error:", error);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/site-cache";
 
 export async function GET() {
   const session = await getAdminSession();
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
         sortOrder: body.sortOrder ?? 0,
       },
     });
+    revalidateSite();
     return NextResponse.json({ review });
   } catch (error) {
     console.error("POST /api/admin/reviews error:", error);

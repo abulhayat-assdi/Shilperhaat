@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/site-cache";
 
 export async function GET() {
   const session = await getAdminSession();
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+    revalidateSite();
     return NextResponse.json({ success: true, product });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {

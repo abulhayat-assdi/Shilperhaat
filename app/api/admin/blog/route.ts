@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/site-cache";
 import { serializeBlogPost, generateSlug, estimateReadTime } from "@/lib/blog-data";
 import { dbErrorResponse } from "@/lib/api-errors";
 
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
         readTime: Number(body.readTime) || estimateReadTime(content),
       },
     });
+    revalidateSite();
     return NextResponse.json({ post: serializeBlogPost(post) });
   } catch (error) {
     return dbErrorResponse("POST /api/admin/blog", error);

@@ -1,6 +1,11 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { SITE_URL, absoluteUrl } from "@/lib/seo";
+import { rethrowAtRuntime } from "@/lib/site-cache";
+
+// The Docker build has no DB, so the build-time sitemap only holds the static
+// paths. Regenerate hourly at runtime (admin edits flush it immediately).
+export const revalidate = 3600;
 
 // Static, content-bearing routes we always want indexed. Transactional pages
 // (cart, checkout, account, thank-you, track-order) are intentionally excluded
@@ -96,7 +101,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
 
     return [...staticRoutes, ...categoryRoutes, ...productRoutes, ...blogRoutes, ...cmsRoutes];
-  } catch {
+  } catch (err) {
+    rethrowAtRuntime(err);
     return staticRoutes;
   }
 }

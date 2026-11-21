@@ -14,6 +14,14 @@ import JsonLd from "@/components/seo/JsonLd";
 import { SITE_URL, absoluteUrl } from "@/lib/seo";
 import type { Product } from "@/types";
 
+// ISR on first visit (nothing is rendered at build, which has no DB).
+// Admin mutations and orders flush it via revalidateSite()/revalidatePath().
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  return [];
+}
+
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }

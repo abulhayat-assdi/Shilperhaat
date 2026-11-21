@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Open_Sans, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
-import { prisma } from "@/lib/prisma";
+import { getSiteSettings } from "@/lib/site-cache";
 import MetaPixel from "@/components/analytics/MetaPixel";
 import JsonLd from "@/components/seo/JsonLd";
 import { SITE_URL, absoluteUrl } from "@/lib/seo";
@@ -21,14 +21,6 @@ const hindSiliguri = Hind_Siliguri({
   display: "swap",
   preload: false,
 });
-
-async function getSiteSettings() {
-  try {
-    return await prisma.siteSetting.findFirst();
-  } catch {
-    return null;
-  }
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();

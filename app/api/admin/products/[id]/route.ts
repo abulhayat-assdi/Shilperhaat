@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/site-cache";
 
 export async function PUT(
   req: NextRequest,
@@ -43,6 +44,7 @@ export async function PUT(
         },
       },
     });
+    revalidateSite();
     return NextResponse.json({ success: true, product });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -63,6 +65,7 @@ export async function DELETE(
   const { id } = await params;
   try {
     await prisma.product.delete({ where: { id } });
+    revalidateSite();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/admin/products/[id] error:", error);

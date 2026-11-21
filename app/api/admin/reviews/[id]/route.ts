@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/site-cache";
 
 export async function PUT(
   req: NextRequest,
@@ -26,6 +27,7 @@ export async function PUT(
       },
       include: { product: { select: { title: true, slug: true } } },
     });
+    revalidateSite();
     return NextResponse.json({ review });
   } catch (error) {
     console.error("PUT /api/admin/reviews/[id] error:", error);
@@ -43,6 +45,7 @@ export async function DELETE(
   const { id } = await params;
   try {
     await prisma.review.delete({ where: { id } });
+    revalidateSite();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/admin/reviews/[id] error:", error);

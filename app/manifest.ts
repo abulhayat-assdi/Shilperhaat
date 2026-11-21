@@ -1,16 +1,12 @@
 import type { MetadataRoute } from "next";
-import { prisma } from "@/lib/prisma";
+import { getSiteSettings } from "@/lib/site-cache";
 
-async function getSettings() {
-  try {
-    return await prisma.siteSetting.findFirst();
-  } catch {
-    return null;
-  }
-}
+// Built without a DB (Docker), so refresh hourly; admin settings changes
+// flush it immediately via revalidateSite().
+export const revalidate = 3600;
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  const settings = await getSettings();
+  const settings = await getSiteSettings();
   const name = settings?.siteName || "Shilperhaat";
 
   return {

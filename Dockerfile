@@ -60,7 +60,8 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Fix volume permissions (runs as root), drop to nextjs, sync the DB schema
-# (idempotent — safe on every boot), then start the server. The bootstrap never
-# exits non-zero, so the site stays up even if the DB is briefly unreachable.
-CMD ["sh", "-c", "chown -R nextjs:nodejs /app/public/uploads; exec su-exec nextjs sh -c 'node scripts/db-bootstrap.cjs; node server.js'"]
+# Fix volume permissions (runs as root), drop to nextjs, then scripts/start.sh:
+# sync the DB schema (idempotent — safe on every boot), start a background
+# ISR cache flush/warm-up, and exec the server. Neither step can exit
+# non-zero, so the site stays up even if the DB is briefly unreachable.
+CMD ["sh", "-c", "chown -R nextjs:nodejs /app/public/uploads; exec su-exec nextjs sh scripts/start.sh"]

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateProductPages } from "@/lib/site-cache";
 import type { Prisma } from "@prisma/client";
 
 export async function PUT(
@@ -43,6 +44,11 @@ export async function PUT(
         include: { items: true },
       });
     });
+    // Cancelling restores stock; refresh just those product pages (status
+    // changes are frequent, so no site-wide flush).
+    if (body.status === "CANCELLED") {
+      await revalidateProductPages(order.items.map((i: { productId: string | null }) => i.productId));
+    }
     return NextResponse.json({ order });
   } catch (error) {
     console.error("PUT /api/admin/orders/[id] error:", error);
@@ -59,6 +65,7 @@ export async function DELETE(
 
   const { id } = await params;
   try {
+    const restoredProductIds: (string | null)[] = [];
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const existing = await tx.order.findUnique({ where: { id }, include: { items: true } });
       if (!existing) return;
@@ -71,6 +78,7 @@ export async function DELETE(
               where: { id: item.productId },
               data: { stock: { increment: item.quantity } },
             });
+            restoredProductIds.push(item.productId);
           }
         }
       }
@@ -78,6 +86,7 @@ export async function DELETE(
       // OrderItems cascade-delete via the schema's onDelete: Cascade
       await tx.order.delete({ where: { id } });
     });
+    await revalidateProductPages(restoredProductIds);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/admin/orders/[id] error:", error);

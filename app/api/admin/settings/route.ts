@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/site-cache";
 
 export async function GET() {
   const session = await getAdminSession();
@@ -45,6 +46,7 @@ export async function PUT(req: NextRequest) {
       settings = await prisma.siteSetting.create({ data: { ...data, siteName: data.siteName || "Shilperhaat" } });
     }
 
+    revalidateSite();
     return NextResponse.json({ settings });
   } catch (error) {
     console.error("PUT /api/admin/settings error:", error);

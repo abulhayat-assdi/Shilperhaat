@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_PAGES, PageContent, PageSection } from "@/lib/pages-data";
 import type { Prisma } from "@prisma/client";
+import { rethrowAtRuntime } from "@/lib/site-cache";
 
 // Top-level routes that are real app pages (not editable DB pages).
 // Links pointing at these must never auto-create a Page row.
@@ -129,7 +130,9 @@ export async function getPublishedPage(slug: string): Promise<PageContent | null
     if (!page) return DEFAULT_PAGES.find((p) => p.slug === slug && p.isPublished) || null;
     if (!page.isPublished) return null;
     return serializePage(page);
-  } catch {
+  } catch (err) {
+    // Runtime DB errors must not be cached as default content or a 404.
+    rethrowAtRuntime(err);
     return DEFAULT_PAGES.find((p) => p.slug === slug && p.isPublished) || null;
   }
 }

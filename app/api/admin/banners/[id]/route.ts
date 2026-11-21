@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/site-cache";
 
 export async function PUT(
   req: NextRequest,
@@ -25,6 +26,7 @@ export async function PUT(
         isActive: body.isActive ?? true,
       },
     });
+    revalidateSite();
     return NextResponse.json({ banner });
   } catch (error) {
     console.error("PUT /api/admin/banners/[id] error:", error);
@@ -42,6 +44,7 @@ export async function DELETE(
   const { id } = await params;
   try {
     await prisma.banner.delete({ where: { id } });
+    revalidateSite();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("DELETE /api/admin/banners/[id] error:", error);

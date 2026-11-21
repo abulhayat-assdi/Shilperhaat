@@ -7,8 +7,10 @@ import CategorySection from "@/components/home/CategorySection";
 import ReviewCarousel from "@/components/home/ReviewCarousel";
 import { ProductGridSkeleton } from "@/components/ui/ProductCardSkeleton";
 import { prisma } from "@/lib/prisma";
+import { rethrowAtRuntime } from "@/lib/site-cache";
 
-export const dynamic = "force-dynamic";
+// ISR: admin mutations flush this immediately via revalidateSite().
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Shilperhaat — Bangladesh's Finest Handcraft Textiles",
@@ -16,28 +18,39 @@ export const metadata: Metadata = {
     "Explore a vast collection of hand-woven Katha, Chadar, Blankets & Nakshi Katha. Premium quality, affordable prices.",
 };
 
+async function getHomeData() {
+  try {
+    return await Promise.all([
+      prisma.banner.findMany({
+        where: { isActive: true },
+        orderBy: { sortOrder: "asc" },
+      }),
+      prisma.category.findMany({
+        orderBy: { sortOrder: "asc" },
+      }),
+      prisma.product.findMany({
+        where: { status: "ACTIVE" },
+        include: {
+          category: { select: { id: true, name: true, slug: true } },
+          images: { orderBy: { sortOrder: "asc" } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.review.findMany({
+        where: { isVisible: true },
+        orderBy: { sortOrder: "asc" },
+      }),
+    ]);
+  } catch (err) {
+    // Build has no DB: render an empty shell (replaced by the startup cache
+    // flush). At runtime rethrow so a DB outage never gets cached.
+    rethrowAtRuntime(err);
+    return [[], [], [], []];
+  }
+}
+
 export default async function HomePage() {
-  const [banners, categories, rawProducts, reviews] = await Promise.all([
-    prisma.banner.findMany({
-      where: { isActive: true },
-      orderBy: { sortOrder: "asc" },
-    }),
-    prisma.category.findMany({
-      orderBy: { sortOrder: "asc" },
-    }),
-    prisma.product.findMany({
-      where: { status: "ACTIVE" },
-      include: {
-        category: { select: { id: true, name: true, slug: true } },
-        images: { orderBy: { sortOrder: "asc" } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.review.findMany({
-      where: { isVisible: true },
-      orderBy: { sortOrder: "asc" },
-    }),
-  ]);
+  const [banners, categories, rawProducts, reviews] = await getHomeData();
 
   const products = (rawProducts as any[]).map((p: any) => ({
     ...p,
