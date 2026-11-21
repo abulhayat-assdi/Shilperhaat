@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { getAdminSession } from "@/lib/auth";
 import { validateCoupon } from "@/lib/coupon-data";
 import { sendMetaEvent, userDataFromRequest } from "@/lib/meta-capi";
 import type { Prisma, Product } from "@prisma/client";
@@ -182,6 +183,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  // Returns every customer's name, phone and address: admins only.
+  // (The storefront never calls this; the admin panel uses /api/admin/orders.)
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
   const limit = Math.min(100, parseInt(searchParams.get("limit") || "20"));

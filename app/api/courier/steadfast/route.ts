@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dns from "node:dns";
 import https from "node:https";
+import { getAdminSession } from "@/lib/auth";
 
 // Force the Node.js runtime — the Edge runtime has no raw TCP/DNS, which would
 // itself cause "fetch failed" against a 3rd-party API.
@@ -111,6 +112,10 @@ function describeError(err: unknown): string {
 }
 
 export async function POST(req: NextRequest) {
+  // Uses the server's Steadfast credentials: admin panel only.
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   let orderData: any;
   try {
     orderData = await req.json();
@@ -191,6 +196,9 @@ export async function POST(req: NextRequest) {
 
 // Test connectivity with provided credentials
 export async function GET(req: NextRequest) {
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { searchParams } = new URL(req.url);
   const apiKey = (
     process.env.STEADFAST_API_KEY ||
