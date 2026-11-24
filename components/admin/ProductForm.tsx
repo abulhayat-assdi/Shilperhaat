@@ -84,6 +84,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           categoryId: product.categoryId || "",
           isFeatured: product.isFeatured,
           isBestSelling: product.isBestSelling,
+          freeDelivery: product.freeDelivery ?? false,
           status: product.status,
           tags: product.tags.join(", "),
         }
@@ -91,6 +92,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           status: "ACTIVE",
           isFeatured: false,
           isBestSelling: false,
+          freeDelivery: false,
           stock: 0,
         },
   });
@@ -658,6 +660,19 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                   className="w-4 h-4 accent-[#800000]"
                 />
                 <span className="text-sm text-gray-700">Best Selling</span>
+              </label>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  {...register("freeDelivery")}
+                  type="checkbox"
+                  className="w-4 h-4 mt-0.5 accent-[#800000]"
+                />
+                <span className="text-sm text-gray-700">
+                  Free Delivery
+                  <span className="block text-xs text-gray-400">
+                    If this product is in the cart, the whole order ships free.
+                  </span>
+                </span>
               </label>
             </div>
           </div>

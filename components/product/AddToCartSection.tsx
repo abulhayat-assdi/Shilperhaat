@@ -104,6 +104,7 @@ export default function AddToCartSection({ product }: AddToCartSectionProps) {
         price: Number(product.price),
         compareAtPrice: product.compareAtPrice ? Number(product.compareAtPrice) : null,
         image, stock: product.stock, slug: product.slug,
+        freeDelivery: product.freeDelivery ?? false,
       });
       if (quantity > 1) updateQuantity(product.id, quantity);
     } else {
@@ -295,6 +296,7 @@ export function StickyCartBar({ product }: AddToCartSectionProps) {
       compareAtPrice: product.compareAtPrice ? Number(product.compareAtPrice) : null,
       image: product.images?.[0]?.imageUrl || null,
       stock: product.stock, slug: product.slug,
+      freeDelivery: product.freeDelivery ?? false,
     });
     trackAddToCart(product, 1);
     toast.success(`"${product.title}" added to cart`);

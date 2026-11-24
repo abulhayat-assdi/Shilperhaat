@@ -9,7 +9,7 @@ import { formatPriceEn, getImageUrl } from "@/lib/utils";
 import { useState } from "react";
 
 export default function CartPageClient() {
-  const { items, subtotal, deliveryCharge, total, removeItem, updateQuantity, freeDeliveryMin } = useCart();
+  const { items, subtotal, hasFreeDelivery, removeItem, updateQuantity } = useCart();
   const { toast } = useToast();
   const [confirmItem, setConfirmItem] = useState<{ id: string; title: string } | null>(null);
 
@@ -108,6 +108,11 @@ export default function CartPageClient() {
                       {item.title}
                     </h3>
                   </Link>
+                  {item.freeDelivery && (
+                    <span className="inline-block mt-1 text-[10px] font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded">
+                      Free Delivery
+                    </span>
+                  )}
 
                   <div className="flex items-center gap-2 mt-1">
                     <span className="font-bold text-[#800000]">
@@ -184,24 +189,24 @@ export default function CartPageClient() {
               <div className="flex justify-between text-[#4a2c0a]">
                 <span>Delivery Charge</span>
                 <span>
-                  {deliveryCharge === 0 ? (
+                  {hasFreeDelivery ? (
                     <span className="text-green-600 font-semibold">Free</span>
                   ) : (
-                    formatPriceEn(deliveryCharge)
+                    <em className="text-gray-400">Calculated at checkout</em>
                   )}
                 </span>
               </div>
 
-              {deliveryCharge > 0 && freeDeliveryMin && (
-                <p className="text-xs text-[#7a6045] bg-[#fdf8f3] p-2 rounded-lg">
-                  Add {formatPriceEn(freeDeliveryMin - subtotal)} more to get free delivery!
+              {hasFreeDelivery && (
+                <p className="text-xs text-green-700 bg-green-50 p-2 rounded-lg">
+                  Your cart has a free-delivery product, so this whole order ships free!
                 </p>
               )}
 
               <div className="border-t border-[#f0e8d8] pt-3">
                 <div className="flex justify-between font-bold text-[#1a1208] text-base">
-                  <span>Total</span>
-                  <span className="text-[#800000] text-lg">{formatPriceEn(total)}</span>
+                  <span>{hasFreeDelivery ? "Total" : "Total (excl. delivery)"}</span>
+                  <span className="text-[#800000] text-lg">{formatPriceEn(subtotal)}</span>
                 </div>
               </div>
             </div>

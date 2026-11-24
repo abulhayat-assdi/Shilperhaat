@@ -40,6 +40,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       image: imageUrl,
       stock: product.stock,
       slug: product.slug,
+      freeDelivery: product.freeDelivery ?? false,
     });
 
     toast.success(`"${product.title}" added to cart`);
@@ -97,6 +98,18 @@ export default function ProductCard({ product }: ProductCardProps) {
                 }}
               >
                 Best Seller
+              </span>
+            )}
+            {product.freeDelivery && (
+              <span
+                style={{
+                  backgroundColor: "#16a34a", color: "#FFFFFF",
+                  fontSize: 10, fontWeight: 700,
+                  padding: "3px 7px", borderRadius: 4,
+                  display: "inline-block",
+                }}
+              >
+                Free Delivery
               </span>
             )}
             {product.stock === 0 && (

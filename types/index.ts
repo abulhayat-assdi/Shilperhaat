@@ -40,6 +40,7 @@ export interface Product {
   categoryId: string | null;
   isFeatured: boolean;
   isBestSelling: boolean;
+  freeDelivery: boolean;
   status: ProductStatus;
   tags: string[];
   createdAt: Date;
@@ -147,13 +148,14 @@ export interface CartItem {
   quantity: number;
   stock: number;
   slug: string;
+  freeDelivery?: boolean;
 }
 
 export interface Cart {
   items: CartItem[];
   subtotal: number;
-  deliveryCharge: number;
-  total: number;
+  /** True when any item has free delivery — the whole order then ships free. */
+  hasFreeDelivery: boolean;
 }
 
 // Filter types for shop page

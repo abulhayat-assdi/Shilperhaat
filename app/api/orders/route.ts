@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
 import { validateCoupon } from "@/lib/coupon-data";
+import { BANGLADESH_DISTRICTS, getOrderDeliveryCharge } from "@/lib/bangladesh-districts";
 import { sendMetaEvent, userDataFromRequest } from "@/lib/meta-capi";
 import type { Prisma, Product } from "@prisma/client";
 
@@ -61,10 +62,16 @@ export async function POST(req: NextRequest) {
 
     const subtotal = orderItems.reduce((sum, i) => sum + i.lineTotal, 0);
 
-    const deliveryCharge = Number(body.deliveryCharge);
-    if (!Number.isFinite(deliveryCharge) || deliveryCharge < 0 || deliveryCharge > 1000) {
-      return NextResponse.json({ success: false, error: "Invalid delivery charge." }, { status: 400 });
+    // Delivery charge is computed server-side; the client-sent value is ignored.
+    // Any free-delivery product (per the database) makes the whole order free.
+    const district = typeof body.district === "string" ? body.district.trim() : "";
+    if (!BANGLADESH_DISTRICTS.some((d) => d.name === district)) {
+      return NextResponse.json({ success: false, error: "Please select a valid district." }, { status: 400 });
     }
+    const hasFreeDeliveryItem = orderItems.some(
+      (i) => i.productId !== null && productMap.get(i.productId)?.freeDelivery === true
+    );
+    const deliveryCharge = getOrderDeliveryCharge(district, hasFreeDeliveryItem);
 
     // Coupon is always re-validated server-side; the client-sent total is ignored
     let discount = 0;

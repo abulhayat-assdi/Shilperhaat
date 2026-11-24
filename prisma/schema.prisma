@@ -58,6 +58,7 @@ model Product {
   categoryId     String?
   isFeatured     Boolean        @default(false)
   isBestSelling  Boolean        @default(false)
+  freeDelivery   Boolean        @default(false)
   status         ProductStatus  @default(ACTIVE)
   sku            String?        @unique
   tags           String[]

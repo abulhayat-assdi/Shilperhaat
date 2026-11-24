@@ -3,11 +3,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from "react";
 import type { CartItem, Cart } from "@/types";
 
-interface DeliveryConfig {
-  deliveryCharge: number;
-  freeDeliveryMin: number | null;
-}
-
 interface CartContextType extends Cart {
   addItem: (item: Omit<CartItem, "quantity">) => void;
   removeItem: (productId: string) => void;
@@ -18,7 +13,6 @@ interface CartContextType extends Cart {
   cartDrawerOpen: boolean;
   openCartDrawer: () => void;
   closeCartDrawer: () => void;
-  freeDeliveryMin: number | null;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -28,7 +22,8 @@ type CartAction =
   | { type: "REMOVE_ITEM"; payload: string }
   | { type: "UPDATE_QUANTITY"; payload: { productId: string; quantity: number } }
   | { type: "CLEAR_CART" }
-  | { type: "LOAD_CART"; payload: CartItem[] };
+  | { type: "LOAD_CART"; payload: CartItem[] }
+  | { type: "SYNC_FREE_DELIVERY"; payload: string[] };
 
 function cartReducer(state: CartItem[], action: CartAction): CartItem[] {
   switch (action.type) {
@@ -61,35 +56,35 @@ function cartReducer(state: CartItem[], action: CartAction): CartItem[] {
       return [];
     case "LOAD_CART":
       return action.payload;
+    case "SYNC_FREE_DELIVERY": {
+      const freeIds = new Set(action.payload);
+      let changed = false;
+      const next = state.map((i) => {
+        const free = freeIds.has(i.productId);
+        if ((i.freeDelivery ?? false) === free) return i;
+        changed = true;
+        return { ...i, freeDelivery: free };
+      });
+      return changed ? next : state;
+    }
     default:
       return state;
   }
 }
 
-function computeCart(items: CartItem[], config: DeliveryConfig): Cart {
+// Delivery charge depends on the district, which is only known at checkout.
+// The cart only knows whether the order qualifies for free delivery: any
+// free-delivery product in the cart makes the whole order ship free.
+function computeCart(items: CartItem[]): Cart {
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const deliveryCharge =
-    config.freeDeliveryMin !== null && subtotal >= config.freeDeliveryMin
-      ? 0
-      : items.length > 0
-      ? config.deliveryCharge
-      : 0;
-  return {
-    items,
-    subtotal,
-    deliveryCharge,
-    total: subtotal + deliveryCharge,
-  };
+  const hasFreeDelivery = items.some((i) => i.freeDelivery === true);
+  return { items, subtotal, hasFreeDelivery };
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, dispatch] = useReducer(cartReducer, []);
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [deliveryConfig, setDeliveryConfig] = useState<DeliveryConfig>({
-    deliveryCharge: 80,
-    freeDeliveryMin: 2000,
-  });
 
   const openCartDrawer  = useCallback(() => setCartDrawerOpen(true), []);
   const closeCartDrawer = useCallback(() => setCartDrawerOpen(false), []);
@@ -107,20 +102,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsHydrated(true);
   }, []);
 
-  // Fetch delivery settings from DB
+  // Refresh free-delivery flags from the DB. Carts saved in localStorage may
+  // predate the flag, or an admin may have changed it since. Re-runs only
+  // when the set of products in the cart changes.
+  const productIdsKey = items.map((i) => i.productId).sort().join(",");
   useEffect(() => {
-    fetch("/api/settings")
-      .then((r) => r.json())
+    if (!isHydrated || !productIdsKey) return;
+    let cancelled = false;
+    fetch("/api/products/free-delivery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: productIdsKey.split(",") }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        setDeliveryConfig({
-          deliveryCharge: data.deliveryCharge ?? 80,
-          freeDeliveryMin: data.freeDeliveryMin ?? null,
-        });
+        if (!cancelled && data && Array.isArray(data.freeDeliveryIds)) {
+          dispatch({ type: "SYNC_FREE_DELIVERY", payload: data.freeDeliveryIds });
+        }
       })
       .catch(() => {
-        // keep defaults
+        // keep current flags; the server decides the real charge at order time
       });
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [productIdsKey, isHydrated]);
 
   // Persist cart to localStorage after hydration
   useEffect(() => {
@@ -148,7 +154,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "CLEAR_CART" });
   }, []);
 
-  const cart = computeCart(items, deliveryConfig);
+  const cart = computeCart(items);
   const itemCount = items.length;
 
   return (
@@ -164,7 +170,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         cartDrawerOpen,
         openCartDrawer,
         closeCartDrawer,
-        freeDeliveryMin: deliveryConfig.freeDeliveryMin,
       }}
     >
       {children}

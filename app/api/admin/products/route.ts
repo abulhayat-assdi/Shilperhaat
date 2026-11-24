@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
         categoryId: data.categoryId || null,
         isFeatured: data.isFeatured ?? false,
         isBestSelling: data.isBestSelling ?? false,
+        freeDelivery: data.freeDelivery ?? false,
         status: data.status ?? "ACTIVE",
         sku: data.sku || null,
         tags,

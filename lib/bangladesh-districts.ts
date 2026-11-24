@@ -434,6 +434,17 @@ export function getDeliveryCharge(district: string): number {
   return district.toLowerCase() === "dhaka" ? 100 : 150;
 }
 
+/**
+ * Delivery charge for a whole order. If any product in the order has
+ * free delivery enabled, the entire order ships free; otherwise the
+ * district rate applies. Used by both checkout and the orders API so the
+ * two always agree.
+ */
+export function getOrderDeliveryCharge(district: string, hasFreeDeliveryItem: boolean): number {
+  if (hasFreeDeliveryItem) return 0;
+  return getDeliveryCharge(district);
+}
+
 export function getThanas(district: string): string[] {
   const found = BANGLADESH_DISTRICTS.find((d) => d.name === district);
   return found ? found.thanas : [];

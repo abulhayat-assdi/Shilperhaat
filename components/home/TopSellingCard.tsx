@@ -35,6 +35,7 @@ export default function TopSellingCard({ product }: TopSellingCardProps) {
       price: Number(product.price),
       compareAtPrice: product.compareAtPrice ? Number(product.compareAtPrice) : null,
       image: imageUrl, stock: product.stock, slug: product.slug,
+      freeDelivery: product.freeDelivery ?? false,
     });
     toast.success(`"${product.title}" added to cart`);
   };
@@ -47,6 +48,7 @@ export default function TopSellingCard({ product }: TopSellingCardProps) {
       price: Number(product.price),
       compareAtPrice: product.compareAtPrice ? Number(product.compareAtPrice) : null,
       image: imageUrl, stock: product.stock, slug: product.slug,
+      freeDelivery: product.freeDelivery ?? false,
     });
     router.push("/checkout");
   };
@@ -154,6 +156,17 @@ export default function TopSellingCard({ product }: TopSellingCardProps) {
                 }}
               >
                 Save {formatPriceEn(saveAmount)}
+              </span>
+            )}
+            {product.freeDelivery && (
+              <span
+                style={{
+                  backgroundColor: "#16a34a", color: "#FFFFFF",
+                  fontSize: 11, fontWeight: 700,
+                  padding: "3px 8px", borderRadius: 4,
+                }}
+              >
+                Free Delivery
               </span>
             )}
           </div>

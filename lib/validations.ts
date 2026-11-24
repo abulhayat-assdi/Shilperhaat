@@ -17,6 +17,7 @@ export const productSchema = z.object({
   categoryId: z.string().optional().nullable(),
   isFeatured: z.boolean().default(false),
   isBestSelling: z.boolean().default(false),
+  freeDelivery: z.boolean().default(false),
   status: z.enum(["ACTIVE", "INACTIVE", "OUT_OF_STOCK"]).default("ACTIVE"),
   tags: z.string().optional(), // comma-separated
   videoUrl: z.string().optional().nullable(),

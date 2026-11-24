@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 
 export default function CartDrawer() {
   const {
-    items, subtotal, deliveryCharge, total,
+    items, subtotal, hasFreeDelivery,
     removeItem, updateQuantity,
     itemCount, cartDrawerOpen, closeCartDrawer,
   } = useCart();
@@ -211,6 +211,11 @@ export default function CartDrawer() {
                         {item.title}
                       </p>
                     </Link>
+                    {item.freeDelivery && (
+                      <span style={{ display: "inline-block", marginTop: 3, fontSize: 10, fontWeight: 700, color: "#16a34a", backgroundColor: "#e8f5e9", padding: "1px 6px", borderRadius: 4 }}>
+                        Free Delivery
+                      </span>
+                    )}
                     <p style={{ fontSize: 14, fontWeight: 700, color: "#800000", marginTop: 4, fontFamily: "'Open Sans',sans-serif" }}>
                       {formatPriceEn(item.price)}
                     </p>
@@ -308,8 +313,8 @@ export default function CartDrawer() {
               }}
             >
               <span>Delivery</span>
-              <span style={{ color: deliveryCharge === 0 ? "#16a34a" : "#666", fontWeight: deliveryCharge === 0 ? 600 : 400 }}>
-                {deliveryCharge === 0 ? "Free" : formatPriceEn(deliveryCharge)}
+              <span style={{ color: hasFreeDelivery ? "#16a34a" : "#999", fontWeight: hasFreeDelivery ? 600 : 400, fontStyle: hasFreeDelivery ? "normal" : "italic" }}>
+                {hasFreeDelivery ? "Free" : "Calculated at checkout"}
               </span>
             </div>
             <div
@@ -321,8 +326,8 @@ export default function CartDrawer() {
                 borderTop: "1px solid #eee", paddingTop: 10,
               }}
             >
-              <span>Total</span>
-              <span style={{ color: "#800000" }}>{formatPriceEn(total)}</span>
+              <span>{hasFreeDelivery ? "Total" : "Total (excl. delivery)"}</span>
+              <span style={{ color: "#800000" }}>{formatPriceEn(subtotal)}</span>
             </div>
 
             {/* Buttons */}

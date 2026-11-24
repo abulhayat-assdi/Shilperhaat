@@ -11,7 +11,7 @@ import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
 import { generateOrderNumber, getImageUrl } from "@/lib/utils";
-import { BANGLADESH_DISTRICTS, getDeliveryCharge, getThanas } from "@/lib/bangladesh-districts";
+import { BANGLADESH_DISTRICTS, getOrderDeliveryCharge, getThanas } from "@/lib/bangladesh-districts";
 import SearchableSelect from "@/components/ui/SearchableSelect";
 import { trackEvent, FB_CURRENCY } from "@/lib/fbpixel";
 
@@ -62,7 +62,7 @@ function inputCls(hasError?: boolean) {
 }
 
 export default function CheckoutPageClient() {
-  const { items, subtotal, removeItem, updateQuantity, clearCart } = useCart();
+  const { items, subtotal, hasFreeDelivery, removeItem, updateQuantity, clearCart } = useCart();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -90,10 +90,12 @@ export default function CheckoutPageClient() {
   const watchedThana    = watch("thana") || "";
   const watchedNotes    = watch("notes") || "";
 
-  // Delivery charge: Dhaka district = ৳100, any other district = ৳150, none = ৳0
+  // Delivery charge: free if any cart item has free delivery; otherwise
+  // Dhaka district = ৳100, any other district = ৳150, none = ৳0.
+  // The orders API recomputes this from the database.
   const deliveryCharge = useMemo(
-    () => getDeliveryCharge(watchedDistrict),
-    [watchedDistrict]
+    () => getOrderDeliveryCharge(watchedDistrict, hasFreeDelivery),
+    [watchedDistrict, hasFreeDelivery]
   );
   const discount = appliedCoupon ? Math.min(appliedCoupon.discount, subtotal) : 0;
   const total = subtotal + deliveryCharge - discount;
@@ -194,6 +196,7 @@ export default function CheckoutPageClient() {
         customerName: data.customerName,
         phone: data.phone,
         address,
+        district: data.district,
         notes: data.notes || "",
         subtotal,
         deliveryCharge,
@@ -343,6 +346,11 @@ export default function CheckoutPageClient() {
                             style={{ flex: 1, fontSize: 14, fontWeight: 600, color: "#333", lineHeight: 1.4 }}
                           >
                             {item.title}
+                            {item.freeDelivery && (
+                              <span style={{ display: "inline-block", marginLeft: 6, fontSize: 10, fontWeight: 700, color: "#16a34a", backgroundColor: "#e8f5e9", padding: "1px 6px", borderRadius: 4, verticalAlign: "middle" }}>
+                                Free Delivery
+                              </span>
+                            )}
                           </p>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0 }}>
                             <span style={{ fontSize: 14, fontWeight: 700, color: "#800000", whiteSpace: "nowrap" }}>
@@ -710,7 +718,9 @@ export default function CheckoutPageClient() {
                   </div>
                   <div className="flex justify-between items-center" style={{ padding: "8px 0", fontSize: 14, color: "#555" }}>
                     <span>Delivery cost</span>
-                    {watchedDistrict ? (
+                    {hasFreeDelivery ? (
+                      <span style={{ color: "#16a34a", fontWeight: 600 }}>Free</span>
+                    ) : watchedDistrict ? (
                       <span style={{ color: "#333", fontWeight: 500 }}>৳{fmtAmt(deliveryCharge)} BDT</span>
                     ) : (
                       <em style={{ color: "#aaa", fontSize: 13, fontStyle: "italic" }}>Select district</em>
